@@ -1,10 +1,10 @@
-# Motor IA — SmartPath AI
+# Motor IA
 
 Plataforma web inteligente que genera rutas de aprendizaje personalizadas para estudiantes y profesionales de TI mediante integración con modelos de lenguaje de gran escala (LLM).
 
 ## Descripción
 
-SmartPath AI analiza el perfil tecnológico del usuario (conocimientos actuales, nivel y meta profesional) y genera automáticamente un roadmap de aprendizaje estructurado en niveles Junior, Intermediate y Advanced. Cada nivel contiene módulos con temas, recursos sugeridos y tiempos estimados.
+Analiza el perfil tecnológico del usuario (conocimientos actuales, nivel y meta profesional) y genera automáticamente un roadmap de aprendizaje estructurado en niveles Junior, Intermediate y Advanced. Cada nivel contiene módulos con temas, recursos sugeridos y tiempos estimados.
 
 ## Módulos principales
 
