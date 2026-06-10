@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.api.v1.router import api_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -20,9 +21,7 @@ app.add_middleware(
 )
 
 # ── Routers ───────────────────────────────────────────
-# Se irán añadiendo conforme se desarrolle cada módulo
-# from app.api.v1.router import api_router
-# app.include_router(api_router, prefix="/api/v1")
+app.include_router(api_router, prefix="/api/v1")
 
 
 @app.get("/", tags=["Health"])
