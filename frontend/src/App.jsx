@@ -11,7 +11,7 @@ import { Routes, Route } from 'react-router-dom'
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<div className="p-8 text-center"><h1 className="text-2xl font-bold">SmartPath AI</h1><p className="text-gray-500 mt-2">En desarrollo...</p></div>} />
+      <Route path="/" element={<div className="p-8 text-center"><h1 className="text-2xl font-bold">MotorIA</h1><p className="text-gray-500 mt-2">En desarrollo...</p></div>} />
     </Routes>
   )
 }

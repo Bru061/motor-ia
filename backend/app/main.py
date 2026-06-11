@@ -5,7 +5,7 @@ from app.api.v1.router import api_router
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="API REST para la plataforma SmartPath AI",
+    description="API REST para la plataforma MotorIA",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",

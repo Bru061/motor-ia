@@ -7,12 +7,12 @@ from app.models.usuario import Usuario
 
 security = HTTPBearer()
 
+from uuid import UUID
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> Usuario:
-    """Valida el JWT y retorna el usuario autenticado."""
     token = credentials.credentials
     payload = decode_access_token(token)
 
@@ -22,8 +22,16 @@ def get_current_user(
             detail="Token inválido o expirado",
         )
 
+    try:
+        usuario_id = UUID(payload.get("usuario_id"))
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado",
+        )
+
     usuario = db.query(Usuario).filter(
-        Usuario.id == payload.get("usuario_id")
+        Usuario.id == usuario_id
     ).first()
 
     if not usuario:

@@ -1,4 +1,4 @@
-# Documentación técnica — SmartPath AI
+# Documentación técnica — MotorIA
 
 Esta carpeta contiene los diagramas y documentación técnica del proyecto.
 

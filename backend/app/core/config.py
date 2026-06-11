@@ -4,7 +4,7 @@ from typing import List
 
 class Settings(BaseSettings):
     # General
-    APP_NAME: str = "SmartPath AI"
+    APP_NAME: str = "MotorIA"
     DEBUG: bool = False
 
     # Base de datos
