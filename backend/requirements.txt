@@ -16,9 +16,7 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 
 # ── Motor de IA ───────────────────────────────────────
-langchain==0.3.7
-langchain-google-genai==2.0.4
-langchain-core==0.3.18
+google-genai
 
 # ── Utilidades ────────────────────────────────────────
 python-dotenv==1.0.1
