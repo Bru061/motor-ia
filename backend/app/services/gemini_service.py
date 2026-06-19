@@ -1,10 +1,13 @@
 import json
-import re
 from typing import Any
+
 from pydantic import ValidationError
+
 from app.core.config import settings
 from app.models.perfil_usuario import PerfilUsuario
 from app.schemas.ruta_ia import RutaIAResponse
+
+MAX_INTENTOS_GENERACION = 2
 
 
 class GeminiServiceError(Exception):
@@ -22,9 +25,9 @@ def crear_cliente_gemini():
 
 def construir_prompt(perfil: PerfilUsuario) -> str:
     tecnologias = [
-        t.categoria.nombre
-        for t in perfil.tecnologias
-        if t.categoria is not None
+        tecnologia.categoria.nombre
+        for tecnologia in perfil.tecnologias
+        if tecnologia.categoria is not None
     ]
     tecnologias_texto = ", ".join(tecnologias) if tecnologias else "sin categorias"
 
@@ -71,42 +74,39 @@ Reglas:
 
 def generar_ruta_con_gemini(perfil: PerfilUsuario) -> RutaIAResponse:
     cliente = crear_cliente_gemini()
+    prompt = construir_prompt(perfil)
+    ultimo_error: json.JSONDecodeError | ValidationError | ValueError | None = None
 
-    try:
-        response = cliente.models.generate_content(
-            model=settings.GEMINI_MODEL,
-            contents=construir_prompt(perfil),
-            config={
-                "response_mime_type": "application/json",
-                "temperature": 0.2,
-            },
-        )
-    except Exception as exc:
-        raise GeminiServiceError("No se pudo generar la ruta con Gemini.") from exc
+    for _ in range(MAX_INTENTOS_GENERACION):
+        try:
+            response = cliente.models.generate_content(
+                model=settings.GEMINI_MODEL,
+                contents=prompt,
+                config={
+                    "response_mime_type": "application/json",
+                    "temperature": 0.2,
+                },
+            )
+        except Exception as exc:
+            raise GeminiServiceError(
+                "No se pudo generar la ruta con Gemini."
+            ) from exc
 
-    texto = getattr(response, "text", None)
-    if not texto:
-        raise GeminiServiceError("Gemini no devolvio contenido.")
+        texto = getattr(response, "text", None)
+        if not texto:
+            ultimo_error = ValueError("Gemini no devolvio contenido.")
+            continue
 
-    data = _extraer_json(texto)
+        try:
+            data = _extraer_json(texto)
+            return RutaIAResponse.model_validate(data)
+        except (json.JSONDecodeError, ValidationError) as exc:
+            ultimo_error = exc
 
-    try:
-        return RutaIAResponse.model_validate(data)
-    except ValidationError as exc:
-        raise GeminiServiceError("La respuesta de Gemini no cumple el contrato.") from exc
+    raise GeminiServiceError(
+        "Gemini no devolvio JSON valido despues de 2 intentos."
+    ) from ultimo_error
 
 
 def _extraer_json(texto: str) -> Any:
-    limpio = texto.strip()
-
-    if limpio.startswith("```"):
-        limpio = re.sub(r"^```(?:json)?\\s*", "", limpio, flags=re.IGNORECASE)
-        limpio = re.sub(r"\\s*```$", "", limpio)
-
-    try:
-        return json.loads(limpio)
-    except json.JSONDecodeError:
-        match = re.search(r"\\{.*\\}", limpio, flags=re.DOTALL)
-        if not match:
-            raise GeminiServiceError("Gemini no devolvio JSON valido.")
-        return json.loads(match.group(0))
+    return json.loads(texto.strip())
