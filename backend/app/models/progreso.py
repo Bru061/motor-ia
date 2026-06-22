@@ -1,5 +1,12 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, ForeignKey
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    DateTime,
+    ForeignKey,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -8,6 +15,17 @@ from app.db.session import Base
 
 class Progreso(Base):
     __tablename__ = "progreso"
+    __table_args__ = (
+        UniqueConstraint(
+            "usuario_id",
+            "modulo_id",
+            name="uq_progreso_usuario_modulo",
+        ),
+        CheckConstraint(
+            "estado IN ('pendiente', 'en_progreso', 'completado')",
+            name="ck_progreso_estado_valido",
+        ),
+    )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     usuario_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False)
