@@ -10,6 +10,7 @@ import app.models  # noqa: F401: registra todos los modelos en metadata
 from app.core.dependencies import get_current_user
 from app.db.session import Base, get_db
 from app.main import app
+from app.models.dependencia_modulo import DependenciaModulo
 from app.models.modulo import Modulo
 from app.models.progreso import Progreso
 from app.models.recurso import Recurso
@@ -95,6 +96,14 @@ class ProgresoDia11Tests(unittest.TestCase):
                 self.db.add(recurso)
                 recursos.append(recurso)
 
+        if len(modulos) >= 2:
+            self.db.add(
+                DependenciaModulo(
+                    modulo_id=modulos[1].id,
+                    depende_de_id=modulos[0].id,
+                )
+            )
+
         self.db.commit()
         return ruta, modulos, recursos
 
@@ -132,6 +141,10 @@ class ProgresoDia11Tests(unittest.TestCase):
             data["modulos"][1]["recursos"][0]["estado"],
             "pendiente",
         )
+        self.assertEqual(
+            data["modulos"][1]["dependencias"][0]["depende_de_id"],
+            str(modulos[0].id),
+        )
 
     def test_actualizar_progreso_modulo_crea_y_luego_actualiza(self):
         _, modulos, _ = self._crear_ruta(self.usuario)
@@ -145,6 +158,11 @@ class ProgresoDia11Tests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["estado"], "completado")
         self.assertIsNotNone(response.json()["completado_at"])
+
+        response = self.client.patch(url, json={"estado": "pendiente"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["estado"], "pendiente")
+        self.assertIsNone(response.json()["completado_at"])
         self.assertEqual(
             self.db.query(Progreso)
             .filter(Progreso.modulo_id == modulos[0].id)
@@ -173,13 +191,21 @@ class ProgresoDia11Tests(unittest.TestCase):
         )
 
     def test_calcular_resumen_de_progreso(self):
-        _, modulos, recursos = self._crear_ruta(self.usuario)
+        _, modulos, recursos = self._crear_ruta(
+            self.usuario,
+            cantidad_modulos=3,
+        )
         self.db.add_all(
             [
                 Progreso(
                     usuario_id=self.usuario.id,
                     modulo_id=modulos[0].id,
                     estado="completado",
+                ),
+                Progreso(
+                    usuario_id=self.usuario.id,
+                    modulo_id=modulos[1].id,
+                    estado="en_progreso",
                 ),
                 RecursoProgreso(
                     usuario_id=self.usuario.id,
@@ -197,15 +223,32 @@ class ProgresoDia11Tests(unittest.TestCase):
         self.assertEqual(
             response.json(),
             {
-                "total_modulos": 2,
+                "total_modulos": 3,
                 "modulos_completados": 1,
-                "total_recursos": 4,
+                "modulos_pendientes": 1,
+                "modulos_en_progreso": 1,
+                "porcentaje_avance": 33.33,
+                "total_recursos": 6,
                 "recursos_completados": 1,
-                "porcentaje_modulos": 50.0,
-                "porcentaje_recursos": 25.0,
-                "porcentaje_general": 33.33,
+                "porcentaje_modulos": 33.33,
+                "porcentaje_recursos": 16.67,
+                "porcentaje_general": 22.22,
             },
         )
+
+    def test_resumen_de_ruta_sin_modulos_devuelve_ceros(self):
+        self._crear_ruta(
+            self.usuario,
+            cantidad_modulos=0,
+            recursos_por_modulo=0,
+        )
+
+        response = self.client.get("/api/v1/progreso/resumen")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["total_modulos"], 0)
+        self.assertEqual(response.json()["modulos_pendientes"], 0)
+        self.assertEqual(response.json()["porcentaje_avance"], 0.0)
 
     def test_rechazar_modulo_que_pertenece_a_otro_usuario(self):
         otro_usuario = self._crear_usuario("otro@example.com")

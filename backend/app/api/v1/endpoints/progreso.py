@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import get_current_user
@@ -34,7 +35,10 @@ def _obtener_ruta_activa(
     ruta = (
         db.query(RutaAprendizaje)
         .options(
-            selectinload(RutaAprendizaje.modulos).selectinload(Modulo.recursos)
+            selectinload(RutaAprendizaje.modulos).selectinload(Modulo.recursos),
+            selectinload(RutaAprendizaje.modulos).selectinload(
+                Modulo.dependencias
+            ),
         )
         .filter(
             RutaAprendizaje.usuario_id == usuario_id,
@@ -115,6 +119,7 @@ def _construir_ruta_con_progreso(
                     )
                     for recurso in modulo.recursos
                 ],
+                dependencias=modulo.dependencias,
             )
             for modulo in modulos
         ],
@@ -123,6 +128,22 @@ def _construir_ruta_con_progreso(
 
 def _momento_completado(estado: str) -> datetime | None:
     return datetime.now(timezone.utc) if estado == "completado" else None
+
+
+def _guardar_progreso(
+    db: Session,
+    progreso: Progreso | RecursoProgreso,
+) -> Progreso | RecursoProgreso:
+    try:
+        db.commit()
+        db.refresh(progreso)
+        return progreso
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No se pudo guardar el progreso.",
+        ) from exc
 
 
 @router.get(
@@ -179,9 +200,7 @@ def actualizar_progreso_modulo(
 
     progreso.estado = request.estado
     progreso.completado_at = _momento_completado(request.estado)
-    db.commit()
-    db.refresh(progreso)
-    return progreso
+    return _guardar_progreso(db, progreso)
 
 
 @router.patch(
@@ -229,9 +248,7 @@ def actualizar_progreso_recurso(
     progreso.completado_at = _momento_completado(request.estado)
     progreso.visto = request.estado == "completado"
     progreso.visto_at = progreso.completado_at
-    db.commit()
-    db.refresh(progreso)
-    return progreso
+    return _guardar_progreso(db, progreso)
 
 
 def _porcentaje(completados: int, total: int) -> float:
@@ -249,16 +266,23 @@ def obtener_resumen_progreso(
         recurso.id for modulo in ruta.modulos for recurso in modulo.recursos
     ]
 
-    modulos_completados = (
-        db.query(func.count(func.distinct(Progreso.modulo_id)))
-        .filter(
-            Progreso.usuario_id == current_user.id,
-            Progreso.modulo_id.in_(modulo_ids),
-            Progreso.estado == "completado",
+    estados_modulos = (
+        dict(
+            db.query(Progreso.modulo_id, Progreso.estado)
+            .filter(
+                Progreso.usuario_id == current_user.id,
+                Progreso.modulo_id.in_(modulo_ids),
+            )
+            .all()
         )
-        .scalar()
         if modulo_ids
-        else 0
+        else {}
+    )
+    modulos_completados = sum(
+        estado == "completado" for estado in estados_modulos.values()
+    )
+    modulos_en_progreso = sum(
+        estado == "en_progreso" for estado in estados_modulos.values()
     )
     recursos_completados = (
         db.query(func.count(func.distinct(RecursoProgreso.recurso_id)))
@@ -273,15 +297,22 @@ def obtener_resumen_progreso(
     )
     total_modulos = len(modulo_ids)
     total_recursos = len(recurso_ids)
+    modulos_pendientes = (
+        total_modulos - modulos_completados - modulos_en_progreso
+    )
     total_elementos = total_modulos + total_recursos
     total_completados = modulos_completados + recursos_completados
+    porcentaje_avance = _porcentaje(modulos_completados, total_modulos)
 
     return ResumenProgresoResponse(
         total_modulos=total_modulos,
         modulos_completados=modulos_completados,
+        modulos_pendientes=modulos_pendientes,
+        modulos_en_progreso=modulos_en_progreso,
+        porcentaje_avance=porcentaje_avance,
         total_recursos=total_recursos,
         recursos_completados=recursos_completados,
-        porcentaje_modulos=_porcentaje(modulos_completados, total_modulos),
+        porcentaje_modulos=porcentaje_avance,
         porcentaje_recursos=_porcentaje(recursos_completados, total_recursos),
         porcentaje_general=_porcentaje(total_completados, total_elementos),
     )

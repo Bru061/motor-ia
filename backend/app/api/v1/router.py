@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, perfil, progreso, rutas
+from app.api.v1.endpoints import analitica, admin, auth, perfil, progreso, rutas
 
 
 api_router = APIRouter()
@@ -20,4 +20,14 @@ api_router.include_router(
     progreso.router,
     prefix="/progreso",
     tags=["progreso"],
+)
+api_router.include_router(
+    analitica.router,
+    prefix="/admin/analitica",
+    tags=["Analítica administrativa"],
+)
+api_router.include_router(
+    admin.router,
+    prefix="/admin",
+    tags=["Administración"],
 )

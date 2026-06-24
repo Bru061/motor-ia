@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.ruta import DependenciaModuloResponse
+
 
 EstadoProgreso = Literal["pendiente", "en_progreso", "completado"]
 
@@ -50,6 +52,7 @@ class ModuloConProgresoResponse(BaseModel):
     orden: int
     estado: EstadoProgreso
     recursos: list[RecursoConProgresoResponse] = Field(default_factory=list)
+    dependencias: list[DependenciaModuloResponse] = Field(default_factory=list)
 
 
 class RutaActivaConProgresoResponse(BaseModel):
@@ -65,6 +68,9 @@ class RutaActivaConProgresoResponse(BaseModel):
 class ResumenProgresoResponse(BaseModel):
     total_modulos: int
     modulos_completados: int
+    modulos_pendientes: int
+    modulos_en_progreso: int
+    porcentaje_avance: float
     total_recursos: int
     recursos_completados: int
     porcentaje_modulos: float
