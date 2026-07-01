@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
 import useAuth from "../../hooks/useAuth";
 import "../../styles/Auth.css";
 
@@ -38,15 +39,16 @@ function RegisterPage() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres.");
+    if (formData.password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
       return;
     }
 
     try {
       const data = await register(formData);
+      const role = data.rol || data.role;
 
-      if (data.rol === "admin") {
+      if (role === "admin") {
         navigate("/admin", { replace: true });
       } else {
         navigate("/dashboard", { replace: true });
@@ -62,21 +64,23 @@ function RegisterPage() {
 
   return (
     <section className="auth-page">
-      <div className="auth-page__header">
-        <h1>Crear cuenta</h1>
-        <p>Regístrate para generar tu ruta personalizada.</p>
+      <div className="auth-tabs">
+        <Link className="auth-tabs__item--active" to="/register">
+          Registrarse
+        </Link>
+        <Link to="/login">Iniciar Sesión</Link>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>
         {error && <div className="auth-form__error">{error}</div>}
 
         <div className="auth-form__group">
-          <label htmlFor="nombre">Nombre</label>
+          <label htmlFor="nombre">Nombre completo</label>
           <input
             id="nombre"
             name="nombre"
             type="text"
-            placeholder="Tu nombre"
+            placeholder="Ej: María González"
             value={formData.nombre}
             onChange={handleChange}
             autoComplete="name"
@@ -89,7 +93,7 @@ function RegisterPage() {
             id="email"
             name="email"
             type="email"
-            placeholder="correo@ejemplo.com"
+            placeholder="tu@email.com"
             value={formData.email}
             onChange={handleChange}
             autoComplete="email"
@@ -102,7 +106,7 @@ function RegisterPage() {
             id="password"
             name="password"
             type="password"
-            placeholder="Mínimo 6 caracteres"
+            placeholder="Mínimo 8 caracteres"
             value={formData.password}
             onChange={handleChange}
             autoComplete="new-password"
@@ -110,13 +114,22 @@ function RegisterPage() {
         </div>
 
         <button className="auth-form__button" type="submit" disabled={loading}>
-          {loading ? "Creando cuenta..." : "Crear cuenta"}
+          {loading ? "Creando cuenta..." : "Crear cuenta y comenzar"}
         </button>
       </form>
 
-      <p className="auth-form__footer">
-        ¿Ya tienes cuenta? <Link to="/login">Iniciar sesión</Link>
-      </p>
+      <button className="auth-link-button" type="button">
+        ¿Olvidaste tu contraseña?
+      </button>
+
+      <div className="auth-separator">
+        <span>o continúa con</span>
+      </div>
+
+      <button className="auth-social" type="button">
+        <FcGoogle />
+        <span>Google</span>
+      </button>
     </section>
   );
 }

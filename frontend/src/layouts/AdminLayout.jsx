@@ -9,7 +9,7 @@ function AdminLayout() {
       <Sidebar type="admin" />
 
       <div className="layout-content">
-        <Header title="Panel administrativo" />
+        <Header title="Administrador" initials="A" />
 
         <main className="main-content">
           <Outlet />

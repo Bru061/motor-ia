@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
 import useAuth from "../../hooks/useAuth";
 import "../../styles/Auth.css";
 
@@ -43,7 +44,7 @@ function LoginPage() {
 
     try {
       const data = await login(formData);
-      redirectByRole(data.rol);
+      redirectByRole(data.rol || data.role);
     } catch (err) {
       const message =
         err.response?.data?.detail ||
@@ -55,9 +56,11 @@ function LoginPage() {
 
   return (
     <section className="auth-page">
-      <div className="auth-page__header">
-        <h1>Iniciar sesión</h1>
-        <p>Accede a tu cuenta de MotorIA.</p>
+      <div className="auth-tabs">
+        <Link to="/register">Registrarse</Link>
+        <Link className="auth-tabs__item--active" to="/login">
+          Iniciar Sesión
+        </Link>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>
@@ -69,7 +72,7 @@ function LoginPage() {
             id="email"
             name="email"
             type="email"
-            placeholder="correo@ejemplo.com"
+            placeholder="tu@email.com"
             value={formData.email}
             onChange={handleChange}
             autoComplete="email"
@@ -90,13 +93,22 @@ function LoginPage() {
         </div>
 
         <button className="auth-form__button" type="submit" disabled={loading}>
-          {loading ? "Ingresando..." : "Ingresar"}
+          {loading ? "Iniciando..." : "Iniciar sesión"}
         </button>
       </form>
 
-      <p className="auth-form__footer">
-        ¿No tienes cuenta? <Link to="/register">Crear cuenta</Link>
-      </p>
+      <button className="auth-link-button" type="button">
+        ¿Olvidaste tu contraseña?
+      </button>
+
+      <div className="auth-separator">
+        <span>o continúa con</span>
+      </div>
+
+      <button className="auth-social" type="button">
+        <FcGoogle />
+        <span>Google</span>
+      </button>
     </section>
   );
 }

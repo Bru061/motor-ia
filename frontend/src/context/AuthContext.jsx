@@ -1,17 +1,27 @@
-import { createContext, useEffect, useState } from "react";
+import { useState } from "react";
 import { loginRequest, registerRequest } from "../api/authApi";
-
-export const AuthContext = createContext(null);
+import { AuthContext } from "./authContext";
 
 function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem("access_token"));
   const [role, setRole] = useState(() => localStorage.getItem("user_role"));
-  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(token));
   const [loading, setLoading] = useState(false);
+  const isAuthenticated = Boolean(token);
 
-  useEffect(() => {
-    setIsAuthenticated(Boolean(token));
-  }, [token]);
+  const saveSession = (data) => {
+    const accessToken = data.access_token;
+    const userRole = data.rol || data.role || "estudiante";
+
+    if (!accessToken) {
+      throw new Error("La respuesta de autenticación no incluye access_token.");
+    }
+
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("user_role", userRole);
+
+    setToken(accessToken);
+    setRole(userRole);
+  };
 
   const login = async (credentials) => {
     setLoading(true);
@@ -19,12 +29,7 @@ function AuthProvider({ children }) {
     try {
       const data = await loginRequest(credentials);
 
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("user_role", data.rol);
-
-      setToken(data.access_token);
-      setRole(data.rol);
-      setIsAuthenticated(true);
+      saveSession(data);
 
       return data;
     } finally {
@@ -38,12 +43,7 @@ function AuthProvider({ children }) {
     try {
       const data = await registerRequest(userData);
 
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("user_role", data.rol);
-
-      setToken(data.access_token);
-      setRole(data.rol);
-      setIsAuthenticated(true);
+      saveSession(data);
 
       return data;
     } finally {
@@ -57,7 +57,6 @@ function AuthProvider({ children }) {
 
     setToken(null);
     setRole(null);
-    setIsAuthenticated(false);
   };
 
   const value = {

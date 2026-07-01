@@ -1,28 +1,36 @@
-import { NavLink } from "react-router-dom";
-import { FiHome, FiUser, FiMap, FiBarChart2, FiUsers, FiPieChart } from "react-icons/fi";
+import { NavLink, useNavigate } from "react-router-dom";
+import {
+  FiBarChart2,
+  FiDatabase,
+  FiGitBranch,
+  FiHome,
+  FiLogOut,
+  FiMap,
+  FiSettings,
+  FiUsers,
+} from "react-icons/fi";
+import useAuth from "../../hooks/useAuth";
 import "../../styles/Layout.css";
 
 function Sidebar({ type = "student" }) {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const studentLinks = [
     {
       to: "/dashboard",
       label: "Dashboard",
-      icon: <FiHome />,
+      icon: <FiBarChart2 />,
     },
     {
       to: "/perfil",
-      label: "Perfil",
-      icon: <FiUser />,
+      label: "Skill Assessment",
+      icon: <FiDatabase />,
     },
     {
       to: "/ruta",
-      label: "Mi ruta",
+      label: "Roadmap",
       icon: <FiMap />,
-    },
-    {
-      to: "/progreso",
-      label: "Progreso",
-      icon: <FiBarChart2 />,
     },
   ];
 
@@ -39,18 +47,23 @@ function Sidebar({ type = "student" }) {
     },
     {
       to: "/admin/analitica",
-      label: "Analítica",
-      icon: <FiPieChart />,
+      label: "Datos y Exportar",
+      icon: <FiDatabase />,
     },
   ];
 
   const links = type === "admin" ? adminLinks : studentLinks;
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
-        <h2>MotorIA</h2>
-        <span>{type === "admin" ? "Admin" : "Estudiante"}</span>
+        <FiGitBranch />
+        <h2>Motor IA</h2>
       </div>
 
       <nav className="sidebar__nav">
@@ -68,6 +81,18 @@ function Sidebar({ type = "student" }) {
           </NavLink>
         ))}
       </nav>
+
+      <div className="sidebar__footer">
+        <button className="sidebar__action" type="button">
+          <FiSettings />
+          <span>Configuración</span>
+        </button>
+
+        <button className="sidebar__action" type="button" onClick={handleLogout}>
+          <FiLogOut />
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
     </aside>
   );
 }
