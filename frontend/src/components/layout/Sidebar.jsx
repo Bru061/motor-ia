@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { FiHome, FiUser, FiMap, FiBarChart2, FiUsers, FiPieChart } from "react-icons/fi";
-import "./Layout.css";
+import "../../styles/Layout.css";
 
 function Sidebar({ type = "student" }) {
   const studentLinks = [

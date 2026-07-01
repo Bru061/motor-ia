@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import "../components/layout/Layout.css";
+import "../styles/Layout.css";
 
 function PublicLayout() {
   return (

@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
-import "../components/layout/Layout.css";
+import "../styles/Layout.css";
 
 function StudentLayout() {
   return (
