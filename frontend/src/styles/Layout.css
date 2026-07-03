@@ -154,6 +154,16 @@
   background: var(--bg);
 }
 
+.route-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg);
+  color: var(--muted-strong);
+  font-weight: 600;
+}
+
 .public-layout {
   min-height: 100vh;
   display: grid;

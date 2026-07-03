@@ -3,6 +3,8 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PublicLayout from "../layouts/PublicLayout";
 import StudentLayout from "../layouts/StudentLayout";
 import AdminLayout from "../layouts/AdminLayout";
+import PrivateRoute from "./PrivateRoute";
+import RoleRoute from "./RoleRoute";
 
 import LoginPage from "../modules/auth/LoginPage";
 import RegisterPage from "../modules/auth/RegisterPage";
@@ -28,18 +30,27 @@ function AppRouter() {
           <Route path="/register" element={<RegisterPage />} />
         </Route>
 
-        <Route element={<StudentLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/perfil" element={<PerfilPage />} />
-          <Route path="/ruta" element={<RutaPage />} />
-          <Route path="/progreso" element={<ProgresoPage />} />
-        </Route>
+        <Route element={<PrivateRoute />}>
+          <Route element={<RoleRoute allowedRole="estudiante" />}>
+            <Route element={<StudentLayout />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/perfil" element={<PerfilPage />} />
+              <Route path="/ruta" element={<RutaPage />} />
+              <Route path="/progreso" element={<ProgresoPage />} />
+            </Route>
+          </Route>
 
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminDashboardPage />} />
-          <Route path="/admin/usuarios" element={<AdminUsuariosPage />} />
-          <Route path="/admin/usuarios/:id" element={<AdminUsuarioDetallePage />} />
-          <Route path="/admin/analitica" element={<AdminAnaliticaPage />} />
+          <Route element={<RoleRoute allowedRole="admin" />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<AdminDashboardPage />} />
+              <Route path="/admin/usuarios" element={<AdminUsuariosPage />} />
+              <Route
+                path="/admin/usuarios/:id"
+                element={<AdminUsuarioDetallePage />}
+              />
+              <Route path="/admin/analitica" element={<AdminAnaliticaPage />} />
+            </Route>
+          </Route>
         </Route>
 
         <Route path="*" element={<h1>404 - Página no encontrada</h1>} />

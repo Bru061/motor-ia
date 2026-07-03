@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { loginRequest, registerRequest } from "../api/authApi";
 import { AuthContext } from "./authContext";
 
@@ -7,6 +7,19 @@ function AuthProvider({ children }) {
   const [role, setRole] = useState(() => localStorage.getItem("user_role"));
   const [loading, setLoading] = useState(false);
   const isAuthenticated = Boolean(token);
+
+  useEffect(() => {
+    const clearUnauthorizedSession = () => {
+      setToken(null);
+      setRole(null);
+    };
+
+    window.addEventListener("auth:unauthorized", clearUnauthorizedSession);
+
+    return () => {
+      window.removeEventListener("auth:unauthorized", clearUnauthorizedSession);
+    };
+  }, []);
 
   const saveSession = (data) => {
     const accessToken = data.access_token;

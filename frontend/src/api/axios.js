@@ -23,6 +23,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("user_role");
+      window.dispatchEvent(new Event("auth:unauthorized"));
     }
 
     return Promise.reject(error);
