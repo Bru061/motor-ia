@@ -1,123 +1,387 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
-  FiAward,
-  FiBarChart2,
+  FiAlertCircle,
+  FiArrowRight,
   FiCheckCircle,
   FiClock,
-  FiCode,
   FiGitBranch,
-  FiRepeat,
+  FiLayers,
+  FiRefreshCw,
+  FiTarget,
+  FiUser,
 } from "react-icons/fi";
+import { obtenerPerfilActual } from "../../api/perfilApi";
+import {
+  obtenerResumenProgreso,
+  obtenerRutaActiva,
+} from "../../api/progresoApi";
+import "../../styles/dashboard.css";
 
-const recentActivity = [
-  {
-    icon: <FiBarChart2 />,
-    title: 'Completaste el módulo "Hooks Avanzados en React"',
-    time: "Hace 2 días",
-  },
-  {
-    icon: <FiAward />,
-    title: 'Badge desbloqueado: "API Master"',
-    time: "Hace 3 días",
-  },
-  {
-    icon: <FiCode />,
-    title: "Ejercicio práctico: Autenticación con JWT",
-    time: "Hace 5 días",
-  },
-];
+const EMPTY_SUMMARY = {
+  porcentaje_avance: 0,
+  modulos_completados: 0,
+  modulos_en_progreso: 0,
+  modulos_pendientes: 0,
+};
+
+const INITIAL_DASHBOARD = {
+  profile: null,
+  profileStatus: "loading",
+  route: null,
+  routeStatus: "loading",
+  summary: EMPTY_SUMMARY,
+  summaryStatus: "loading",
+  errorMessage: "",
+};
+
+function isNotFound(result) {
+  return result.status === "rejected" && result.reason?.response?.status === 404;
+}
+
+function hasConnectionError(results) {
+  return results.some(
+    (result) => result.status === "rejected" && !result.reason?.response,
+  );
+}
+
+function safeNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function normalizeSummary(summary) {
+  return {
+    porcentaje_avance: Math.min(
+      100,
+      Math.max(0, safeNumber(summary?.porcentaje_avance)),
+    ),
+    modulos_completados: safeNumber(summary?.modulos_completados),
+    modulos_en_progreso: safeNumber(summary?.modulos_en_progreso),
+    modulos_pendientes: safeNumber(summary?.modulos_pendientes),
+  };
+}
 
 function DashboardPage() {
+  const [dashboard, setDashboard] = useState(INITIAL_DASHBOARD);
+  const [retryCount, setRetryCount] = useState(0);
+
+  useEffect(() => {
+    let ignoreResults = false;
+
+    const loadDashboard = async () => {
+      setDashboard((current) => ({
+        ...current,
+        profileStatus: "loading",
+        routeStatus: "loading",
+        summaryStatus: "loading",
+        errorMessage: "",
+      }));
+
+      const results = await Promise.allSettled([
+        obtenerPerfilActual(),
+        obtenerRutaActiva(),
+        obtenerResumenProgreso(),
+      ]);
+
+      if (ignoreResults) {
+        return;
+      }
+
+      const [profileResult, routeResult, summaryResult] = results;
+      const hasUnexpectedError = results.some(
+        (result) => result.status === "rejected" && !isNotFound(result),
+      );
+
+      setDashboard({
+        profile:
+          profileResult.status === "fulfilled" ? profileResult.value : null,
+        profileStatus:
+          profileResult.status === "fulfilled"
+            ? "exists"
+            : isNotFound(profileResult)
+              ? "missing"
+              : "error",
+        route: routeResult.status === "fulfilled" ? routeResult.value : null,
+        routeStatus:
+          routeResult.status === "fulfilled"
+            ? "exists"
+            : isNotFound(routeResult)
+              ? "missing"
+              : "error",
+        summary:
+          summaryResult.status === "fulfilled"
+            ? normalizeSummary(summaryResult.value)
+            : EMPTY_SUMMARY,
+        summaryStatus:
+          summaryResult.status === "fulfilled"
+            ? "exists"
+            : isNotFound(summaryResult)
+              ? "missing"
+              : "error",
+        errorMessage: hasUnexpectedError
+          ? hasConnectionError(results)
+            ? "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo."
+            : "No fue posible cargar toda la información del dashboard. Puedes reintentar en un momento."
+          : "",
+      });
+    };
+
+    loadDashboard();
+
+    return () => {
+      ignoreResults = true;
+    };
+  }, [retryCount]);
+
+  const isLoading = [
+    dashboard.profileStatus,
+    dashboard.routeStatus,
+    dashboard.summaryStatus,
+  ].some((status) => status === "loading");
+
+  if (isLoading) {
+    return (
+      <section className="student-dashboard-state" aria-live="polite">
+        <span className="student-dashboard-spinner" aria-hidden="true" />
+        <h1>Cargando dashboard</h1>
+        <p>Estamos consultando tu perfil, ruta y progreso actual.</p>
+      </section>
+    );
+  }
+
+  const hasProfile = dashboard.profileStatus === "exists";
+  const hasRoute = dashboard.routeStatus === "exists";
+  const hasStatusError =
+    dashboard.profileStatus === "error" || dashboard.routeStatus === "error";
+  const progress = dashboard.summary;
+  const roundedProgress = Math.round(progress.porcentaje_avance);
+
+  const retryDashboard = () => setRetryCount((current) => current + 1);
+
   return (
-    <section className="dashboard-page">
-      <div className="dashboard-grid">
-        <article className="dashboard-card dashboard-card--profile">
-          <div className="profile-avatar">AR</div>
+    <section className="student-dashboard">
+      <header className="student-dashboard__heading">
+        <div>
+          <span className="student-dashboard__eyebrow">
+            <FiTarget /> Tu siguiente paso
+          </span>
+          <h1>Resumen de aprendizaje</h1>
+          <p>
+            Consulta el estado de tu perfil, tu ruta activa y el avance que has
+            registrado.
+          </p>
+        </div>
+        <span
+          className={`student-dashboard__status ${
+            hasRoute ? "student-dashboard__status--active" : ""
+          }`}
+        >
+          {dashboard.routeStatus === "error"
+            ? "Estado no disponible"
+            : hasRoute
+              ? "Ruta activa"
+              : "Configuración pendiente"}
+        </span>
+      </header>
+
+      {dashboard.errorMessage && (
+        <div className="student-dashboard-alert" role="alert">
+          <FiAlertCircle aria-hidden="true" />
+          <p>{dashboard.errorMessage}</p>
+          <button type="button" onClick={retryDashboard}>
+            <FiRefreshCw aria-hidden="true" />
+            Reintentar
+          </button>
+        </div>
+      )}
+
+      <div className="student-dashboard__status-grid">
+        <article className="student-dashboard-card student-dashboard-card--status">
+          <span
+            className={`student-dashboard-card__icon ${
+              hasProfile ? "student-dashboard-card__icon--success" : ""
+            }`}
+          >
+            <FiUser aria-hidden="true" />
+          </span>
           <div>
-            <div className="profile-heading">
-              <h1>Andrés Restrepo</h1>
-              <span>Nivel Intermedio</span>
-            </div>
-            <p>Meta profesional: Desarrollador Full Stack Senior</p>
-            <div className="profile-tags">
-              {["React", "Node.js", "TypeScript", "PostgreSQL", "Docker"].map((tag) => (
-                <span key={tag}>{tag}</span>
-              ))}
-            </div>
+            <span className="student-dashboard-card__label">
+              Perfil tecnológico
+            </span>
+            <h2>
+              {dashboard.profileStatus === "error"
+                ? "Estado no disponible"
+                : hasProfile
+                  ? "Perfil completo"
+                  : "Perfil pendiente"}
+            </h2>
+            <p>
+              {dashboard.profileStatus === "error"
+                ? "No pudimos confirmar el estado de tu perfil."
+                : hasProfile
+                  ? `${dashboard.profile.meta_profesional} · Nivel ${dashboard.profile.nivel_actual}`
+                  : "Crea tu perfil para personalizar tu experiencia de aprendizaje."}
+            </p>
           </div>
+          {hasProfile && (
+            <FiCheckCircle
+              className="student-dashboard-card__check"
+              aria-label="Completado"
+            />
+          )}
         </article>
 
-        <article className="dashboard-card dashboard-card--progress">
-          <div className="progress-ring" style={{ "--value": "60%" }}>
-            <strong>60%</strong>
-            <span>completado</span>
-          </div>
-          <p>Avance General del Roadmap</p>
-        </article>
-
-        <article className="dashboard-card metric-card">
-          <span className="metric-card__icon metric-card__icon--green">
-            <FiCheckCircle />
+        <article className="student-dashboard-card student-dashboard-card--status">
+          <span
+            className={`student-dashboard-card__icon ${
+              hasRoute ? "student-dashboard-card__icon--success" : ""
+            }`}
+          >
+            <FiGitBranch aria-hidden="true" />
           </span>
-          <strong>12</strong>
-          <p>Módulos Completados</p>
-        </article>
-
-        <article className="dashboard-card metric-card">
-          <span className="metric-card__icon metric-card__icon--amber">
-            <FiClock />
-          </span>
-          <strong>8</strong>
-          <p>Módulos Pendientes</p>
-        </article>
-
-        <article className="dashboard-card metric-card">
-          <span className="metric-card__icon metric-card__icon--pink">
-            <FiClock />
-          </span>
-          <strong>34</strong>
-          <p>Horas Restantes Estimadas</p>
-        </article>
-
-        <article className="dashboard-card activity-card">
-          <div className="section-heading">
-            <h2>Actividad Reciente</h2>
-            <span>Últimos 7 días</span>
+          <div>
+            <span className="student-dashboard-card__label">Ruta de aprendizaje</span>
+            <h2>
+              {dashboard.routeStatus === "error"
+                ? "Estado no disponible"
+                : hasRoute
+                  ? "Ruta activa"
+                  : "Ruta pendiente"}
+            </h2>
+            <p>
+              {dashboard.routeStatus === "error"
+                ? "No pudimos confirmar si tienes una ruta activa."
+                : hasRoute
+                  ? dashboard.route.titulo
+                  : "Genera una ruta cuando tu perfil tecnológico esté listo."}
+            </p>
           </div>
-
-          <div className="activity-list">
-            {recentActivity.map((item) => (
-              <div className="activity-item" key={item.title}>
-                <span>{item.icon}</span>
-                <div>
-                  <strong>{item.title}</strong>
-                  <small>{item.time}</small>
-                </div>
-              </div>
-            ))}
-          </div>
+          {hasRoute && (
+            <FiCheckCircle
+              className="student-dashboard-card__check"
+              aria-label="Activa"
+            />
+          )}
         </article>
-
-        <aside className="dashboard-card quick-card">
-          <h2>Accesos Rápidos</h2>
-          <button type="button">
-            <FiGitBranch />
-            Ver Roadmap Completo
-          </button>
-          <button type="button">
-            <FiRepeat />
-            Repetir Assessment
-          </button>
-          <button type="button">
-            <FiBarChart2 />
-            Ver Analíticas
-          </button>
-
-          <div className="beta-note">
-            <strong>BETA v0.9.2</strong>
-            <span>Motor IA en mejora continua. Tu feedback importa.</span>
-          </div>
-        </aside>
       </div>
+
+      <section className="student-dashboard__progress" aria-labelledby="progress-title">
+        <div className="student-dashboard__section-heading">
+          <div>
+            <span>Progreso actual</span>
+            <h2 id="progress-title">Resumen de tu ruta</h2>
+          </div>
+          {!hasRoute && <p>Aún no hay avance registrado.</p>}
+        </div>
+
+        <div className="student-dashboard__metrics">
+          <article className="student-dashboard-card student-dashboard-card--progress">
+            <div
+              className="student-dashboard-progress-ring"
+              style={{ "--dashboard-progress": `${roundedProgress}%` }}
+              aria-label={`${roundedProgress}% de avance`}
+            >
+              <strong>{roundedProgress}%</strong>
+              <span>completado</span>
+            </div>
+            <div>
+              <span className="student-dashboard-card__label">Avance general</span>
+              <p>
+                {hasRoute
+                  ? "Porcentaje de módulos completados en tu ruta activa."
+                  : "Tu avance aparecerá al comenzar una ruta."}
+              </p>
+            </div>
+          </article>
+
+          <article className="student-dashboard-card student-dashboard-card--metric">
+            <span className="student-dashboard-card__icon student-dashboard-card__icon--success">
+              <FiCheckCircle aria-hidden="true" />
+            </span>
+            <strong>{progress.modulos_completados}</strong>
+            <p>Módulos completados</p>
+          </article>
+
+          <article className="student-dashboard-card student-dashboard-card--metric">
+            <span className="student-dashboard-card__icon student-dashboard-card__icon--warning">
+              <FiClock aria-hidden="true" />
+            </span>
+            <strong>{progress.modulos_en_progreso}</strong>
+            <p>Módulos en progreso</p>
+          </article>
+
+          <article className="student-dashboard-card student-dashboard-card--metric">
+            <span className="student-dashboard-card__icon student-dashboard-card__icon--muted">
+              <FiLayers aria-hidden="true" />
+            </span>
+            <strong>{progress.modulos_pendientes}</strong>
+            <p>Módulos pendientes</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="student-dashboard-next" aria-labelledby="next-action-title">
+        <div>
+          <span className="student-dashboard-next__icon">
+            <FiArrowRight aria-hidden="true" />
+          </span>
+          <div>
+            <span>Acción recomendada</span>
+            <h2 id="next-action-title">
+              {hasRoute
+                ? "Continúa con tu aprendizaje"
+                : hasStatusError
+                  ? "Vuelve a consultar tu información"
+                  : !hasProfile
+                ? "Completa tu perfil tecnológico"
+                  : "Genera tu ruta personalizada"}
+            </h2>
+            <p>
+              {hasRoute
+                ? "Revisa los módulos de tu ruta o consulta el detalle de tu progreso."
+                : hasStatusError
+                  ? "Necesitamos confirmar tu perfil y tu ruta antes de recomendar el siguiente paso."
+                  : !hasProfile
+                ? "Necesitamos conocer tu meta y nivel actual antes de construir una ruta."
+                  : "Tu perfil está listo para usarlo como base de una nueva ruta."}
+            </p>
+          </div>
+        </div>
+
+        <div className="student-dashboard-next__actions">
+          {hasRoute ? (
+            <>
+              <Link className="student-dashboard-button student-dashboard-button--primary" to="/ruta">
+                Ver ruta
+                <FiGitBranch aria-hidden="true" />
+              </Link>
+              <Link className="student-dashboard-button student-dashboard-button--secondary" to="/progreso">
+                Ver progreso
+              </Link>
+            </>
+          ) : hasStatusError ? (
+            <button
+              className="student-dashboard-button student-dashboard-button--primary"
+              type="button"
+              onClick={retryDashboard}
+            >
+              Reintentar
+              <FiRefreshCw aria-hidden="true" />
+            </button>
+          ) : !hasProfile ? (
+            <Link className="student-dashboard-button student-dashboard-button--primary" to="/perfil">
+              Crear perfil
+              <FiArrowRight aria-hidden="true" />
+            </Link>
+          ) : (
+            <Link className="student-dashboard-button student-dashboard-button--primary" to="/ruta">
+              Generar ruta
+              <FiArrowRight aria-hidden="true" />
+            </Link>
+          )}
+        </div>
+      </section>
     </section>
   );
 }
