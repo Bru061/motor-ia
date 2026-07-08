@@ -4,11 +4,11 @@ import {
   FiAlertCircle,
   FiBookOpen,
   FiCheckCircle,
+  FiChevronRight,
   FiClock,
   FiExternalLink,
   FiFileText,
   FiGitBranch,
-  FiLayers,
   FiPlayCircle,
   FiRefreshCw,
   FiTarget,
@@ -17,8 +17,14 @@ import {
   FiZap,
 } from "react-icons/fi";
 import { obtenerPerfilActual } from "../../api/perfilApi";
-import { obtenerRutaActiva } from "../../api/progresoApi";
+import {
+  actualizarProgresoModulo,
+  obtenerRutaActiva,
+  obtenerResumenProgreso,
+} from "../../api/progresoApi";
 import { generarRuta, regenerarRuta } from "../../api/rutasApi";
+import ModuloDetalle from "./components/ModuloDetalle";
+import ProgressSummary from "./components/ProgressSummary";
 import RoadmapFlow from "./components/RoadmapFlow";
 import "../../styles/ruta.css";
 
@@ -27,6 +33,8 @@ const INITIAL_STATE = {
   profileStatus: "loading",
   route: null,
   routeStatus: "loading",
+  progressSummary: null,
+  progressWarning: "",
   loadError: "",
 };
 
@@ -40,12 +48,6 @@ const LEVEL_LABELS = {
   junior: "Junior",
   intermediate: "Intermedio",
   advanced: "Avanzado",
-};
-
-const PROFILE_LEVEL_LABELS = {
-  junior: "Junior",
-  mid: "Mid",
-  senior: "Senior",
 };
 
 const RESOURCE_ICONS = {
@@ -102,6 +104,32 @@ function getActionError(error) {
   return "No fue posible generar la ruta en este momento. Inténtalo nuevamente más tarde.";
 }
 
+function getModuleUpdateError(error) {
+  const status = error.response?.status;
+
+  if (!error.response) {
+    return "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.";
+  }
+
+  if (status === 401) {
+    return "Tu sesión expiró. Vuelve a iniciar sesión para continuar.";
+  }
+
+  if (status === 403) {
+    return "No tienes permisos para actualizar este módulo.";
+  }
+
+  if (status === 404) {
+    return "El módulo no existe o ya no pertenece a tu ruta activa.";
+  }
+
+  if (status === 422) {
+    return "El estado seleccionado no es válido. Recarga la página e inténtalo de nuevo.";
+  }
+
+  return "No fue posible actualizar el módulo. Inténtalo nuevamente más tarde.";
+}
+
 function formatDate(value) {
   if (!value) {
     return "Fecha no disponible";
@@ -129,11 +157,81 @@ function getSafeResourceUrl(value) {
   }
 }
 
+function safeNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function calculateProgressSummary(modules, apiSummary = null) {
+  const safeModules = Array.isArray(modules) ? modules : [];
+  const completedModules = safeModules.filter(
+    (module) => module.estado === "completado",
+  );
+  const inProgressModules = safeModules.filter(
+    (module) => module.estado === "en_progreso",
+  );
+  const pendingModules =
+    safeModules.length - completedModules.length - inProgressModules.length;
+  const localPercentage = safeModules.length
+    ? Math.round((completedModules.length * 10000) / safeModules.length) / 100
+    : 0;
+  const modulesWithDuration = safeModules.filter(
+    (module) =>
+      module.tiempo_estimado_hrs !== undefined &&
+      module.tiempo_estimado_hrs !== null &&
+      module.tiempo_estimado_hrs !== "" &&
+      Number.isFinite(Number(module.tiempo_estimado_hrs)),
+  );
+  const totalHours = modulesWithDuration.reduce(
+    (total, module) => total + safeNumber(module.tiempo_estimado_hrs),
+    0,
+  );
+  const completedHours = completedModules.reduce(
+    (total, module) => total + safeNumber(module.tiempo_estimado_hrs),
+    0,
+  );
+
+  return {
+    total_modulos: apiSummary
+      ? safeNumber(apiSummary.total_modulos)
+      : safeModules.length,
+    porcentaje_avance: Math.min(
+      100,
+      Math.max(
+        0,
+        apiSummary
+          ? safeNumber(apiSummary.porcentaje_avance)
+          : localPercentage,
+      ),
+    ),
+    modulos_completados: apiSummary
+      ? safeNumber(apiSummary.modulos_completados)
+      : completedModules.length,
+    modulos_en_progreso: apiSummary
+      ? safeNumber(apiSummary.modulos_en_progreso)
+      : inProgressModules.length,
+    modulos_pendientes: apiSummary
+      ? safeNumber(apiSummary.modulos_pendientes)
+      : pendingModules,
+    hasDurations: modulesWithDuration.length > 0,
+    horas_completadas: completedHours,
+    horas_restantes: Math.max(0, totalHours - completedHours),
+    horas_totales: totalHours,
+  };
+}
+
 function RutaPage() {
   const [pageState, setPageState] = useState(INITIAL_STATE);
   const [retryCount, setRetryCount] = useState(0);
   const [currentAction, setCurrentAction] = useState("");
   const [feedback, setFeedback] = useState(null);
+  const [selectedModuleId, setSelectedModuleId] = useState(null);
+  const [updatingModuleId, setUpdatingModuleId] = useState(null);
+  const [moduleFeedback, setModuleFeedback] = useState(null);
+  const [roadmapFocus, setRoadmapFocus] = useState({
+    moduleId: null,
+    requestId: 0,
+  });
   const [showRegenerateConfirmation, setShowRegenerateConfirmation] =
     useState(false);
 
@@ -145,19 +243,23 @@ function RutaPage() {
         ...current,
         profileStatus: "loading",
         routeStatus: "loading",
+        progressWarning: "",
         loadError: "",
       }));
 
       const results = await Promise.allSettled([
         obtenerPerfilActual(),
         obtenerRutaActiva(),
+        obtenerResumenProgreso(),
       ]);
 
       if (ignoreResults) {
         return;
       }
 
-      const [profileResult, routeResult] = results;
+      const [profileResult, routeResult, progressResult] = results;
+      const route =
+        routeResult.status === "fulfilled" ? routeResult.value : null;
 
       setPageState({
         profile:
@@ -168,14 +270,27 @@ function RutaPage() {
             : isNotFound(profileResult)
               ? "missing"
               : "error",
-        route: routeResult.status === "fulfilled" ? routeResult.value : null,
+        route,
         routeStatus:
           routeResult.status === "fulfilled"
             ? "exists"
             : isNotFound(routeResult)
               ? "missing"
               : "error",
-        loadError: getLoadError(results),
+        progressSummary:
+          progressResult.status === "fulfilled"
+            ? calculateProgressSummary(
+                route?.modulos,
+                progressResult.value,
+              )
+            : calculateProgressSummary(route?.modulos),
+        progressWarning:
+          route &&
+          progressResult.status === "rejected" &&
+          !isNotFound(progressResult)
+            ? "No pudimos consultar el resumen guardado. Mostramos el avance calculado desde tu ruta."
+            : "",
+        loadError: getLoadError([profileResult, routeResult]),
       });
     };
 
@@ -195,8 +310,13 @@ function RutaPage() {
       ...current,
       route,
       routeStatus: "exists",
+      progressSummary: calculateProgressSummary(route?.modulos),
+      progressWarning: "",
       loadError: "",
     }));
+    setSelectedModuleId(null);
+    setRoadmapFocus({ moduleId: null, requestId: 0 });
+    setModuleFeedback(null);
     setFeedback({ type: "success", message: successMessage });
   };
 
@@ -262,10 +382,75 @@ function RutaPage() {
   const modules = [...(pageState.route?.modulos || [])].sort(
     (first, second) => first.orden - second.orden,
   );
-  const totalHours = modules.reduce(
-    (total, module) => total + (Number(module.tiempo_estimado_hrs) || 0),
-    0,
+  const selectedModule = modules.find(
+    (module) => String(module.id) === String(selectedModuleId),
   );
+  const progressSummary =
+    pageState.progressSummary || calculateProgressSummary(modules);
+  const nextModule = modules.find(
+    (module) => (module.estado || "pendiente") === "pendiente",
+  );
+
+  const handleSelectModule = (module) => {
+    setSelectedModuleId(module.id);
+    setModuleFeedback(null);
+  };
+
+  const handleCloseModuleDetail = () => {
+    if (!updatingModuleId) {
+      setSelectedModuleId(null);
+      setModuleFeedback(null);
+    }
+  };
+
+  const handleGoToModule = (module) => {
+    handleSelectModule(module);
+    setRoadmapFocus((current) => ({
+      moduleId: module.id,
+      requestId: current.requestId + 1,
+    }));
+  };
+
+  const handleUpdateModuleStatus = async (estado) => {
+    if (!selectedModule || updatingModuleId || !STATUS_LABELS[estado]) {
+      return;
+    }
+
+    const moduleId = selectedModule.id;
+    setUpdatingModuleId(moduleId);
+    setModuleFeedback(null);
+
+    try {
+      const updatedProgress = await actualizarProgresoModulo(moduleId, estado);
+
+      setPageState((current) => {
+        const updatedModules = (current.route?.modulos || []).map((module) =>
+          String(module.id) === String(moduleId)
+            ? { ...module, estado: updatedProgress.estado }
+            : module,
+        );
+
+        return {
+          ...current,
+          route: current.route
+            ? { ...current.route, modulos: updatedModules }
+            : current.route,
+          progressSummary: calculateProgressSummary(updatedModules),
+          progressWarning: "",
+        };
+      });
+      setModuleFeedback({
+        type: "success",
+        message: `El módulo ahora está ${
+          STATUS_LABELS[updatedProgress.estado]?.toLowerCase() || "actualizado"
+        }.`,
+      });
+    } catch (error) {
+      setModuleFeedback({ type: "error", message: getModuleUpdateError(error) });
+    } finally {
+      setUpdatingModuleId(null);
+    }
+  };
 
   if (
     !hasRoute &&
@@ -352,7 +537,8 @@ function RutaPage() {
             <span>
               <FiCheckCircle aria-hidden="true" /> Perfil completo
             </span>
-            <h2>{pageState.profile.meta_profesional}</h2>
+            <h2>Aún no tienes una ruta de aprendizaje.</h2>
+            <p>{pageState.profile.meta_profesional}</p>
             <p>Nivel actual: {pageState.profile.nivel_actual}</p>
           </div>
 
@@ -475,32 +661,12 @@ function RutaPage() {
         </div>
       )}
 
-      <div className="route-summary-grid">
-        <article className="route-summary-card">
-          <span><FiLayers aria-hidden="true" /></span>
-          <strong>{modules.length}</strong>
-          <p>Módulos</p>
-        </article>
-        <article className="route-summary-card">
-          <span><FiClock aria-hidden="true" /></span>
-          <strong>{totalHours}</strong>
-          <p>Horas estimadas</p>
-        </article>
-        <article className="route-summary-card">
-          <span><FiTarget aria-hidden="true" /></span>
-          <strong>
-            {PROFILE_LEVEL_LABELS[pageState.profile?.nivel_actual] ||
-              pageState.profile?.nivel_actual ||
-              "—"}
-          </strong>
-          <p>Nivel de partida</p>
-        </article>
-        <article className="route-summary-card">
-          <span><FiZap aria-hidden="true" /></span>
-          <strong>{pageState.route.desde_cache ? "Reutilizada" : "IA"}</strong>
-          <p>Origen de la ruta</p>
-        </article>
-      </div>
+      <ProgressSummary
+        summary={progressSummary}
+        nextModule={nextModule}
+        onOpenModule={handleGoToModule}
+        warning={pageState.progressWarning}
+      />
 
       {modules.length > 0 && (
         <section className="route-roadmap-section" aria-labelledby="route-roadmap-title">
@@ -522,7 +688,14 @@ function RutaPage() {
               </span>
             </div>
           </div>
-          <RoadmapFlow key={pageState.route.id} modules={modules} />
+          <RoadmapFlow
+            key={pageState.route.id}
+            modules={modules}
+            selectedModuleId={selectedModuleId}
+            onModuleClick={handleSelectModule}
+            focusModuleId={roadmapFocus.moduleId}
+            focusRequestId={roadmapFocus.requestId}
+          />
         </section>
       )}
 
@@ -546,7 +719,14 @@ function RutaPage() {
             const moduleStatus = module.estado || "pendiente";
 
             return (
-              <article className="route-module" key={module.id}>
+              <article
+                className={`route-module${
+                  String(selectedModuleId) === String(module.id)
+                    ? " route-module--selected"
+                    : ""
+                }`}
+                key={module.id}
+              >
                 <div className="route-module__number">{index + 1}</div>
                 <div className="route-module__content">
                   <div className="route-module__heading">
@@ -559,10 +739,20 @@ function RutaPage() {
                       </div>
                       <h3>{module.titulo}</h3>
                     </div>
-                    <span className="route-module__time">
-                      <FiClock aria-hidden="true" />
-                      {module.tiempo_estimado_hrs} h
-                    </span>
+                    <div className="route-module__actions">
+                      <span className="route-module__time">
+                        <FiClock aria-hidden="true" />
+                        {module.tiempo_estimado_hrs} h
+                      </span>
+                      <button
+                        className="route-module__open"
+                        type="button"
+                        onClick={() => handleSelectModule(module)}
+                      >
+                        Ver detalle
+                        <FiChevronRight aria-hidden="true" />
+                      </button>
+                    </div>
                   </div>
 
                   {(module.recursos || []).length > 0 ? (
@@ -616,6 +806,17 @@ function RutaPage() {
             );
           })}
         </div>
+      )}
+
+      {selectedModule && (
+        <ModuloDetalle
+          module={selectedModule}
+          modules={modules}
+          onClose={handleCloseModuleDetail}
+          onChangeStatus={handleUpdateModuleStatus}
+          isUpdating={String(updatingModuleId) === String(selectedModule.id)}
+          feedback={moduleFeedback}
+        />
       )}
     </section>
   );

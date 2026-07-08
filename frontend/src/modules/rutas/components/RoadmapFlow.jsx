@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -134,7 +134,7 @@ function createEdge({ id, source, target, positionsById, secondary = false }) {
   };
 }
 
-function buildRoadmapElements(modules) {
+function buildRoadmapElements(modules, selectedModuleId) {
   const orderedModules = getOrderedModules(modules);
   const modulesPerRow = getModulesPerRow(orderedModules.length);
   const moduleIds = new Set(orderedModules.map((module) => String(module.id)));
@@ -156,7 +156,9 @@ function buildRoadmapElements(modules) {
       id: moduleId,
       type: "roadmapModule",
       position,
-      className: `route-flow-node route-flow-node--${status}`,
+      className: `route-flow-node route-flow-node--${status}${
+        String(selectedModuleId) === moduleId ? " route-flow-node--selected" : ""
+      }`,
       ariaLabel: `Módulo ${order}: ${module.titulo || "Sin título"}`,
       data: {
         module,
@@ -269,10 +271,68 @@ function RoadmapModuleNode({ data }) {
 
 const NODE_TYPES = { roadmapModule: RoadmapModuleNode };
 
-function RoadmapFlow({ modules, onModuleClick }) {
-  const roadmap = useMemo(() => buildRoadmapElements(modules), [modules]);
-  const [nodes, , onNodesChange] = useNodesState(roadmap.nodes);
-  const [edges, , onEdgesChange] = useEdgesState(roadmap.edges);
+function RoadmapFlow({
+  modules,
+  selectedModuleId,
+  onModuleClick,
+  focusModuleId,
+  focusRequestId,
+}) {
+  const roadmap = useMemo(
+    () => buildRoadmapElements(modules, selectedModuleId),
+    [modules, selectedModuleId],
+  );
+  const [nodes, setNodes, onNodesChange] = useNodesState(roadmap.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(roadmap.edges);
+  const flowInstanceRef = useRef(null);
+  const lastFocusRequestRef = useRef(0);
+
+  useEffect(() => {
+    setNodes(roadmap.nodes);
+    setEdges(roadmap.edges);
+  }, [roadmap, setEdges, setNodes]);
+
+  const centerFocusedModule = useCallback(() => {
+    if (!focusRequestId) {
+      lastFocusRequestRef.current = 0;
+      return;
+    }
+
+    if (
+      lastFocusRequestRef.current === focusRequestId ||
+      !flowInstanceRef.current
+    ) {
+      return;
+    }
+
+    const targetNode = roadmap.nodes.find(
+      (node) => node.id === String(focusModuleId),
+    );
+
+    if (!targetNode) {
+      return;
+    }
+
+    lastFocusRequestRef.current = focusRequestId;
+    flowInstanceRef.current.setCenter(
+      targetNode.position.x + LAYOUT.nodeWidth / 2,
+      targetNode.position.y + 62,
+      { zoom: 1, duration: 450 },
+    );
+  }, [focusModuleId, focusRequestId, roadmap.nodes]);
+
+  useEffect(() => {
+    centerFocusedModule();
+  }, [centerFocusedModule]);
+
+  const handleInit = useCallback(
+    (instance) => {
+      flowInstanceRef.current = instance;
+      centerFocusedModule();
+    },
+    [centerFocusedModule],
+  );
+
   const handleNodeClick = useCallback(
     (_event, node) => {
       if (typeof onModuleClick === "function") {
@@ -299,6 +359,7 @@ function RoadmapFlow({ modules, onModuleClick }) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
+        onInit={handleInit}
         nodesConnectable={false}
         deleteKeyCode={null}
         elementsSelectable
