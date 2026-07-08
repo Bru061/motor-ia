@@ -19,6 +19,7 @@ import {
 import { obtenerPerfilActual } from "../../api/perfilApi";
 import { obtenerRutaActiva } from "../../api/progresoApi";
 import { generarRuta, regenerarRuta } from "../../api/rutasApi";
+import RoadmapFlow from "./components/RoadmapFlow";
 import "../../styles/ruta.css";
 
 const INITIAL_STATE = {
@@ -501,10 +502,34 @@ function RutaPage() {
         </article>
       </div>
 
+      {modules.length > 0 && (
+        <section className="route-roadmap-section" aria-labelledby="route-roadmap-title">
+          <div className="route-roadmap-heading">
+            <div>
+              <span>Recorrido secuencial</span>
+              <h2 id="route-roadmap-title">Roadmap de aprendizaje</h2>
+              <p>Sigue los módulos en orden; cada fila continúa en sentido alternado.</p>
+            </div>
+            <div className="route-roadmap-legend" aria-label="Estados de los módulos">
+              <span className="route-roadmap-legend__item route-roadmap-legend__item--pendiente">
+                Pendiente
+              </span>
+              <span className="route-roadmap-legend__item route-roadmap-legend__item--en_progreso">
+                En progreso
+              </span>
+              <span className="route-roadmap-legend__item route-roadmap-legend__item--completado">
+                Completado
+              </span>
+            </div>
+          </div>
+          <RoadmapFlow key={pageState.route.id} modules={modules} />
+        </section>
+      )}
+
       <div className="route-modules-heading">
         <div>
-          <span>Plan de aprendizaje</span>
-          <h2>Módulos de tu ruta</h2>
+          <span>Detalle del plan</span>
+          <h2>Listado de módulos</h2>
         </div>
         <p>Creada el {formatDate(pageState.route.created_at)}</p>
       </div>

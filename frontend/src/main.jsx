@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import AuthProvider from "./context/AuthContext.jsx";
+import "reactflow/dist/style.css";
 import "./styles/global.css";
 import "./styles/Pages.css";
 
