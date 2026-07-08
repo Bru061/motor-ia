@@ -25,7 +25,10 @@ from app.models.usuario import Usuario
 from app.schemas.ruta_ia import RutaIAResponse
 
 
-def _ruta_ia(titulo: str = "Ruta Backend") -> RutaIAResponse:
+def _ruta_ia(
+    titulo: str = "Ruta Backend",
+    cantidad_modulos: int = 6,
+) -> RutaIAResponse:
     return RutaIAResponse.model_validate(
         {
             "titulo": titulo,
@@ -47,7 +50,7 @@ def _ruta_ia(titulo: str = "Ruta Backend") -> RutaIAResponse:
                         [] if orden == 1 else [f"modulo_{orden - 1}"]
                     ),
                 }
-                for orden in range(1, 4)
+                for orden in range(1, cantidad_modulos + 1)
             ],
         }
     )
@@ -167,6 +170,33 @@ class RutasDia10Tests(unittest.TestCase):
             dependencia_modulo_dos.depende_de_id,
             modulos_clon_por_orden[1].id,
         )
+
+    def test_cache_ignora_ruta_antigua_con_menos_modulos_del_minimo(self):
+        categoria = CategoriaTecnologia(nombre="Backend")
+        self.db.add(categoria)
+        self.db.flush()
+
+        usuario_origen = self._crear_usuario("origen-corto@example.com")
+        usuario_destino = self._crear_usuario("destino-completo@example.com")
+        self._crear_perfil(usuario_origen, categoria, "Backend Developer")
+        self._crear_perfil(usuario_destino, categoria, "Backend Developer")
+        _guardar_ruta_generada(
+            self.db,
+            usuario_origen.id,
+            _ruta_ia("Ruta corta anterior", cantidad_modulos=3),
+        )
+        self.db.commit()
+
+        perfil_destino = _obtener_perfil_usuario(self.db, usuario_destino.id)
+        with patch(
+            "app.api.v1.endpoints.rutas.generar_ruta_con_gemini",
+            return_value=_ruta_ia("Ruta completa nueva"),
+        ) as generar_gemini:
+            ruta_nueva = _crear_ruta_para_usuario(self.db, perfil_destino)
+
+        generar_gemini.assert_called_once_with(perfil_destino)
+        self.assertFalse(ruta_nueva.desde_cache)
+        self.assertEqual(len(ruta_nueva.modulos), 6)
 
     def test_regenerar_archiva_la_ruta_activa_y_crea_otra(self):
         categoria = CategoriaTecnologia(nombre="Backend")

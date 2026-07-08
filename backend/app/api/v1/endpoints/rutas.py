@@ -16,7 +16,11 @@ from app.models.ruta_aprendizaje import RutaAprendizaje
 from app.models.usuario import Usuario
 from app.schemas.ruta import RutaResponse
 from app.schemas.ruta_ia import ModuloIA, RecursoIA, RutaIAResponse
-from app.services.gemini_service import GeminiServiceError, generar_ruta_con_gemini
+from app.services.gemini_service import (
+    GeminiServiceError,
+    generar_ruta_con_gemini,
+    obtener_limites_modulos,
+)
 
 router = APIRouter()
 
@@ -189,7 +193,7 @@ def _buscar_ruta_compatible_en_cache(
     if not usuarios_compatibles:
         return None
 
-    return (
+    rutas_compatibles = (
         db.query(RutaAprendizaje)
         .options(
             joinedload(RutaAprendizaje.modulos).joinedload(Modulo.recursos),
@@ -200,7 +204,17 @@ def _buscar_ruta_compatible_en_cache(
             RutaAprendizaje.modulos.any(),
         )
         .order_by(RutaAprendizaje.created_at.desc())
-        .first()
+        .all()
+    )
+
+    minimo_modulos, maximo_modulos = obtener_limites_modulos(len(categorias))
+    return next(
+        (
+            ruta
+            for ruta in rutas_compatibles
+            if minimo_modulos <= len(ruta.modulos) <= maximo_modulos
+        ),
+        None,
     )
 
 
