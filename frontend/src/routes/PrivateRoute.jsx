@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+import PageLoader from "../components/ui/PageLoader";
 import useAuth from "../hooks/useAuth";
 
 function PrivateRoute() {
@@ -7,9 +8,11 @@ function PrivateRoute() {
 
   if (loading) {
     return (
-      <div className="route-loading" role="status" aria-live="polite">
-        Cargando sesión...
-      </div>
+      <PageLoader
+        className="route-loading"
+        title="Cargando sesión"
+        description="Estamos verificando tus credenciales."
+      />
     );
   }
 

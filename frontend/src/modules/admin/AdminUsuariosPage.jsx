@@ -1,139 +1,237 @@
-import { FiChevronLeft, FiChevronRight, FiFilter, FiSearch } from "react-icons/fi";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { FiRefreshCw, FiSearch, FiUsers, FiX } from "react-icons/fi";
+import { obtenerUsuariosAdmin } from "../../api/adminApi";
+import EmptyState from "../../components/ui/EmptyState";
+import LoadingButton from "../../components/ui/LoadingButton";
+import PageLoader from "../../components/ui/PageLoader";
+import useToast from "../../hooks/useToast";
+import AdminPagination from "./components/AdminPagination";
+import AdminUsersTable from "./components/AdminUsersTable";
 
-const users = [
-  ["ML", "Marta Linares", "Full-Stack Developer", "85%", "Activo", "Hace 2h", "cyan"],
-  ["CR", "Carlos Rueda", "Data Scientist", "62%", "Activo", "Hace 5h", "amber"],
-  ["SV", "Sandra Villamizar", "UX/UI Designer", "91%", "Activo", "Hace 1d", "violet"],
-  ["JP", "Jorge Peñaloza", "DevOps Engineer", "38%", "Pausado", "Hace 3d", "pink"],
-  ["LT", "Lucía Torres", "ML Engineer", "74%", "Activo", "Hace 8h", "green"],
-];
+const DEFAULT_LIMIT = 10;
 
-const studiedTech = [
-  ["React", "88%", "cyan"],
-  ["Python", "76%", "violet"],
-  ["TypeScript", "71%", "green"],
-  ["Docker", "58%", "amber"],
-  ["AWS", "45%", "pink"],
-  ["Figma", "39%", "green"],
-];
+function getPositiveInteger(value, fallback) {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 ? number : fallback;
+}
 
 function AdminUsuariosPage() {
+  const toast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = getPositiveInteger(searchParams.get("page"), 1);
+  const limit = Math.min(
+    100,
+    getPositiveInteger(searchParams.get("limit"), DEFAULT_LIMIT),
+  );
+  const search = searchParams.get("search") || "";
+
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
+
+  useEffect(() => {
+    let ignoreResults = false;
+
+    const loadUsers = async () => {
+      setIsLoading(true);
+      setError("");
+
+      try {
+        const response = await obtenerUsuariosAdmin({ page, limit, search });
+
+        if (!ignoreResults) {
+          setData(response);
+        }
+      } catch (err) {
+        if (!ignoreResults) {
+          const message =
+            err.response?.data?.detail ||
+            "No fue posible cargar los usuarios registrados.";
+
+          setError(message);
+          toast.error(message);
+        }
+      } finally {
+        if (!ignoreResults) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadUsers();
+
+    return () => {
+      ignoreResults = true;
+    };
+  }, [limit, page, retryCount, search, toast]);
+
+  const users = useMemo(() => data?.usuarios || [], [data]);
+  const pages = data?.pages || 0;
+  const total = data?.total || 0;
+
+  const summary = useMemo(
+    () => ({
+      conPerfil: users.filter((user) => user.tiene_perfil).length,
+      conRutaActiva: users.filter((user) => user.tiene_ruta_activa).length,
+    }),
+    [users],
+  );
+
+  const updateParams = (nextValues) => {
+    const nextParams = new URLSearchParams(searchParams);
+
+    Object.entries(nextValues).forEach(([key, value]) => {
+      if (value === "" || value === null || value === undefined) {
+        nextParams.delete(key);
+      } else {
+        nextParams.set(key, String(value));
+      }
+    });
+
+    setSearchParams(nextParams);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const nextSearch = String(formData.get("search") || "").trim();
+
+    updateParams({ search: nextSearch, page: 1, limit });
+  };
+
+  const clearSearch = () => {
+    updateParams({ search: "", page: 1, limit });
+  };
+
+  const handleLimitChange = (event) => {
+    updateParams({ limit: event.target.value, page: 1, search });
+  };
+
+  const handlePageChange = (nextPage) => {
+    updateParams({ page: nextPage, limit, search });
+  };
+
   return (
     <section className="admin-page">
-      <div className="admin-toolbar">
-        <div className="admin-search">
-          <FiSearch />
-          <input type="search" placeholder="Buscar usuarios, metas o tecnologías..." />
+      <div className="page-title admin-page-title">
+        <div>
+          <h1>Usuarios registrados</h1>
+          <p>Consulta usuarios por nombre o correo usando el endpoint administrativo.</p>
         </div>
-        <button type="button">
-          <FiFilter />
-          Filtros
-        </button>
+        <Link className="route-button route-button--secondary" to="/admin">
+          Volver al dashboard
+        </Link>
       </div>
 
-      <article className="admin-panel users-panel">
-        <div className="section-heading">
-          <h1>Usuarios y Progreso</h1>
-          <div className="admin-panel__actions">
-            <span>48 usuarios activos</span>
-            <button type="button">Exportar</button>
-          </div>
-        </div>
+      <form className="admin-toolbar" onSubmit={handleSubmit}>
+        <label className="admin-search" htmlFor="admin-users-search">
+          <FiSearch aria-hidden="true" />
+          <input
+            key={search}
+            id="admin-users-search"
+            name="search"
+            type="search"
+            placeholder="Buscar por nombre o correo..."
+            defaultValue={search}
+          />
+        </label>
 
-        <div className="users-table">
-          <div className="users-table__head">
-            <span>Usuario</span>
-            <span>Meta Profesional</span>
-            <span>Progreso</span>
-            <span>Estado</span>
-            <span>Última Actividad</span>
-          </div>
-
-          {users.map(([initials, name, goal, progress, status, activity, tone]) => (
-            <div className="users-table__row" key={name}>
-              <span className={`user-initial user-initial--${tone}`}>{initials}</span>
-              <strong>{name}</strong>
-              <span>{goal}</span>
-              <span className="table-progress" style={{ "--progress": progress }}>
-                <i />
-                <b>{progress}</b>
-              </span>
-              <span className={status === "Activo" ? "status-active" : "status-paused"}>
-                {status}
-              </span>
-              <span>{activity}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="table-footer">
-          <span>Mostrando 1-5 de 48</span>
-          <div className="pagination">
-            <button type="button" aria-label="Página anterior">
-              <FiChevronLeft />
+        <div className="admin-toolbar__actions">
+          {search && (
+            <button className="admin-clear-button" type="button" onClick={clearSearch}>
+              <FiX aria-hidden="true" />
+              Limpiar
             </button>
-            {["1", "2", "3", "...", "10"].map((page) => (
-              <button className={page === "1" ? "is-active" : ""} type="button" key={page}>
-                {page}
+          )}
+          <label className="admin-limit-select">
+            <span>Por página</span>
+            <select value={limit} onChange={handleLimitChange}>
+              {[10, 20, 50, 100].map((option) => (
+                <option value={option} key={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+          <LoadingButton
+            className="route-button route-button--primary"
+            type="submit"
+            isLoading={isLoading}
+            loadingText="Buscando..."
+          >
+            <FiSearch aria-hidden="true" />
+            Buscar
+          </LoadingButton>
+        </div>
+      </form>
+
+      {isLoading ? (
+        <PageLoader
+          title="Cargando usuarios"
+          description="Consultando usuarios registrados."
+        />
+      ) : error ? (
+        <EmptyState
+          icon={FiRefreshCw}
+          tone="error"
+          title="No pudimos cargar usuarios"
+          description={error}
+          action={
+            <button
+              className="route-button route-button--primary"
+              type="button"
+              onClick={() => setRetryCount((count) => count + 1)}
+            >
+              <FiRefreshCw aria-hidden="true" />
+              Reintentar
+            </button>
+          }
+        />
+      ) : users.length === 0 ? (
+        <EmptyState
+          icon={FiUsers}
+          title={search ? "Sin resultados" : "No hay usuarios registrados"}
+          description={
+            search
+              ? "El backend no encontró usuarios que coincidan con la búsqueda."
+              : "Cuando existan usuarios registrados aparecerán en este listado."
+          }
+          action={
+            search ? (
+              <button className="route-button route-button--secondary" type="button" onClick={clearSearch}>
+                Limpiar búsqueda
               </button>
-            ))}
-            <button type="button" aria-label="Página siguiente">
-              <FiChevronRight />
-            </button>
-          </div>
-        </div>
-      </article>
-
-      <div className="admin-insights">
-        <article className="admin-panel">
+            ) : null
+          }
+        />
+      ) : (
+        <article className="admin-panel users-panel">
           <div className="section-heading">
-            <h2>Tecnologías Más Estudiadas</h2>
-            <span>Últimos 30 días</span>
-          </div>
-
-          <div className="tech-ranking">
-            {studiedTech.map(([name, progress, tone]) => (
-              <div className={`ranking-row ranking-row--${tone}`} key={name}>
-                <span>{name}</span>
-                <i style={{ "--progress": progress }}>
-                  <b />
-                </i>
-                <strong>{progress}</strong>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="admin-panel">
-          <div className="section-heading">
-            <h2>Skill Gaps por Equipo</h2>
-            <span>Análisis por categoría</span>
-          </div>
-
-          <div className="gap-grid">
-            {[
-              ["Frontend", "82%", "Bajo gap", "cyan"],
-              ["Backend", "54%", "Medio", "amber"],
-              ["DevOps", "35%", "Alto gap", "pink"],
-              ["Data", "61%", "Medio", "violet"],
-            ].map(([label, value, caption, tone]) => (
-              <div className={`gap-card gap-card--${tone}`} key={label}>
-                <span>{label}</span>
-                <strong>{value}</strong>
-                <small>{caption}</small>
-              </div>
-            ))}
-          </div>
-
-          <div className="gap-bars">
-            {["CI/CD", "Testing", "Security", "Cloud", "API"].map((bar, index) => (
-              <span className={`gap-bars__item gap-bars__item--${index}`} key={bar}>
-                {bar}
+            <div>
+              <h2>Listado de usuarios</h2>
+              <span>
+                {total} usuario{total === 1 ? "" : "s"} en total
               </span>
-            ))}
+            </div>
+            <div className="admin-panel__actions">
+              <span>{summary.conPerfil} con perfil en esta página</span>
+              <span>{summary.conRutaActiva} con ruta activa en esta página</span>
+            </div>
           </div>
+
+          <AdminUsersTable users={users} />
+
+          <AdminPagination
+            page={data.page}
+            pages={pages}
+            total={total}
+            limit={data.limit}
+            onPageChange={handlePageChange}
+          />
         </article>
-      </div>
+      )}
     </section>
   );
 }

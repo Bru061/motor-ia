@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import LoadingButton from "../../components/ui/LoadingButton";
 import useAuth from "../../hooks/useAuth";
+import useToast from "../../hooks/useToast";
 import "../../styles/Auth.css";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const toast = useToast();
   const { login, loading } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -22,6 +25,7 @@ function LoginPage() {
       ...prev,
       [name]: value,
     }));
+    setError("");
   };
 
   const redirectByRole = (role) => {
@@ -33,17 +37,26 @@ function LoginPage() {
     navigate("/dashboard", { replace: true });
   };
 
+  const notifyUnavailable = () => {
+    toast.info("Esta opción aún no está disponible.", {
+      title: "Próximamente",
+    });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
 
     if (!formData.email.trim() || !formData.password.trim()) {
-      setError("Ingresa tu correo y contraseña.");
+      const message = "Ingresa tu correo y contraseña.";
+      setError(message);
+      toast.warning(message);
       return;
     }
 
     try {
       const data = await login(formData);
+      toast.success("Sesión iniciada correctamente.");
       redirectByRole(data.rol || data.role);
     } catch (err) {
       const message =
@@ -51,53 +64,70 @@ function LoginPage() {
         "No fue posible iniciar sesión. Verifica tus credenciales.";
 
       setError(message);
+      toast.error(message);
     }
   };
 
   return (
     <section className="auth-page">
-      <div className="auth-tabs">
+      <div className="auth-tabs" aria-label="Acceso a Motor IA">
         <Link to="/register">Registrarse</Link>
-        <Link className="auth-tabs__item--active" to="/login">
-          Iniciar Sesión
+        <Link className="auth-tabs__item--active" to="/login" aria-current="page">
+          Iniciar sesión
         </Link>
       </div>
 
-      <form className="auth-form" onSubmit={handleSubmit}>
-        {error && <div className="auth-form__error">{error}</div>}
+      <form
+        className="auth-form"
+        onSubmit={handleSubmit}
+        aria-describedby={error ? "login-error" : undefined}
+        noValidate
+      >
+        {error && (
+          <div className="auth-form__error" id="login-error" role="alert">
+            {error}
+          </div>
+        )}
 
         <div className="auth-form__group">
-          <label htmlFor="email">Correo electrónico</label>
+          <label htmlFor="login-email">Correo electrónico</label>
           <input
-            id="email"
+            id="login-email"
             name="email"
             type="email"
             placeholder="tu@email.com"
             value={formData.email}
             onChange={handleChange}
             autoComplete="email"
+            aria-invalid={Boolean(error && !formData.email.trim())}
           />
         </div>
 
         <div className="auth-form__group">
-          <label htmlFor="password">Contraseña</label>
+          <label htmlFor="login-password">Contraseña</label>
           <input
-            id="password"
+            id="login-password"
             name="password"
             type="password"
             placeholder="Tu contraseña"
             value={formData.password}
             onChange={handleChange}
             autoComplete="current-password"
+            aria-invalid={Boolean(error && !formData.password.trim())}
           />
         </div>
 
-        <button className="auth-form__button" type="submit" disabled={loading}>
-          {loading ? "Iniciando..." : "Iniciar sesión"}
-        </button>
+        <LoadingButton
+          className="auth-form__button"
+          type="submit"
+          isLoading={loading}
+          loadingText="Iniciando sesión..."
+        >
+          Iniciar sesión
+        </LoadingButton>
       </form>
 
-      <button className="auth-link-button" type="button">
+      <button className="auth-link-button" type="button" onClick={notifyUnavailable}>
         ¿Olvidaste tu contraseña?
       </button>
 
@@ -105,8 +135,13 @@ function LoginPage() {
         <span>o continúa con</span>
       </div>
 
-      <button className="auth-social" type="button">
-        <FcGoogle />
+      <button
+        className="auth-social"
+        type="button"
+        aria-label="Continuar con Google"
+        onClick={notifyUnavailable}
+      >
+        <FcGoogle aria-hidden="true" />
         <span>Google</span>
       </button>
     </section>

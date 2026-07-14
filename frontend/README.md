@@ -1,16 +1,42 @@
-# React + Vite
+# MotorIA Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend de MotorIA, construido con React, Vite, React Router DOM, Axios y React Flow.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js compatible con Vite
+- Backend de MotorIA disponible
+- Variable de entorno `VITE_API_URL` apuntando al prefijo base de la API
 
-## React Compiler
+Ejemplo:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```env
+VITE_API_URL=http://localhost:8000/api/v1
+```
 
-## Expanding the ESLint configuration
+## Scripts
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+npm run lint
+npm run build
+```
+
+## Estructura principal
+
+- `src/api`: servicios Axios por dominio.
+- `src/components`: componentes compartidos de layout y UI.
+- `src/context`: proveedores de autenticación y notificaciones.
+- `src/hooks`: hooks compartidos.
+- `src/layouts`: layouts público, estudiante y administrador.
+- `src/modules`: vistas por módulo funcional.
+- `src/routes`: rutas protegidas y autorización por rol.
+- `src/styles`: estilos centralizados de toda la aplicación.
+
+## Notas de mantenimiento
+
+- No crear endpoints desde el frontend; usar únicamente contratos expuestos por el backend.
+- Mantener los estilos dentro de `src/styles`.
+- Reutilizar `PageLoader`, `EmptyState`, `LoadingButton` y `ToastProvider` para estados UX comunes.
+- Ejecutar `npm run lint` y `npm run build` antes de entregar cambios.

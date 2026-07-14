@@ -1,14 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 import useAuth from "../../hooks/useAuth";
+import useToast from "../../hooks/useToast";
 import "../../styles/Layout.css";
 
 function Header({ title = "MotorIA", initials = "MI" }) {
   const navigate = useNavigate();
+  const toast = useToast();
   const { logout } = useAuth();
 
   const handleLogout = () => {
     logout();
+    toast.info("Sesión cerrada correctamente.");
     navigate("/login", { replace: true });
   };
 
@@ -17,7 +20,9 @@ function Header({ title = "MotorIA", initials = "MI" }) {
       <div className="header__spacer" />
 
       <div className="header__profile" aria-label="Perfil actual">
-        <span className="header__initials">{initials}</span>
+        <span className="header__initials" aria-hidden="true">
+          {initials}
+        </span>
         <strong>{title}</strong>
       </div>
 
@@ -28,7 +33,7 @@ function Header({ title = "MotorIA", initials = "MI" }) {
         aria-label="Cerrar sesión"
         title="Cerrar sesión"
       >
-        <FiLogOut />
+        <FiLogOut aria-hidden="true" />
       </button>
     </header>
   );

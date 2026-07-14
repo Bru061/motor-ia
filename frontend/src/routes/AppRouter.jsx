@@ -1,4 +1,5 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
+import { FiAlertCircle, FiHome } from "react-icons/fi";
 
 import PublicLayout from "../layouts/PublicLayout";
 import StudentLayout from "../layouts/StudentLayout";
@@ -18,6 +19,27 @@ import AdminDashboardPage from "../modules/admin/AdminDashboardPage";
 import AdminUsuariosPage from "../modules/admin/AdminUsuariosPage";
 import AdminUsuarioDetallePage from "../modules/admin/AdminUsuarioDetallePage";
 import AdminAnaliticaPage from "../modules/analitica/AdminAnaliticaPage";
+import EmptyState from "../components/ui/EmptyState";
+
+function NotFoundPage() {
+  return (
+    <main className="not-found-page">
+      <EmptyState
+        icon={FiAlertCircle}
+        tone="warning"
+        eyebrow="404"
+        title="Página no encontrada"
+        description="La pantalla que buscas no existe o ya no está disponible."
+        action={
+          <Link className="route-button route-button--primary" to="/login">
+            Ir al inicio
+            <FiHome aria-hidden="true" />
+          </Link>
+        }
+      />
+    </main>
+  );
+}
 
 function AppRouter() {
   return (
@@ -53,7 +75,7 @@ function AppRouter() {
           </Route>
         </Route>
 
-        <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );

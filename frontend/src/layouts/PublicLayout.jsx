@@ -6,14 +6,14 @@ function PublicLayout() {
   return (
     <main className="public-layout">
       <section className="public-hero" aria-label="Motor IA">
-        <FiBookOpen className="public-hero__icon public-hero__icon--top" />
-        <FiEdit3 className="public-hero__icon public-hero__icon--right" />
-        <FiCpu className="public-hero__icon public-hero__icon--bottom" />
-        <FiZap className="public-hero__icon public-hero__icon--left" />
+        <FiBookOpen className="public-hero__icon public-hero__icon--top" aria-hidden="true" />
+        <FiEdit3 className="public-hero__icon public-hero__icon--right" aria-hidden="true" />
+        <FiCpu className="public-hero__icon public-hero__icon--bottom" aria-hidden="true" />
+        <FiZap className="public-hero__icon public-hero__icon--left" aria-hidden="true" />
 
         <div className="public-hero__content">
           <div className="brand-mark">
-            <FiMap />
+            <FiMap aria-hidden="true" />
             <span>Motor IA</span>
           </div>
 
@@ -25,10 +25,10 @@ function PublicLayout() {
           </p>
         </div>
 
-        <FiCode className="public-hero__icon public-hero__icon--code" />
+        <FiCode className="public-hero__icon public-hero__icon--code" aria-hidden="true" />
       </section>
 
-      <section className="public-auth">
+      <section className="public-auth" aria-label="Formulario de acceso">
         <div className="public-card">
           <Outlet />
         </div>

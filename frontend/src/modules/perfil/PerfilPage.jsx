@@ -3,6 +3,7 @@ import {
   FiAlertCircle,
   FiCheck,
   FiLayers,
+  FiRefreshCw,
   FiSave,
   FiTarget,
   FiUser,
@@ -13,6 +14,11 @@ import {
   obtenerCategoriasPerfil,
   obtenerPerfilActual,
 } from "../../api/perfilApi";
+import EmptyState from "../../components/ui/EmptyState";
+import LoadingButton from "../../components/ui/LoadingButton";
+import PageLoader from "../../components/ui/PageLoader";
+import Skeleton from "../../components/ui/Skeleton";
+import useToast from "../../hooks/useToast";
 import "../../styles/perfil.css";
 
 const EMPTY_FORM = {
@@ -76,13 +82,37 @@ function formFromProfile(profile) {
   };
 }
 
+function PerfilLoading({ isLoadingCategories }) {
+  return (
+    <section className="perfil-page">
+      <PageLoader
+        className="perfil-state"
+        title="Cargando perfil tecnológico"
+        description={
+          isLoadingCategories
+            ? "Consultando categorías disponibles..."
+            : "Consultando tu perfil actual..."
+        }
+      >
+        <div className="perfil-skeleton" aria-hidden="true">
+          <Skeleton height="68px" />
+          <Skeleton height="96px" />
+          <Skeleton height="96px" />
+        </div>
+      </PageLoader>
+    </section>
+  );
+}
+
 function PerfilPage() {
+  const toast = useToast();
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [categories, setCategories] = useState([]);
   const [hasProfile, setHasProfile] = useState(false);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [loadErrors, setLoadErrors] = useState({ categories: "", profile: "" });
   const [validationErrors, setValidationErrors] = useState({});
   const [saveError, setSaveError] = useState("");
@@ -100,13 +130,16 @@ function PerfilPage() {
         }
       } catch (error) {
         if (!ignoreResults) {
+          const message = getApiErrorMessage(
+            error,
+            "No fue posible cargar las categorías tecnológicas.",
+          );
+
           setLoadErrors((current) => ({
             ...current,
-            categories: getApiErrorMessage(
-              error,
-              "No fue posible cargar las categorías tecnológicas.",
-            ),
+            categories: message,
           }));
+          toast.error(message, { title: "Categorías no disponibles" });
         }
       } finally {
         if (!ignoreResults) {
@@ -131,13 +164,16 @@ function PerfilPage() {
         if (error.response?.status === 404) {
           setHasProfile(false);
         } else {
+          const message = getApiErrorMessage(
+            error,
+            "No fue posible cargar tu perfil tecnológico.",
+          );
+
           setLoadErrors((current) => ({
             ...current,
-            profile: getApiErrorMessage(
-              error,
-              "No fue posible cargar tu perfil tecnológico.",
-            ),
+            profile: message,
           }));
+          toast.error(message, { title: "Perfil no disponible" });
         }
       } finally {
         if (!ignoreResults) {
@@ -152,7 +188,7 @@ function PerfilPage() {
     return () => {
       ignoreResults = true;
     };
-  }, []);
+  }, [retryCount, toast]);
 
   const updateField = (field, value) => {
     setFormData((current) => ({ ...current, [field]: value }));
@@ -186,6 +222,11 @@ function PerfilPage() {
     }
 
     setValidationErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      toast.warning("Revisa los campos marcados antes de continuar.");
+    }
+
     return Object.keys(errors).length === 0;
   };
 
@@ -210,21 +251,22 @@ function PerfilPage() {
       const savedProfile = hasProfile
         ? await actualizarPerfil(payload)
         : await crearPerfil(payload);
+      const message = hasProfile
+        ? "Perfil actualizado correctamente."
+        : "Perfil creado correctamente.";
 
       setFormData(formFromProfile(savedProfile));
-      setSuccessMessage(
-        hasProfile
-          ? "Perfil actualizado correctamente."
-          : "Perfil creado correctamente.",
-      );
+      setSuccessMessage(message);
       setHasProfile(true);
+      toast.success(message);
     } catch (error) {
-      setSaveError(
-        getApiErrorMessage(
-          error,
-          "No fue posible guardar el perfil. Intenta nuevamente.",
-        ),
+      const message = getApiErrorMessage(
+        error,
+        "No fue posible guardar el perfil. Intenta nuevamente.",
       );
+
+      setSaveError(message);
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }
@@ -233,34 +275,37 @@ function PerfilPage() {
   const isInitialLoading = isLoadingCategories || isLoadingProfile;
   const hasLoadError = loadErrors.categories || loadErrors.profile;
 
+  const retryLoad = () => {
+    setIsLoadingCategories(true);
+    setIsLoadingProfile(true);
+    setLoadErrors({ categories: "", profile: "" });
+    setSaveError("");
+    setSuccessMessage("");
+    setRetryCount((count) => count + 1);
+  };
+
   if (isInitialLoading) {
-    return (
-      <section className="perfil-page">
-        <div className="perfil-state" role="status" aria-live="polite">
-          <span className="perfil-spinner" aria-hidden="true" />
-          <h1>Cargando perfil tecnológico</h1>
-          <p>
-            {isLoadingCategories
-              ? "Consultando categorías disponibles..."
-              : "Consultando tu perfil actual..."}
-          </p>
-        </div>
-      </section>
-    );
+    return <PerfilLoading isLoadingCategories={isLoadingCategories} />;
   }
 
   if (hasLoadError) {
     return (
       <section className="perfil-page">
-        <div className="perfil-state perfil-state--error" role="alert">
-          <FiAlertCircle aria-hidden="true" />
-          <h1>No pudimos preparar tu perfil</h1>
-          {loadErrors.categories && <p>{loadErrors.categories}</p>}
-          {loadErrors.profile && <p>{loadErrors.profile}</p>}
-          <button type="button" onClick={() => window.location.reload()}>
-            Intentar de nuevo
-          </button>
-        </div>
+        <EmptyState
+          className="perfil-state perfil-state--error"
+          icon={FiAlertCircle}
+          tone="error"
+          title="No pudimos preparar tu perfil"
+          description={[loadErrors.categories, loadErrors.profile]
+            .filter(Boolean)
+            .join(" ")}
+          action={
+            <button type="button" onClick={retryLoad}>
+              <FiRefreshCw aria-hidden="true" />
+              Intentar de nuevo
+            </button>
+          }
+        />
       </section>
     );
   }
@@ -270,7 +315,7 @@ function PerfilPage() {
       <header className="perfil-heading">
         <div>
           <span className="perfil-eyebrow">
-            <FiUser />
+            <FiUser aria-hidden="true" />
             Perfil tecnológico
           </span>
           <h1>{hasProfile ? "Actualiza tu perfil" : "Construye tu punto de partida"}</h1>
@@ -286,11 +331,11 @@ function PerfilPage() {
       </header>
 
       <form className="perfil-form" onSubmit={handleSubmit} noValidate>
-        <fieldset disabled={isSaving}>
+        <fieldset disabled={isSaving} aria-label="Datos del perfil tecnológico">
           <article className="perfil-section">
             <div className="perfil-section__heading">
               <span>
-                <FiTarget />
+                <FiTarget aria-hidden="true" />
               </span>
               <div>
                 <h2>Meta profesional</h2>
@@ -311,7 +356,11 @@ function PerfilPage() {
                   updateField("meta_profesional", event.target.value)
                 }
                 aria-invalid={Boolean(validationErrors.meta_profesional)}
-                aria-describedby="meta_profesional_error"
+                aria-describedby={
+                  validationErrors.meta_profesional
+                    ? "meta_profesional_error"
+                    : undefined
+                }
               />
             </label>
             {validationErrors.meta_profesional && (
@@ -324,7 +373,7 @@ function PerfilPage() {
           <article className="perfil-section">
             <div className="perfil-section__heading">
               <span>
-                <FiLayers />
+                <FiLayers aria-hidden="true" />
               </span>
               <div>
                 <h2>Nivel actual</h2>
@@ -332,7 +381,14 @@ function PerfilPage() {
               </div>
             </div>
 
-            <div className="perfil-levels" role="group" aria-label="Nivel actual">
+            <div
+              className="perfil-levels"
+              role="group"
+              aria-label="Nivel actual"
+              aria-describedby={
+                validationErrors.nivel_actual ? "nivel_actual_error" : undefined
+              }
+            >
               {LEVELS.map((level) => {
                 const isSelected = formData.nivel_actual === level.value;
 
@@ -344,7 +400,7 @@ function PerfilPage() {
                     aria-pressed={isSelected}
                     onClick={() => updateField("nivel_actual", level.value)}
                   >
-                    <span className="perfil-level__check">
+                    <span className="perfil-level__check" aria-hidden="true">
                       {isSelected && <FiCheck />}
                     </span>
                     <strong>{level.label}</strong>
@@ -354,14 +410,16 @@ function PerfilPage() {
               })}
             </div>
             {validationErrors.nivel_actual && (
-              <p className="perfil-field-error">{validationErrors.nivel_actual}</p>
+              <p className="perfil-field-error" id="nivel_actual_error">
+                {validationErrors.nivel_actual}
+              </p>
             )}
           </article>
 
           <article className="perfil-section">
             <div className="perfil-section__heading">
               <span>
-                <FiLayers />
+                <FiLayers aria-hidden="true" />
               </span>
               <div>
                 <h2>Categorías tecnológicas</h2>
@@ -370,7 +428,16 @@ function PerfilPage() {
             </div>
 
             {categories.length > 0 ? (
-              <div className="perfil-categories">
+              <div
+                className="perfil-categories"
+                role="group"
+                aria-label="Categorías tecnológicas"
+                aria-describedby={
+                  validationErrors.categorias_ids
+                    ? "categorias_ids_error"
+                    : undefined
+                }
+              >
                 {categories.map((category) => {
                   const isSelected = formData.categorias_ids.includes(category.id);
 
@@ -382,7 +449,7 @@ function PerfilPage() {
                       aria-pressed={isSelected}
                       onClick={() => toggleCategory(category.id)}
                     >
-                      <span className="perfil-category__check">
+                      <span className="perfil-category__check" aria-hidden="true">
                         {isSelected && <FiCheck />}
                       </span>
                       <strong>{category.nombre}</strong>
@@ -392,26 +459,32 @@ function PerfilPage() {
                 })}
               </div>
             ) : (
-              <p className="perfil-empty-categories">
-                No hay categorías disponibles en este momento.
-              </p>
+              <EmptyState
+                className="perfil-empty-state"
+                icon={FiLayers}
+                tone="warning"
+                title="Sin categorías disponibles"
+                description="No hay categorías para seleccionar en este momento."
+              />
             )}
             {validationErrors.categorias_ids && (
-              <p className="perfil-field-error">{validationErrors.categorias_ids}</p>
+              <p className="perfil-field-error" id="categorias_ids_error">
+                {validationErrors.categorias_ids}
+              </p>
             )}
           </article>
         </fieldset>
 
         {saveError && (
           <div className="perfil-feedback perfil-feedback--error" role="alert">
-            <FiAlertCircle />
+            <FiAlertCircle aria-hidden="true" />
             <span>{saveError}</span>
           </div>
         )}
 
         {successMessage && (
           <div className="perfil-feedback perfil-feedback--success" role="status">
-            <FiCheck />
+            <FiCheck aria-hidden="true" />
             <span>{successMessage}</span>
           </div>
         )}
@@ -421,14 +494,15 @@ function PerfilPage() {
             {formData.categorias_ids.length} categoría
             {formData.categorias_ids.length === 1 ? " seleccionada" : "s seleccionadas"}
           </p>
-          <button type="submit" disabled={isSaving || categories.length === 0}>
-            <FiSave />
-            {isSaving
-              ? "Guardando..."
-              : hasProfile
-                ? "Actualizar perfil"
-                : "Crear perfil"}
-          </button>
+          <LoadingButton
+            type="submit"
+            isLoading={isSaving}
+            loadingText="Guardando..."
+            disabled={categories.length === 0}
+          >
+            <FiSave aria-hidden="true" />
+            {hasProfile ? "Actualizar perfil" : "Crear perfil"}
+          </LoadingButton>
         </div>
       </form>
     </section>

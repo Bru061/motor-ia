@@ -23,6 +23,10 @@ import {
   obtenerResumenProgreso,
 } from "../../api/progresoApi";
 import { generarRuta, regenerarRuta } from "../../api/rutasApi";
+import EmptyState from "../../components/ui/EmptyState";
+import PageLoader from "../../components/ui/PageLoader";
+import Skeleton from "../../components/ui/Skeleton";
+import useToast from "../../hooks/useToast";
 import ModuloDetalle from "./components/ModuloDetalle";
 import ProgressSummary from "./components/ProgressSummary";
 import RoadmapFlow from "./components/RoadmapFlow";
@@ -221,6 +225,7 @@ function calculateProgressSummary(modules, apiSummary = null) {
 }
 
 function RutaPage() {
+  const toast = useToast();
   const [pageState, setPageState] = useState(INITIAL_STATE);
   const [retryCount, setRetryCount] = useState(0);
   const [currentAction, setCurrentAction] = useState("");
@@ -318,6 +323,7 @@ function RutaPage() {
     setRoadmapFocus({ moduleId: null, requestId: 0 });
     setModuleFeedback(null);
     setFeedback({ type: "success", message: successMessage });
+    toast.success(successMessage);
   };
 
   const handleGenerate = async () => {
@@ -340,7 +346,9 @@ function RutaPage() {
         }));
       }
 
-      setFeedback({ type: "error", message: getActionError(error) });
+      const message = getActionError(error);
+      setFeedback({ type: "error", message });
+      toast.error(message);
     } finally {
       setCurrentAction("");
     }
@@ -359,7 +367,9 @@ function RutaPage() {
       const route = await regenerarRuta();
       saveGeneratedRoute(route, "Tu ruta se regeneró correctamente.");
     } catch (error) {
-      setFeedback({ type: "error", message: getActionError(error) });
+      const message = getActionError(error);
+      setFeedback({ type: "error", message });
+      toast.error(message);
     } finally {
       setCurrentAction("");
     }
@@ -367,10 +377,18 @@ function RutaPage() {
 
   if (isInitialLoading) {
     return (
-      <section className="route-state" aria-live="polite">
-        <span className="route-spinner" aria-hidden="true" />
-        <h1>Cargando tu ruta</h1>
-        <p>Estamos consultando tu perfil y tu ruta de aprendizaje activa.</p>
+      <section className="route-page">
+        <PageLoader
+          className="route-state"
+          title="Cargando tu ruta"
+          description="Estamos consultando tu perfil y tu ruta de aprendizaje activa."
+        >
+          <div className="route-skeleton" aria-hidden="true">
+            <Skeleton height="108px" />
+            <Skeleton height="190px" />
+            <Skeleton height="108px" />
+          </div>
+        </PageLoader>
       </section>
     );
   }
@@ -423,6 +441,12 @@ function RutaPage() {
     try {
       const updatedProgress = await actualizarProgresoModulo(moduleId, estado);
 
+      toast.success(
+        `Módulo actualizado a ${
+          STATUS_LABELS[updatedProgress.estado]?.toLowerCase() || "actualizado"
+        }.`,
+      );
+
       setPageState((current) => {
         const updatedModules = (current.route?.modulos || []).map((module) =>
           String(module.id) === String(moduleId)
@@ -446,7 +470,9 @@ function RutaPage() {
         }.`,
       });
     } catch (error) {
-      setModuleFeedback({ type: "error", message: getModuleUpdateError(error) });
+      const message = getModuleUpdateError(error);
+      setModuleFeedback({ type: "error", message });
+      toast.error(message);
     } finally {
       setUpdatingModuleId(null);
     }
@@ -490,21 +516,19 @@ function RutaPage() {
           </div>
         )}
 
-        <article className="route-empty-card">
-          <span className="route-empty-card__icon">
-            <FiUser aria-hidden="true" />
-          </span>
-          <span className="route-empty-card__label">Paso requerido</span>
-          <h2>Completa tu perfil tecnológico</h2>
-          <p>
-            Antes de generar una ruta necesitamos conocer tu meta profesional,
-            nivel actual y áreas de interés.
-          </p>
-          <Link className="route-button route-button--primary" to="/perfil">
-            Ir a perfil
-            <FiTarget aria-hidden="true" />
-          </Link>
-        </article>
+        <EmptyState
+          className="route-empty-card"
+          icon={FiUser}
+          eyebrow="Paso requerido"
+          title="Completa tu perfil tecnológico"
+          description="Antes de generar una ruta necesitamos conocer tu meta profesional, nivel actual y áreas de interés."
+          action={
+            <Link className="route-button route-button--primary" to="/perfil">
+              Ir a perfil
+              <FiTarget aria-hidden="true" />
+            </Link>
+          }
+        />
       </section>
     );
   }

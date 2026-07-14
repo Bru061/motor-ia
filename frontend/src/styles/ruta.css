@@ -42,57 +42,6 @@
   gap: 10px;
 }
 
-.route-button {
-  min-height: 44px;
-  padding: 0 17px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  border: 1px solid;
-  border-radius: 9px;
-  font-weight: 850;
-  transition: border-color 0.18s ease, background-color 0.18s ease, filter 0.18s ease;
-}
-
-.route-button--primary {
-  border-color: var(--cyan);
-  background: var(--cyan);
-  color: #06101d;
-}
-
-.route-button--secondary,
-.route-button--ghost {
-  border-color: var(--border);
-  background: #0b1627;
-  color: var(--muted-strong);
-}
-
-.route-button--danger {
-  border-color: var(--danger);
-  background: var(--danger);
-  color: #16070a;
-}
-
-.route-button:hover:not(:disabled) {
-  filter: brightness(1.08);
-}
-
-.route-button:disabled {
-  border-color: #40516a;
-  background: #40516a;
-  color: #9ca9bb;
-}
-
-.route-button__spinner {
-  width: 17px;
-  height: 17px;
-  border: 2px solid rgba(6, 16, 29, 0.24);
-  border-top-color: #06101d;
-  border-radius: 50%;
-  animation: route-spin 0.8s linear infinite;
-}
-
 .route-feedback {
   margin-bottom: 20px;
   padding: 14px 16px;

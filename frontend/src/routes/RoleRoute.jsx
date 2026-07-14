@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
+import PageLoader from "../components/ui/PageLoader";
 import useAuth from "../hooks/useAuth";
 
 function RoleRoute({ allowedRole }) {
@@ -7,9 +8,11 @@ function RoleRoute({ allowedRole }) {
 
   if (loading) {
     return (
-      <div className="route-loading" role="status" aria-live="polite">
-        Cargando sesión...
-      </div>
+      <PageLoader
+        className="route-loading"
+        title="Cargando sesión"
+        description="Validando permisos de acceso."
+      />
     );
   }
 

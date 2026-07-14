@@ -16,6 +16,9 @@ import {
   obtenerResumenProgreso,
   obtenerRutaActiva,
 } from "../../api/progresoApi";
+import PageLoader from "../../components/ui/PageLoader";
+import Skeleton from "../../components/ui/Skeleton";
+import useToast from "../../hooks/useToast";
 import "../../styles/dashboard.css";
 
 const EMPTY_SUMMARY = {
@@ -62,7 +65,26 @@ function normalizeSummary(summary) {
   };
 }
 
+function DashboardLoading() {
+  return (
+    <section className="student-dashboard">
+      <PageLoader
+        className="student-dashboard-state"
+        title="Cargando dashboard"
+        description="Estamos consultando tu perfil, ruta y progreso actual."
+      >
+        <div className="student-dashboard-skeleton" aria-hidden="true">
+          <Skeleton height="112px" />
+          <Skeleton height="112px" />
+          <Skeleton height="150px" />
+        </div>
+      </PageLoader>
+    </section>
+  );
+}
+
 function DashboardPage() {
+  const toast = useToast();
   const [dashboard, setDashboard] = useState(INITIAL_DASHBOARD);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -92,6 +114,15 @@ function DashboardPage() {
       const hasUnexpectedError = results.some(
         (result) => result.status === "rejected" && !isNotFound(result),
       );
+      const errorMessage = hasUnexpectedError
+        ? hasConnectionError(results)
+          ? "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo."
+          : "No fue posible cargar toda la información del dashboard. Puedes reintentar en un momento."
+        : "";
+
+      if (errorMessage) {
+        toast.error(errorMessage, { title: "Dashboard incompleto" });
+      }
 
       setDashboard({
         profile:
@@ -119,11 +150,7 @@ function DashboardPage() {
             : isNotFound(summaryResult)
               ? "missing"
               : "error",
-        errorMessage: hasUnexpectedError
-          ? hasConnectionError(results)
-            ? "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo."
-            : "No fue posible cargar toda la información del dashboard. Puedes reintentar en un momento."
-          : "",
+        errorMessage,
       });
     };
 
@@ -132,7 +159,7 @@ function DashboardPage() {
     return () => {
       ignoreResults = true;
     };
-  }, [retryCount]);
+  }, [retryCount, toast]);
 
   const isLoading = [
     dashboard.profileStatus,
@@ -141,13 +168,7 @@ function DashboardPage() {
   ].some((status) => status === "loading");
 
   if (isLoading) {
-    return (
-      <section className="student-dashboard-state" aria-live="polite">
-        <span className="student-dashboard-spinner" aria-hidden="true" />
-        <h1>Cargando dashboard</h1>
-        <p>Estamos consultando tu perfil, ruta y progreso actual.</p>
-      </section>
-    );
+    return <DashboardLoading />;
   }
 
   const hasProfile = dashboard.profileStatus === "exists";
@@ -164,7 +185,7 @@ function DashboardPage() {
       <header className="student-dashboard__heading">
         <div>
           <span className="student-dashboard__eyebrow">
-            <FiTarget /> Tu siguiente paso
+            <FiTarget aria-hidden="true" /> Tu siguiente paso
           </span>
           <h1>Resumen de aprendizaje</h1>
           <p>
@@ -241,7 +262,9 @@ function DashboardPage() {
             <FiGitBranch aria-hidden="true" />
           </span>
           <div>
-            <span className="student-dashboard-card__label">Ruta de aprendizaje</span>
+            <span className="student-dashboard-card__label">
+              Ruta de aprendizaje
+            </span>
             <h2>
               {dashboard.routeStatus === "error"
                 ? "Estado no disponible"
@@ -280,6 +303,7 @@ function DashboardPage() {
             <div
               className="student-dashboard-progress-ring"
               style={{ "--dashboard-progress": `${roundedProgress}%` }}
+              role="img"
               aria-label={`${roundedProgress}% de avance`}
             >
               <strong>{roundedProgress}%</strong>
@@ -334,8 +358,8 @@ function DashboardPage() {
                 : hasStatusError
                   ? "Vuelve a consultar tu información"
                   : !hasProfile
-                ? "Completa tu perfil tecnológico"
-                  : "Genera tu ruta personalizada"}
+                    ? "Completa tu perfil tecnológico"
+                    : "Genera tu ruta personalizada"}
             </h2>
             <p>
               {hasRoute
@@ -343,8 +367,8 @@ function DashboardPage() {
                 : hasStatusError
                   ? "Necesitamos confirmar tu perfil y tu ruta antes de recomendar el siguiente paso."
                   : !hasProfile
-                ? "Necesitamos conocer tu meta y nivel actual antes de construir una ruta."
-                  : "Tu perfil está listo para usarlo como base de una nueva ruta."}
+                    ? "Necesitamos conocer tu meta y nivel actual antes de construir una ruta."
+                    : "Tu perfil está listo para usarlo como base de una nueva ruta."}
             </p>
           </div>
         </div>
