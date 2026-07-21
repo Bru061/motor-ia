@@ -1,34 +1,21 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   FiActivity,
   FiBarChart2,
   FiDatabase,
   FiGitBranch,
   FiHome,
-  FiLogOut,
   FiMap,
-  FiSettings,
   FiUsers,
 } from "react-icons/fi";
-import useAuth from "../../hooks/useAuth";
-import useToast from "../../hooks/useToast";
 import "../../styles/Layout.css";
 
 function Sidebar({ type = "student" }) {
-  const navigate = useNavigate();
-  const toast = useToast();
-  const { logout } = useAuth();
-
   const studentLinks = [
     {
       to: "/dashboard",
       label: "Dashboard",
       icon: FiBarChart2,
-    },
-    {
-      to: "/perfil",
-      label: "Perfil tecnológico",
-      icon: FiDatabase,
     },
     {
       to: "/ruta",
@@ -62,18 +49,6 @@ function Sidebar({ type = "student" }) {
 
   const links = type === "admin" ? adminLinks : studentLinks;
 
-  const handleLogout = () => {
-    logout();
-    toast.info("Sesión cerrada correctamente.");
-    navigate("/login", { replace: true });
-  };
-
-  const notifySettings = () => {
-    toast.info("La configuración estará disponible en una siguiente versión.", {
-      title: "Próximamente",
-    });
-  };
-
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -102,18 +77,6 @@ function Sidebar({ type = "student" }) {
           );
         })}
       </nav>
-
-      <div className="sidebar__footer">
-        <button className="sidebar__action" type="button" onClick={notifySettings}>
-          <FiSettings aria-hidden="true" />
-          <span>Configuración</span>
-        </button>
-
-        <button className="sidebar__action" type="button" onClick={handleLogout}>
-          <FiLogOut aria-hidden="true" />
-          <span>Cerrar sesión</span>
-        </button>
-      </div>
     </aside>
   );
 }

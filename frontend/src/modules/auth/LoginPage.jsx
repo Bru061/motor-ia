@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import FloatingInput from "../../components/ui/FloatingInput";
 import LoadingButton from "../../components/ui/LoadingButton";
 import useAuth from "../../hooks/useAuth";
 import useToast from "../../hooks/useToast";
@@ -89,33 +90,27 @@ function LoginPage() {
           </div>
         )}
 
-        <div className="auth-form__group">
-          <label htmlFor="login-email">Correo electrónico</label>
-          <input
-            id="login-email"
-            name="email"
-            type="email"
-            placeholder="tu@email.com"
-            value={formData.email}
-            onChange={handleChange}
-            autoComplete="email"
-            aria-invalid={Boolean(error && !formData.email.trim())}
-          />
-        </div>
+        <FloatingInput
+          id="login-email"
+          name="email"
+          type="email"
+          label="Correo electrónico"
+          value={formData.email}
+          onChange={handleChange}
+          autoComplete="email"
+          aria-invalid={Boolean(error && !formData.email.trim())}
+        />
 
-        <div className="auth-form__group">
-          <label htmlFor="login-password">Contraseña</label>
-          <input
-            id="login-password"
-            name="password"
-            type="password"
-            placeholder="Tu contraseña"
-            value={formData.password}
-            onChange={handleChange}
-            autoComplete="current-password"
-            aria-invalid={Boolean(error && !formData.password.trim())}
-          />
-        </div>
+        <FloatingInput
+          id="login-password"
+          name="password"
+          type="password"
+          label="Contraseña"
+          value={formData.password}
+          onChange={handleChange}
+          autoComplete="current-password"
+          aria-invalid={Boolean(error && !formData.password.trim())}
+        />
 
         <LoadingButton
           className="auth-form__button"

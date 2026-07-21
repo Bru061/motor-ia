@@ -32,6 +32,11 @@ function PublicLayout() {
         <div className="public-card">
           <Outlet />
         </div>
+
+        <footer className="public-footer">
+          <strong>Motor IA</strong>
+          <span>Rutas de aprendizaje personalizadas con IA.</span>
+        </footer>
       </section>
     </main>
   );

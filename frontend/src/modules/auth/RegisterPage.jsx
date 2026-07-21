@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import FloatingInput from "../../components/ui/FloatingInput";
 import LoadingButton from "../../components/ui/LoadingButton";
 import useAuth from "../../hooks/useAuth";
 import useToast from "../../hooks/useToast";
@@ -102,47 +103,38 @@ function RegisterPage() {
           </div>
         )}
 
-        <div className="auth-form__group">
-          <label htmlFor="register-name">Nombre completo</label>
-          <input
-            id="register-name"
-            name="nombre"
-            type="text"
-            placeholder="Ej: María González"
-            value={formData.nombre}
-            onChange={handleChange}
-            autoComplete="name"
-            aria-invalid={Boolean(error && !formData.nombre.trim())}
-          />
-        </div>
+        <FloatingInput
+          id="register-name"
+          name="nombre"
+          type="text"
+          label="Nombre completo"
+          value={formData.nombre}
+          onChange={handleChange}
+          autoComplete="name"
+          aria-invalid={Boolean(error && !formData.nombre.trim())}
+        />
 
-        <div className="auth-form__group">
-          <label htmlFor="register-email">Correo electrónico</label>
-          <input
-            id="register-email"
-            name="email"
-            type="email"
-            placeholder="tu@email.com"
-            value={formData.email}
-            onChange={handleChange}
-            autoComplete="email"
-            aria-invalid={Boolean(error && !formData.email.trim())}
-          />
-        </div>
+        <FloatingInput
+          id="register-email"
+          name="email"
+          type="email"
+          label="Correo electrónico"
+          value={formData.email}
+          onChange={handleChange}
+          autoComplete="email"
+          aria-invalid={Boolean(error && !formData.email.trim())}
+        />
 
-        <div className="auth-form__group">
-          <label htmlFor="register-password">Contraseña</label>
-          <input
-            id="register-password"
-            name="password"
-            type="password"
-            placeholder="Mínimo 8 caracteres"
-            value={formData.password}
-            onChange={handleChange}
-            autoComplete="new-password"
-            aria-invalid={Boolean(error && formData.password.length < 8)}
-          />
-        </div>
+        <FloatingInput
+          id="register-password"
+          name="password"
+          type="password"
+          label="Contraseña"
+          value={formData.password}
+          onChange={handleChange}
+          autoComplete="new-password"
+          aria-invalid={Boolean(error && formData.password.length < 8)}
+        />
 
         <LoadingButton
           className="auth-form__button"

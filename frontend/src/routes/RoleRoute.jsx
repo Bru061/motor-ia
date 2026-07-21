@@ -1,9 +1,10 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import PageLoader from "../components/ui/PageLoader";
 import useAuth from "../hooks/useAuth";
 
 function RoleRoute({ allowedRole }) {
   const { role, loading } = useAuth();
+  const location = useLocation();
   const normalizedRole = role?.toLowerCase();
 
   if (loading) {
@@ -20,12 +21,14 @@ function RoleRoute({ allowedRole }) {
     return <Outlet />;
   }
 
-  if (normalizedRole === "admin") {
-    return <Navigate to="/admin" replace />;
-  }
-
-  if (normalizedRole === "estudiante") {
-    return <Navigate to="/dashboard" replace />;
+  if (normalizedRole) {
+    return (
+      <Navigate
+        to="/403"
+        replace
+        state={{ from: location.pathname, requiredRole: allowedRole }}
+      />
+    );
   }
 
   return <Navigate to="/login" replace />;

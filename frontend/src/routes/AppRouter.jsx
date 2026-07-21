@@ -1,5 +1,4 @@
-import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
-import { FiAlertCircle, FiHome } from "react-icons/fi";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import PublicLayout from "../layouts/PublicLayout";
 import StudentLayout from "../layouts/StudentLayout";
@@ -14,38 +13,21 @@ import DashboardPage from "../modules/dashboard/DashboardPage";
 import PerfilPage from "../modules/perfil/PerfilPage";
 import RutaPage from "../modules/rutas/RutaPage";
 import ProgresoPage from "../modules/progreso/ProgresoPage";
+import ConfiguracionPage from "../modules/configuracion/ConfiguracionPage";
 
 import AdminDashboardPage from "../modules/admin/AdminDashboardPage";
 import AdminUsuariosPage from "../modules/admin/AdminUsuariosPage";
 import AdminUsuarioDetallePage from "../modules/admin/AdminUsuarioDetallePage";
 import AdminAnaliticaPage from "../modules/analitica/AdminAnaliticaPage";
-import EmptyState from "../components/ui/EmptyState";
-
-function NotFoundPage() {
-  return (
-    <main className="not-found-page">
-      <EmptyState
-        icon={FiAlertCircle}
-        tone="warning"
-        eyebrow="404"
-        title="Página no encontrada"
-        description="La pantalla que buscas no existe o ya no está disponible."
-        action={
-          <Link className="route-button route-button--primary" to="/login">
-            Ir al inicio
-            <FiHome aria-hidden="true" />
-          </Link>
-        }
-      />
-    </main>
-  );
-}
+import ForbiddenPage from "../modules/errors/ForbiddenPage";
+import NotFoundPage from "../modules/errors/NotFoundPage";
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/403" element={<ForbiddenPage />} />
 
         <Route element={<PublicLayout />}>
           <Route path="/login" element={<LoginPage />} />
@@ -57,6 +39,7 @@ function AppRouter() {
             <Route element={<StudentLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/perfil" element={<PerfilPage />} />
+              <Route path="/configuracion" element={<ConfiguracionPage />} />
               <Route path="/ruta" element={<RutaPage />} />
               <Route path="/progreso" element={<ProgresoPage />} />
             </Route>
@@ -65,6 +48,8 @@ function AppRouter() {
           <Route element={<RoleRoute allowedRole="admin" />}>
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminDashboardPage />} />
+              <Route path="/admin/perfil" element={<PerfilPage />} />
+              <Route path="/admin/configuracion" element={<ConfiguracionPage />} />
               <Route path="/admin/usuarios" element={<AdminUsuariosPage />} />
               <Route
                 path="/admin/usuarios/:id"

@@ -9,7 +9,7 @@ function StudentLayout() {
       <Sidebar type="student" />
 
       <div className="layout-content">
-        <Header title="Bruno Barcenas" initials="BB" />
+        <Header />
 
         <main className="main-content">
           <Outlet />
