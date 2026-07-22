@@ -6,9 +6,9 @@ import {
   FiCheckCircle,
   FiClock,
   FiGitBranch,
+  FiInfo,
   FiLayers,
   FiRefreshCw,
-  FiUser,
 } from "react-icons/fi";
 import { obtenerUsuarioAdmin } from "../../api/adminApi";
 import EmptyState from "../../components/ui/EmptyState";
@@ -180,68 +180,46 @@ function AdminUsuarioDetallePage() {
         </div>
       </article>
 
-      <div className="admin-detail-grid">
-        <article className="admin-panel">
-          <div className="section-heading">
-            <div>
-              <h2>Información personal</h2>
-              <span>Cuenta</span>
+      <article className="admin-panel">
+        <div className="section-heading">
+          <div>
+            <h2>Perfil tecnológico</h2>
+            <span>Perfil y categorías</span>
+          </div>
+          <FiLayers aria-hidden="true" />
+        </div>
+        {user.perfil ? (
+          <>
+            <div className="admin-detail-fields admin-detail-fields--row">
+              <DetailField label="Meta profesional" value={user.perfil.meta_profesional} />
+              <DetailField label="Nivel actual" value={user.perfil.nivel_actual} />
+              <DetailField
+                label="Última actualización"
+                value={formatDate(user.perfil.updated_at, LONG_DATE_FORMAT)}
+              />
             </div>
-            <FiUser aria-hidden="true" />
-          </div>
-          <div className="admin-detail-fields">
-            <DetailField label="ID" value={user.id} />
-            <DetailField label="Nombre" value={user.nombre} />
-            <DetailField label="Correo" value={user.email} />
-            <DetailField label="Rol" value={user.rol} />
-            <DetailField
-              label="Fecha de registro"
-              value={formatDate(user.created_at, LONG_DATE_FORMAT)}
-            />
-          </div>
-        </article>
-
-        <article className="admin-panel">
-          <div className="section-heading">
-            <div>
-              <h2>Perfil tecnológico</h2>
-              <span>Perfil y categorías</span>
-            </div>
-            <FiLayers aria-hidden="true" />
-          </div>
-          {user.perfil ? (
-            <>
-              <div className="admin-detail-fields">
-                <DetailField label="Meta profesional" value={user.perfil.meta_profesional} />
-                <DetailField label="Nivel actual" value={user.perfil.nivel_actual} />
-                <DetailField
-                  label="Última actualización"
-                  value={formatDate(user.perfil.updated_at, LONG_DATE_FORMAT)}
-                />
+            {user.tecnologias.length > 0 ? (
+              <div className="profile-tags admin-tech-tags">
+                {user.tecnologias.map((technology) => (
+                  <span title={technology.descripcion || undefined} key={technology.id}>
+                    {technology.nombre}
+                  </span>
+                ))}
               </div>
-              {user.tecnologias.length > 0 ? (
-                <div className="profile-tags admin-tech-tags">
-                  {user.tecnologias.map((technology) => (
-                    <span title={technology.descripcion || undefined} key={technology.id}>
-                      {technology.nombre}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p className="admin-muted-text">Sin categorías tecnológicas asociadas.</p>
-              )}
-            </>
-          ) : (
-            <EmptyState
-              className="admin-compact-empty"
-              icon={FiLayers}
-              tone="warning"
-              title="Sin perfil tecnológico"
-              description="El usuario todavía no tiene perfil registrado."
-            />
-          )}
-        </article>
-      </div>
+            ) : (
+              <p className="admin-muted-text">Sin categorías tecnológicas asociadas.</p>
+            )}
+          </>
+        ) : (
+          <EmptyState
+            className="admin-compact-empty"
+            icon={FiLayers}
+            tone="warning"
+            title="Sin perfil tecnológico"
+            description="El usuario todavía no tiene perfil registrado."
+          />
+        )}
+      </article>
 
       <article className="admin-panel">
         <div className="section-heading">
@@ -337,15 +315,13 @@ function AdminUsuarioDetallePage() {
         <div className="section-heading">
           <div>
             <h2>Historial de rutas</h2>
-            <span>Datos disponibles</span>
+            <span>Rutas archivadas</span>
           </div>
         </div>
-        <EmptyState
-          className="admin-compact-empty"
-          icon={FiGitBranch}
-          title="Historial no disponible"
-          description="El endpoint de detalle actual no devuelve historial de rutas. No se muestra información inventada."
-        />
+        <p className="admin-inline-notice">
+          <FiInfo aria-hidden="true" />
+          El endpoint de detalle actual no devuelve historial de rutas archivadas.
+        </p>
       </article>
     </section>
   );
