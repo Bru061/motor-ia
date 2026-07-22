@@ -1,11 +1,19 @@
 import api from "./axios";
 
-export const obtenerUsuariosAdmin = async ({ page = 1, limit = 10, search = "" } = {}) => {
+export const obtenerUsuariosAdmin = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+  metaProfesional = "",
+} = {}) => {
   const response = await api.get("/admin/usuarios", {
     params: {
       page,
       limit,
       ...(search.trim() ? { search: search.trim() } : {}),
+      ...(metaProfesional.trim()
+        ? { meta_profesional: metaProfesional.trim() }
+        : {}),
     },
   });
 

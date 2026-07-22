@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { FiRefreshCw, FiSearch, FiUsers, FiX } from "react-icons/fi";
+import { FiRefreshCw, FiSearch, FiTarget, FiUsers, FiX } from "react-icons/fi";
 import { obtenerUsuariosAdmin } from "../../api/adminApi";
 import EmptyState from "../../components/ui/EmptyState";
 import LoadingButton from "../../components/ui/LoadingButton";
 import PageLoader from "../../components/ui/PageLoader";
+import SelectDropdown from "../../components/ui/SelectDropdown";
 import useToast from "../../hooks/useToast";
 import AdminPagination from "./components/AdminPagination";
 import AdminUsersTable from "./components/AdminUsersTable";
@@ -25,6 +26,7 @@ function AdminUsuariosPage() {
     getPositiveInteger(searchParams.get("limit"), DEFAULT_LIMIT),
   );
   const search = searchParams.get("search") || "";
+  const metaProfesional = searchParams.get("meta") || "";
 
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +41,12 @@ function AdminUsuariosPage() {
       setError("");
 
       try {
-        const response = await obtenerUsuariosAdmin({ page, limit, search });
+        const response = await obtenerUsuariosAdmin({
+          page,
+          limit,
+          search,
+          metaProfesional,
+        });
 
         if (!ignoreResults) {
           setData(response);
@@ -65,7 +72,7 @@ function AdminUsuariosPage() {
     return () => {
       ignoreResults = true;
     };
-  }, [limit, page, retryCount, search, toast]);
+  }, [limit, metaProfesional, page, retryCount, search, toast]);
 
   const users = useMemo(() => data?.usuarios || [], [data]);
   const pages = data?.pages || 0;
@@ -97,16 +104,17 @@ function AdminUsuariosPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const nextSearch = String(formData.get("search") || "").trim();
+    const nextMeta = String(formData.get("meta") || "").trim();
 
-    updateParams({ search: nextSearch, page: 1, limit });
+    updateParams({ search: nextSearch, meta: nextMeta, page: 1, limit });
   };
 
   const clearSearch = () => {
     updateParams({ search: "", page: 1, limit });
   };
 
-  const handleLimitChange = (event) => {
-    updateParams({ limit: event.target.value, page: 1, search });
+  const handleLimitChange = (nextLimit) => {
+    updateParams({ limit: nextLimit, page: 1, search, meta: metaProfesional });
   };
 
   const handlePageChange = (nextPage) => {
@@ -118,7 +126,7 @@ function AdminUsuariosPage() {
       <div className="page-title admin-page-title">
         <div>
           <h1>Usuarios registrados</h1>
-          <p>Consulta usuarios por nombre o correo usando el endpoint administrativo.</p>
+          <p>Consulta usuarios por nombre, correo o meta profesional.</p>
         </div>
         <Link className="route-button route-button--secondary" to="/admin">
           Volver al dashboard
@@ -138,23 +146,38 @@ function AdminUsuariosPage() {
           />
         </label>
 
+        <label className="admin-search" htmlFor="admin-users-meta">
+          <FiTarget aria-hidden="true" />
+          <input
+            key={metaProfesional}
+            id="admin-users-meta"
+            name="meta"
+            type="search"
+            placeholder="Filtrar por meta profesional..."
+            defaultValue={metaProfesional}
+          />
+        </label>
+
         <div className="admin-toolbar__actions">
-          {search && (
-            <button className="admin-clear-button" type="button" onClick={clearSearch}>
+          {(search || metaProfesional) && (
+            <button
+              className="admin-clear-button"
+              type="button"
+              onClick={() => updateParams({ search: "", meta: "", page: 1, limit })}
+            >
               <FiX aria-hidden="true" />
               Limpiar
             </button>
           )}
-          <label className="admin-limit-select">
-            <span>Por página</span>
-            <select value={limit} onChange={handleLimitChange}>
-              {[10, 20, 50, 100].map((option) => (
-                <option value={option} key={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SelectDropdown
+            label="Por página"
+            value={limit}
+            options={[10, 20, 50, 100].map((option) => ({
+              value: option,
+              label: String(option),
+            }))}
+            onChange={handleLimitChange}
+          />
           <LoadingButton
             className="route-button route-button--primary"
             type="submit"
