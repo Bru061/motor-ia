@@ -44,6 +44,7 @@ def listar_usuarios(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     search: str | None = Query(default=None, max_length=255),
+    meta_profesional: str | None = Query(default=None, max_length=255),
     _: Usuario = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> AdminUsuariosListResponse:
@@ -74,6 +75,12 @@ def listar_usuarios(
                 Usuario.email.ilike(pattern, escape="\\"),
             )
         )
+
+    if meta_profesional and (meta_term := meta_profesional.strip()):
+        meta_pattern = f"%{_escape_like(meta_term)}%"
+        query = query.join(
+            PerfilUsuario, PerfilUsuario.usuario_id == Usuario.id
+        ).filter(PerfilUsuario.meta_profesional.ilike(meta_pattern, escape="\\"))
 
     total = query.count()
     rows = (
