@@ -38,7 +38,7 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
         "rol": usuario.rol,
     })
 
-    return TokenResponse(access_token=token, rol=usuario.rol)
+    return TokenResponse(access_token=token, rol=usuario.rol, nombre=usuario.nombre)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -59,7 +59,7 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
         "rol": usuario.rol,
     })
 
-    return TokenResponse(access_token=token, rol=usuario.rol)
+    return TokenResponse(access_token=token, rol=usuario.rol, nombre=usuario.nombre)
 
 
 @router.get("/me")

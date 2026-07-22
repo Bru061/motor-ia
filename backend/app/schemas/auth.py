@@ -16,6 +16,7 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     rol: str
+    nombre: str
 
 
 class TokenData(BaseModel):
