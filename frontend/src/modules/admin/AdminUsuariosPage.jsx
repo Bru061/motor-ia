@@ -3,7 +3,6 @@ import { Link, useSearchParams } from "react-router-dom";
 import { FiRefreshCw, FiSearch, FiTarget, FiUsers, FiX } from "react-icons/fi";
 import { obtenerUsuariosAdmin } from "../../api/adminApi";
 import EmptyState from "../../components/ui/EmptyState";
-import LoadingButton from "../../components/ui/LoadingButton";
 import PageLoader from "../../components/ui/PageLoader";
 import SelectDropdown from "../../components/ui/SelectDropdown";
 import useToast from "../../hooks/useToast";
@@ -28,10 +27,30 @@ function AdminUsuariosPage() {
   const search = searchParams.get("search") || "";
   const metaProfesional = searchParams.get("meta") || "";
 
+  const [searchInput, setSearchInput] = useState(search);
+  const [metaInput, setMetaInput] = useState(metaProfesional);
+
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
+
+  // Debounce: espera 400ms sin escribir antes de aplicar el filtro,
+  // así la búsqueda se refleja mientras el usuario escribe, sin
+  // necesidad de un botón de "Buscar".
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const trimmedSearch = searchInput.trim();
+      const trimmedMeta = metaInput.trim();
+
+      if (trimmedSearch !== search || trimmedMeta !== metaProfesional) {
+        updateParams({ search: trimmedSearch, meta: trimmedMeta, page: 1, limit });
+      }
+    }, 400);
+
+    return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput, metaInput]);
 
   useEffect(() => {
     let ignoreResults = false;
@@ -100,17 +119,10 @@ function AdminUsuariosPage() {
     setSearchParams(nextParams);
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const nextSearch = String(formData.get("search") || "").trim();
-    const nextMeta = String(formData.get("meta") || "").trim();
-
-    updateParams({ search: nextSearch, meta: nextMeta, page: 1, limit });
-  };
-
-  const clearSearch = () => {
-    updateParams({ search: "", page: 1, limit });
+  const clearFilters = () => {
+    setSearchInput("");
+    setMetaInput("");
+    updateParams({ search: "", meta: "", page: 1, limit });
   };
 
   const handleLimitChange = (nextLimit) => {
@@ -118,7 +130,7 @@ function AdminUsuariosPage() {
   };
 
   const handlePageChange = (nextPage) => {
-    updateParams({ page: nextPage, limit, search });
+    updateParams({ page: nextPage, limit, search, meta: metaProfesional });
   };
 
   return (
@@ -133,38 +145,34 @@ function AdminUsuariosPage() {
         </Link>
       </div>
 
-      <form className="admin-toolbar" onSubmit={handleSubmit}>
+      <div className="admin-toolbar">
         <label className="admin-search" htmlFor="admin-users-search">
           <FiSearch aria-hidden="true" />
           <input
-            key={search}
             id="admin-users-search"
             name="search"
             type="search"
             placeholder="Buscar por nombre o correo..."
-            defaultValue={search}
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
           />
         </label>
 
         <label className="admin-search" htmlFor="admin-users-meta">
           <FiTarget aria-hidden="true" />
           <input
-            key={metaProfesional}
             id="admin-users-meta"
             name="meta"
             type="search"
             placeholder="Filtrar por meta profesional..."
-            defaultValue={metaProfesional}
+            value={metaInput}
+            onChange={(event) => setMetaInput(event.target.value)}
           />
         </label>
 
         <div className="admin-toolbar__actions">
-          {(search || metaProfesional) && (
-            <button
-              className="admin-clear-button"
-              type="button"
-              onClick={() => updateParams({ search: "", meta: "", page: 1, limit })}
-            >
+          {(searchInput || metaInput) && (
+            <button className="admin-clear-button" type="button" onClick={clearFilters}>
               <FiX aria-hidden="true" />
               Limpiar
             </button>
@@ -178,17 +186,9 @@ function AdminUsuariosPage() {
             }))}
             onChange={handleLimitChange}
           />
-          <LoadingButton
-            className="route-button route-button--primary"
-            type="submit"
-            isLoading={isLoading}
-            loadingText="Buscando..."
-          >
-            <FiSearch aria-hidden="true" />
-            Buscar
-          </LoadingButton>
+          {isLoading && <span className="admin-search-status">Buscando...</span>}
         </div>
-      </form>
+      </div>
 
       {isLoading ? (
         <PageLoader
@@ -215,15 +215,15 @@ function AdminUsuariosPage() {
       ) : users.length === 0 ? (
         <EmptyState
           icon={FiUsers}
-          title={search ? "Sin resultados" : "No hay usuarios registrados"}
+          title={search || metaProfesional ? "Sin resultados" : "No hay usuarios registrados"}
           description={
-            search
+            search || metaProfesional
               ? "El backend no encontró usuarios que coincidan con la búsqueda."
               : "Cuando existan usuarios registrados aparecerán en este listado."
           }
           action={
-            search ? (
-              <button className="route-button route-button--secondary" type="button" onClick={clearSearch}>
+            search || metaProfesional ? (
+              <button className="route-button route-button--secondary" type="button" onClick={clearFilters}>
                 Limpiar búsqueda
               </button>
             ) : null

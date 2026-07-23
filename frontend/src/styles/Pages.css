@@ -2,6 +2,18 @@
   margin-bottom: 24px;
 }
 
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.admin-page > .page-title,
+.admin-page > .admin-user-hero,
+.admin-page > .admin-toolbar {
+  margin-bottom: 0;
+}
+
 .admin-page-title {
   display: flex;
   align-items: flex-start;
@@ -890,6 +902,12 @@
   border-radius: 8px;
   background: #0b1524;
   color: var(--muted-strong);
+  font-weight: 800;
+}
+
+.admin-search-status {
+  color: var(--cyan);
+  font-size: 12px;
   font-weight: 800;
 }
 
