@@ -360,3 +360,34 @@
     transform: none;
   }
 }
+
+.user-avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(145deg, rgba(16, 216, 242, 0.24), rgba(167, 124, 255, 0.24));
+  color: var(--cyan);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.user-avatar--sm {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+.user-avatar--md {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+.user-avatar--lg {
+  width: 64px;
+  height: 64px;
+  font-size: 20px;
+}
