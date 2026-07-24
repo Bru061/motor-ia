@@ -65,6 +65,78 @@
   box-shadow: 0 0 0 3px rgba(16, 216, 242, 0.12);
 }
 
+.auth-floating-field {
+  position: relative;
+}
+
+.auth-floating-field input {
+  width: 100%;
+  min-height: 54px;
+  padding: 22px 14px 8px;
+  border: 1px solid #1d2a3d;
+  border-radius: 8px;
+  outline: none;
+  background: #070d18;
+  color: var(--text);
+  font-size: 15px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-floating-field--with-action input {
+  padding-right: 44px;
+}
+
+.auth-floating-field label {
+  position: absolute;
+  top: 17px;
+  left: 15px;
+  color: #778298;
+  font-size: 15px;
+  font-weight: 600;
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform 0.15s ease, color 0.15s ease, top 0.15s ease;
+}
+
+.auth-floating-field input:focus + label,
+.auth-floating-field input:not(:placeholder-shown) + label {
+  top: 9px;
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transform: translateY(0);
+}
+
+.auth-floating-field input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(16, 216, 242, 0.12);
+}
+
+.auth-floating-field input:-webkit-autofill {
+  transition: background-color 600000s 0s, color 600000s 0s;
+  -webkit-text-fill-color: var(--text);
+}
+
+.auth-password-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #778298;
+  font-size: 18px;
+}
+
+.auth-password-toggle:hover {
+  color: var(--cyan);
+}
+
 .auth-form__button {
   width: 100%;
   min-height: 54px;
