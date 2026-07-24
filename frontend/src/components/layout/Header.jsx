@@ -3,11 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   FiChevronDown,
   FiLogOut,
+  FiMenu,
   FiSettings,
   FiUser,
 } from "react-icons/fi";
 import UserAvatar from "../ui/UserAvatar";
 import useAuth from "../../hooks/useAuth";
+import useSidebar from "../../hooks/useSidebar";
 import useToast from "../../hooks/useToast";
 import {
   getUserDisplayName,
@@ -20,6 +22,7 @@ function Header() {
   const navigate = useNavigate();
   const toast = useToast();
   const { logout, role, user } = useAuth();
+  const { toggle: toggleSidebar } = useSidebar();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const displayName = getUserDisplayName(user);
@@ -59,6 +62,15 @@ function Header() {
 
   return (
     <header className="header">
+      <button
+        className="header__menu-toggle"
+        type="button"
+        aria-label="Mostrar u ocultar menú de navegación"
+        onClick={toggleSidebar}
+      >
+        <FiMenu aria-hidden="true" />
+      </button>
+
       <div className="header__spacer" />
 
       <div className="header-user-menu" ref={menuRef}>
