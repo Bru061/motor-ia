@@ -77,14 +77,16 @@ function Header() {
 
         {isMenuOpen && (
           <div className="header-user-dropdown" id="header-user-menu" role="menu">
-            <Link
-              to={getUserProfilePath(role)}
-              role="menuitem"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <FiUser aria-hidden="true" />
-              <span>Mi Perfil</span>
-            </Link>
+            {role !== "admin" && (
+              <Link
+                to={getUserProfilePath(role)}
+                role="menuitem"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <FiUser aria-hidden="true" />
+                <span>Mi Perfil</span>
+              </Link>
+            )}
             <Link
               to={getUserSettingsPath(role)}
               role="menuitem"
