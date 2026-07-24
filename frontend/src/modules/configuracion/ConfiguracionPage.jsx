@@ -1,113 +1,53 @@
-import {
-  FiBell,
-  FiInfo,
-  FiMonitor,
-  FiMoon,
-  FiSun,
-} from "react-icons/fi";
-import { formatRole, getUserDisplayName } from "../../utils/user";
-import useAuth from "../../hooks/useAuth";
-
-const APP_VERSION = "0.0.0";
+import { FiMoon, FiSun } from "react-icons/fi";
+import useTheme from "../../hooks/useTheme";
 
 function ConfiguracionPage() {
-  const { role, user } = useAuth();
-  const displayName = getUserDisplayName(user);
+  const { theme, setLightTheme, setDarkTheme } = useTheme();
 
   return (
     <section className="settings-page">
-      <header className="settings-heading">
+      <header className="page-title">
         <div>
           <span>Preferencias</span>
           <h1>Configuración</h1>
-          <p>
-            Ajustes preparados para futuras preferencias de Motor IA. Las
-            opciones sin integración activa aparecen deshabilitadas.
-          </p>
+          <p>Elige cómo se ve Motor IA para ti.</p>
         </div>
       </header>
 
       <div className="settings-grid">
-        <article className="settings-panel">
+        <article className="settings-panel settings-panel--wide">
           <div className="settings-panel__heading">
             <span>
               <FiSun aria-hidden="true" />
             </span>
             <div>
               <h2>Apariencia</h2>
-              <p>Selección de tema de la interfaz.</p>
+              <p>Selecciona el tema de la interfaz.</p>
             </div>
           </div>
 
           <div className="settings-options" role="group" aria-label="Tema">
-            <button type="button" disabled>
+            <button
+              type="button"
+              className={theme === "light" ? "is-active" : ""}
+              aria-pressed={theme === "light"}
+              onClick={setLightTheme}
+            >
               <FiSun aria-hidden="true" />
               <span>Tema claro</span>
-              <small>Próximamente</small>
+              <small>{theme === "light" ? "Actual" : ""}</small>
             </button>
-            <button type="button" disabled>
+            <button
+              type="button"
+              className={theme === "dark" ? "is-active" : ""}
+              aria-pressed={theme === "dark"}
+              onClick={setDarkTheme}
+            >
               <FiMoon aria-hidden="true" />
               <span>Tema oscuro</span>
-              <small>Actual</small>
-            </button>
-            <button type="button" disabled>
-              <FiMonitor aria-hidden="true" />
-              <span>Tema del sistema</span>
-              <small>Próximamente</small>
+              <small>{theme === "dark" ? "Actual" : ""}</small>
             </button>
           </div>
-        </article>
-
-        <article className="settings-panel">
-          <div className="settings-panel__heading">
-            <span>
-              <FiBell aria-hidden="true" />
-            </span>
-            <div>
-              <h2>Notificaciones</h2>
-              <p>Control de avisos dentro de la aplicación.</p>
-            </div>
-          </div>
-
-          <label className="settings-toggle settings-toggle--disabled">
-            <input type="checkbox" disabled />
-            <span aria-hidden="true" />
-            <div>
-              <strong>Activar notificaciones</strong>
-              <small>Próximamente</small>
-            </div>
-          </label>
-        </article>
-
-        <article className="settings-panel settings-panel--wide">
-          <div className="settings-panel__heading">
-            <span>
-              <FiInfo aria-hidden="true" />
-            </span>
-            <div>
-              <h2>Información</h2>
-              <p>Datos generales de la aplicación y la sesión actual.</p>
-            </div>
-          </div>
-
-          <dl className="settings-info">
-            <div>
-              <dt>Aplicación</dt>
-              <dd>Motor IA</dd>
-            </div>
-            <div>
-              <dt>Versión</dt>
-              <dd>{APP_VERSION}</dd>
-            </div>
-            <div>
-              <dt>Usuario</dt>
-              <dd>{displayName}</dd>
-            </div>
-            <div>
-              <dt>Rol</dt>
-              <dd>{formatRole(role)}</dd>
-            </div>
-          </dl>
         </article>
       </div>
     </section>

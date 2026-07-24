@@ -1904,3 +1904,118 @@
     padding-left: 42px;
   }
 }
+
+.settings-page > .page-title span {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: var(--cyan);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.settings-panel {
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--panel-strong);
+}
+
+.settings-panel--wide {
+  grid-column: 1 / -1;
+}
+
+.settings-panel__heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.settings-panel__heading span {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(16, 216, 242, 0.12);
+  color: var(--cyan);
+  font-size: 18px;
+}
+
+.settings-panel__heading h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 16px;
+}
+
+.settings-panel__heading p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.settings-options {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.settings-options button {
+  min-height: 84px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-soft);
+  color: var(--muted-strong);
+  font-weight: 700;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.settings-options button svg {
+  font-size: 20px;
+  color: var(--muted);
+}
+
+.settings-options button:hover {
+  border-color: rgba(16, 216, 242, 0.4);
+  color: var(--text);
+}
+
+.settings-options button.is-active {
+  border-color: var(--cyan);
+  background: rgba(16, 216, 242, 0.1);
+  color: var(--text);
+}
+
+.settings-options button.is-active svg {
+  color: var(--cyan);
+}
+
+.settings-options button small {
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  min-height: 14px;
+}
+
+@media (max-width: 720px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
