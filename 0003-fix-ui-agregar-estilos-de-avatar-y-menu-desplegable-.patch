@@ -1,0 +1,195 @@
+From 8fc07790431d85ffee2294049797584c4f017322 Mon Sep 17 00:00:00 2001
+From: Bru <bru@motoria.local>
+Date: Fri, 24 Jul 2026 01:57:00 +0000
+Subject: [PATCH 3/3] fix(ui): agregar estilos de avatar y menu desplegable del
+ header
+
+---
+ frontend/src/styles/Layout.css | 117 +++++++++++++++++++++++++++++++++
+ frontend/src/styles/ui.css     |  31 +++++++++
+ 2 files changed, 148 insertions(+)
+
+diff --git a/frontend/src/styles/Layout.css b/frontend/src/styles/Layout.css
+index e3c2f85..e2d5a85 100644
+--- a/frontend/src/styles/Layout.css
++++ b/frontend/src/styles/Layout.css
+@@ -111,6 +111,114 @@
+   flex: 1;
+ }
+ 
++.header-user-menu {
++  position: relative;
++}
++
++.header-user-menu__trigger {
++  height: 48px;
++  padding: 0 14px 0 6px;
++  display: inline-flex;
++  align-items: center;
++  gap: 10px;
++  border: 1px solid transparent;
++  border-radius: 999px;
++  background: #111d31;
++  color: var(--text);
++  font-size: 13px;
++  transition: border-color 0.15s ease, background 0.15s ease;
++}
++
++.header-user-menu__trigger:hover {
++  border-color: rgba(16, 216, 242, 0.35);
++}
++
++.header-user-menu__trigger[aria-expanded="true"] {
++  border-color: rgba(16, 216, 242, 0.55);
++  background: #16233a;
++}
++
++.header-user-menu__trigger strong {
++  max-width: 200px;
++  overflow: hidden;
++  text-overflow: ellipsis;
++  white-space: nowrap;
++  font-weight: 700;
++}
++
++.header-user-menu__trigger svg:last-child {
++  color: var(--muted);
++  transition: transform 0.15s ease;
++}
++
++.header-user-menu__trigger[aria-expanded="true"] svg:last-child {
++  transform: rotate(180deg);
++  color: var(--cyan);
++}
++
++.header-user-dropdown {
++  position: absolute;
++  top: calc(100% + 8px);
++  right: 0;
++  z-index: 40;
++  min-width: 200px;
++  padding: 6px;
++  display: flex;
++  flex-direction: column;
++  gap: 2px;
++  border: 1px solid #223049;
++  border-radius: 10px;
++  background: var(--panel-strong);
++  box-shadow: var(--shadow);
++  animation: app-view-in 0.12s ease-out;
++}
++
++.header-user-dropdown a,
++.header-user-dropdown button {
++  width: 100%;
++  min-height: 40px;
++  padding: 0 12px;
++  display: flex;
++  align-items: center;
++  gap: 10px;
++  border: 0;
++  border-radius: 6px;
++  background: transparent;
++  color: var(--muted-strong);
++  font-size: 13px;
++  font-weight: 700;
++  text-align: left;
++}
++
++.header-user-dropdown a:hover,
++.header-user-dropdown button:hover {
++  background: var(--panel-soft);
++  color: var(--text);
++}
++
++.header-user-dropdown svg {
++  flex-shrink: 0;
++  font-size: 16px;
++  color: var(--muted);
++}
++
++.header-user-dropdown a:hover svg,
++.header-user-dropdown button:hover svg {
++  color: var(--cyan);
++}
++
++.header-user-dropdown button[role="menuitem"]:last-child {
++  color: var(--danger);
++}
++
++.header-user-dropdown button[role="menuitem"]:last-child svg {
++  color: var(--danger);
++}
++
++.header-user-dropdown button[role="menuitem"]:last-child:hover {
++  background: rgba(255, 107, 122, 0.12);
++}
++
+ .header__profile {
+   min-width: 156px;
+   height: 44px;
+@@ -188,6 +296,14 @@
+   margin: 0 auto;
+ }
+ 
++.particles-background {
++  position: absolute;
++  inset: 0;
++  z-index: 0;
++  display: block;
++  pointer-events: none;
++}
++
+ .brand-mark {
+   display: inline-flex;
+   align-items: center;
+@@ -219,6 +335,7 @@
+ 
+ .public-hero__icon {
+   position: absolute;
++  z-index: 1;
+   color: var(--cyan);
+   font-size: 31px;
+ }
+diff --git a/frontend/src/styles/ui.css b/frontend/src/styles/ui.css
+index 9acd8b0..3a26a68 100644
+--- a/frontend/src/styles/ui.css
++++ b/frontend/src/styles/ui.css
+@@ -360,3 +360,34 @@
+     transform: none;
+   }
+ }
++
++.user-avatar {
++  flex-shrink: 0;
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  border-radius: 999px;
++  background: linear-gradient(145deg, rgba(16, 216, 242, 0.24), rgba(167, 124, 255, 0.24));
++  color: var(--cyan);
++  font-weight: 800;
++  letter-spacing: 0.02em;
++  text-transform: uppercase;
++}
++
++.user-avatar--sm {
++  width: 32px;
++  height: 32px;
++  font-size: 12px;
++}
++
++.user-avatar--md {
++  width: 40px;
++  height: 40px;
++  font-size: 14px;
++}
++
++.user-avatar--lg {
++  width: 64px;
++  height: 64px;
++  font-size: 20px;
++}
+-- 
+2.43.0
+

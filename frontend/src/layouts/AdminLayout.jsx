@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
-import SidebarProvider from "../context/SidebarContext";
+import SidebarProvider from "../context/SidebarContext.jsx";
 import "../styles/Layout.css";
 
 function AdminLayout() {

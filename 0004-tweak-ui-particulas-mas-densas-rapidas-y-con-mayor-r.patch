@@ -1,0 +1,76 @@
+From 65c1ec0c1c86a5d2fd8c155eae14270fa10be5d7 Mon Sep 17 00:00:00 2001
+From: Bru <bru@motoria.local>
+Date: Fri, 24 Jul 2026 02:10:23 +0000
+Subject: [PATCH 1/2] tweak(ui): particulas mas densas, rapidas y con mayor
+ reaccion al mouse
+
+---
+ .../src/components/ui/ParticlesBackground.jsx | 20 +++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/frontend/src/components/ui/ParticlesBackground.jsx b/frontend/src/components/ui/ParticlesBackground.jsx
+index 2e82c1c..c7e7819 100644
+--- a/frontend/src/components/ui/ParticlesBackground.jsx
++++ b/frontend/src/components/ui/ParticlesBackground.jsx
+@@ -1,9 +1,9 @@
+ import { useEffect, useRef } from "react";
+ 
+-const PARTICLE_COUNT = 60;
+-const MAX_SPEED = 0.25;
+-const LINK_DISTANCE = 130;
+-const MOUSE_RADIUS = 150;
++const PARTICLE_COUNT = 110;
++const MAX_SPEED = 0.55;
++const LINK_DISTANCE = 165;
++const MOUSE_RADIUS = 220;
+ const PARTICLE_COLOR = "16, 216, 242";
+ 
+ function createParticle(width, height) {
+@@ -12,7 +12,7 @@ function createParticle(width, height) {
+     y: Math.random() * height,
+     vx: (Math.random() - 0.5) * MAX_SPEED,
+     vy: (Math.random() - 0.5) * MAX_SPEED,
+-    radius: Math.random() * 1.6 + 0.6,
++    radius: Math.random() * 2.2 + 1,
+   };
+ }
+ 
+@@ -56,7 +56,7 @@ function ParticlesBackground({ className = "" }) {
+ 
+       const targetCount = Math.min(
+         PARTICLE_COUNT,
+-        Math.round((width * height) / 18000),
++        Math.round((width * height) / 9000),
+       );
+       particles = Array.from({ length: targetCount }, () =>
+         createParticle(width, height),
+@@ -95,14 +95,14 @@ function ParticlesBackground({ className = "" }) {
+ 
+           if (distance < MOUSE_RADIUS && distance > 0) {
+             const force = (MOUSE_RADIUS - distance) / MOUSE_RADIUS;
+-            particle.x += (dx / distance) * force * 1.4;
+-            particle.y += (dy / distance) * force * 1.4;
++            particle.x += (dx / distance) * force * 2.4;
++            particle.y += (dy / distance) * force * 2.4;
+           }
+         }
+ 
+         context.beginPath();
+         context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+-        context.fillStyle = `rgba(${PARTICLE_COLOR}, 0.75)`;
++        context.fillStyle = `rgba(${PARTICLE_COLOR}, 0.9)`;
+         context.fill();
+       }
+ 
+@@ -117,7 +117,7 @@ function ParticlesBackground({ className = "" }) {
+             context.moveTo(a.x, a.y);
+             context.lineTo(b.x, b.y);
+             context.strokeStyle = `rgba(${PARTICLE_COLOR}, ${
+-              0.16 * (1 - distance / LINK_DISTANCE)
++              0.32 * (1 - distance / LINK_DISTANCE)
+             })`;
+             context.lineWidth = 1;
+             context.stroke();
+-- 
+2.43.0
+
