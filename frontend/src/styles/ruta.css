@@ -57,13 +57,13 @@
 .route-feedback--error {
   border-color: rgba(255, 107, 122, 0.35);
   background: rgba(255, 107, 122, 0.09);
-  color: #ff9aa5;
+  color: var(--danger);
 }
 
 .route-feedback--success {
   border-color: rgba(34, 208, 155, 0.35);
   background: rgba(34, 208, 155, 0.09);
-  color: #71e6bd;
+  color: var(--green);
 }
 
 .route-empty-card,
@@ -91,9 +91,9 @@
   height: 58px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(16, 216, 242, 0.3);
+  border: 1px solid rgba(var(--cyan-rgb), 0.3);
   border-radius: 16px;
-  background: rgba(16, 216, 242, 0.09);
+  background: rgba(var(--cyan-rgb), 0.09);
   color: var(--cyan);
   font-size: 25px;
 }
@@ -158,7 +158,7 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 18px;
-  background: rgba(16, 216, 242, 0.035);
+  background: rgba(var(--cyan-rgb), 0.035);
 }
 
 .route-ready-card__action h3 {
@@ -172,7 +172,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   background:
-    radial-gradient(circle at top right, rgba(16, 216, 242, 0.08), transparent 34%),
+    radial-gradient(circle at top right, rgba(var(--cyan-rgb), 0.08), transparent 34%),
     linear-gradient(145deg, rgba(18, 30, 50, 0.98), rgba(11, 20, 36, 0.98));
   box-shadow: 0 16px 46px rgba(0, 0, 0, 0.16);
 }
@@ -212,7 +212,7 @@
   border: 1px solid rgba(246, 164, 0, 0.28);
   border-radius: 9px;
   background: rgba(246, 164, 0, 0.07);
-  color: #f9c65e;
+  color: var(--amber);
   font-size: 13px;
 }
 
@@ -229,7 +229,7 @@
   display: flex;
   align-items: center;
   gap: 13px;
-  border: 1px solid #263650;
+  border: 1px solid var(--border);
   border-radius: 12px;
   background: rgba(8, 19, 33, 0.72);
 }
@@ -241,7 +241,7 @@
   display: grid;
   place-items: center;
   border-radius: 10px;
-  background: rgba(16, 216, 242, 0.09);
+  background: rgba(var(--cyan-rgb), 0.09);
   color: var(--cyan);
   font-size: 19px;
 }
@@ -277,7 +277,7 @@
 .route-progress-bar {
   margin-top: 22px;
   padding: 17px;
-  border: 1px solid #263650;
+  border: 1px solid var(--border);
   border-radius: 12px;
   background: rgba(8, 19, 33, 0.55);
 }
@@ -302,15 +302,15 @@
   height: 11px;
   overflow: hidden;
   border-radius: 999px;
-  background: #1b2b41;
+  background: var(--border);
 }
 
 .route-progress-bar__track span {
   height: 100%;
   display: block;
   border-radius: inherit;
-  background: linear-gradient(90deg, #11bad2, var(--cyan), #22d09b);
-  box-shadow: 0 0 16px rgba(16, 216, 242, 0.36);
+  background: linear-gradient(90deg, var(--cyan), var(--cyan), var(--green));
+  box-shadow: 0 0 16px rgba(var(--cyan-rgb), 0.36);
   transition: width 0.35s ease;
 }
 
@@ -328,7 +328,7 @@
 .route-progress-hours {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  border: 1px solid #263650;
+  border: 1px solid var(--border);
   border-radius: 12px;
   background: rgba(8, 19, 33, 0.55);
 }
@@ -339,7 +339,7 @@
 }
 
 .route-progress-hours > div + div {
-  border-left: 1px solid #263650;
+  border-left: 1px solid var(--border);
 }
 
 .route-progress-hours span {
@@ -375,7 +375,7 @@
 
 .route-next-module__content > span,
 .route-next-module--complete > div > span {
-  color: #c4a9ff;
+  color: var(--violet);
   font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.06em;
@@ -410,14 +410,14 @@
   border: 1px solid rgba(167, 124, 255, 0.5);
   border-radius: 8px;
   background: rgba(167, 124, 255, 0.14);
-  color: #d3c0ff;
+  color: var(--violet);
   font-size: 12px;
   font-weight: 850;
 }
 
 .route-next-module button:hover,
 .route-next-module button:focus-visible {
-  border-color: #c4a9ff;
+  border-color: var(--violet);
   background: rgba(167, 124, 255, 0.22);
 }
 
@@ -506,9 +506,9 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  border: 1px solid rgba(16, 216, 242, 0.28);
+  border: 1px solid rgba(var(--cyan-rgb), 0.28);
   border-radius: 14px;
-  background: rgba(16, 216, 242, 0.07);
+  background: rgba(var(--cyan-rgb), 0.07);
 }
 
 .route-working p {
@@ -570,7 +570,7 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #96a3b7;
+  background: var(--muted);
   content: "";
 }
 
@@ -588,7 +588,7 @@
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: #081321;
+  background: var(--bg-deep);
   box-shadow: 0 16px 46px rgba(0, 0, 0, 0.16);
 }
 
@@ -607,19 +607,19 @@
   width: 250px;
   min-height: 124px;
   padding: 15px;
-  border: 1px solid #536178;
-  border-left: 5px solid #96a3b7;
+  border: 1px solid var(--muted);
+  border-left: 5px solid var(--muted);
   border-radius: 13px;
-  background: linear-gradient(145deg, #15233a, #0d192b);
+  background: linear-gradient(145deg, var(--border), var(--bg-deep));
   color: var(--text);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
   cursor: pointer;
 }
 
 .route-flow-node--selected {
-  outline: 3px solid rgba(16, 216, 242, 0.72);
+  outline: 3px solid rgba(var(--cyan-rgb), 0.72);
   outline-offset: 4px;
-  box-shadow: 0 0 0 7px rgba(16, 216, 242, 0.1), 0 16px 34px rgba(0, 0, 0, 0.38);
+  box-shadow: 0 0 0 7px rgba(var(--cyan-rgb), 0.1), 0 16px 34px rgba(0, 0, 0, 0.38);
 }
 
 .route-flow-node--en_progreso {
@@ -688,17 +688,17 @@
 .route-flow-node .react-flow__handle {
   width: 8px;
   height: 8px;
-  border: 2px solid #081321;
+  border: 2px solid var(--bg-deep);
   background: var(--cyan);
 }
 
 .route-roadmap .react-flow__edge-path {
-  stroke: #71819a;
+  stroke: var(--muted);
   stroke-width: 2;
 }
 
 .route-roadmap .route-flow-edge--primary .react-flow__edge-path {
-  stroke: rgba(16, 216, 242, 0.78);
+  stroke: rgba(var(--cyan-rgb), 0.78);
   stroke-width: 2.2;
 }
 
@@ -707,14 +707,14 @@
 }
 
 .route-roadmap .route-flow-edge--secondary .react-flow__edge-path {
-  stroke: #8795aa;
+  stroke: var(--muted);
   stroke-dasharray: 6 6;
   stroke-width: 1.5;
 }
 
 .route-roadmap .react-flow__arrowhead polyline {
-  stroke: #71819a;
-  fill: #71819a;
+  stroke: var(--muted);
+  fill: var(--muted);
 }
 
 .route-roadmap .react-flow__controls {
@@ -726,12 +726,12 @@
 
 .route-roadmap .react-flow__controls-button {
   border-bottom-color: var(--border);
-  background: #101e32;
+  background: var(--panel-strong);
   fill: var(--muted-strong);
 }
 
 .route-roadmap .react-flow__controls-button:hover {
-  background: #192a43;
+  background: var(--border);
 }
 
 .route-modules-heading {
@@ -771,8 +771,8 @@
 }
 
 .route-module--selected {
-  border-color: rgba(16, 216, 242, 0.7);
-  box-shadow: 0 0 0 3px rgba(16, 216, 242, 0.08);
+  border-color: rgba(var(--cyan-rgb), 0.7);
+  box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.08);
 }
 
 .route-module__number {
@@ -780,9 +780,9 @@
   height: 38px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(16, 216, 242, 0.3);
+  border: 1px solid rgba(var(--cyan-rgb), 0.3);
   border-radius: 50%;
-  background: rgba(16, 216, 242, 0.08);
+  background: rgba(var(--cyan-rgb), 0.08);
   color: var(--cyan);
   font-weight: 850;
 }
@@ -806,7 +806,7 @@
   border: 1px solid rgba(167, 124, 255, 0.3);
   border-radius: 999px;
   background: rgba(167, 124, 255, 0.08);
-  color: #c4a9ff;
+  color: var(--violet);
   font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.05em;
@@ -857,9 +857,9 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border: 1px solid rgba(16, 216, 242, 0.28);
+  border: 1px solid rgba(var(--cyan-rgb), 0.28);
   border-radius: 8px;
-  background: rgba(16, 216, 242, 0.06);
+  background: rgba(var(--cyan-rgb), 0.06);
   color: var(--cyan);
   font-size: 12px;
   font-weight: 800;
@@ -867,8 +867,8 @@
 
 .route-module__open:hover,
 .route-module__open:focus-visible {
-  border-color: rgba(16, 216, 242, 0.7);
-  background: rgba(16, 216, 242, 0.12);
+  border-color: rgba(var(--cyan-rgb), 0.7);
+  background: rgba(var(--cyan-rgb), 0.12);
 }
 
 .route-resources {
@@ -897,15 +897,15 @@
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 9px;
-  border: 1px solid #263650;
+  border: 1px solid var(--border);
   border-radius: 9px;
-  background: #0a1525;
+  background: var(--bg-deep);
   color: var(--muted-strong);
   font-size: 13px;
 }
 
 .route-resources a.route-resource:hover {
-  border-color: rgba(16, 216, 242, 0.42);
+  border-color: rgba(var(--cyan-rgb), 0.42);
   color: var(--text);
 }
 
@@ -949,7 +949,7 @@
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--border);
-  background: #091423;
+  background: var(--bg-deep);
   box-shadow: -24px 0 60px rgba(0, 0, 0, 0.42);
   animation: route-detail-slide 0.24s ease-out;
 }
@@ -987,7 +987,7 @@
   place-items: center;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: #101e32;
+  background: var(--panel-strong);
   color: var(--muted-strong);
   font-size: 20px;
 }
@@ -1020,9 +1020,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid #2a3a53;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0e1b2e;
+  background: var(--bg-deep);
   color: var(--muted-strong);
   font-size: 12px;
 }
@@ -1058,7 +1058,7 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: rgba(16, 216, 242, 0.1);
+  background: rgba(var(--cyan-rgb), 0.1);
   color: var(--cyan);
   font-size: 12px;
 }
@@ -1105,9 +1105,9 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 1px solid #35445a;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0d1a2c;
+  background: var(--bg-deep);
   color: var(--muted-strong);
   font-size: 12px;
   font-weight: 800;
@@ -1137,8 +1137,8 @@
 }
 
 .route-module-detail__status-button[aria-pressed="true"] {
-  border-color: rgba(16, 216, 242, 0.55);
-  background: rgba(16, 216, 242, 0.1);
+  border-color: rgba(var(--cyan-rgb), 0.55);
+  background: rgba(var(--cyan-rgb), 0.1);
   color: var(--cyan);
   opacity: 1;
 }
@@ -1155,7 +1155,7 @@
 .route-module-detail__saving .route-button__spinner {
   width: 15px;
   height: 15px;
-  border-color: rgba(16, 216, 242, 0.2);
+  border-color: rgba(var(--cyan-rgb), 0.2);
   border-top-color: var(--cyan);
 }
 
@@ -1179,13 +1179,13 @@
 .route-module-detail__feedback--success {
   border-color: rgba(34, 208, 155, 0.35);
   background: rgba(34, 208, 155, 0.08);
-  color: #71e6bd;
+  color: var(--green);
 }
 
 .route-module-detail__feedback--error {
   border-color: rgba(255, 107, 122, 0.35);
   background: rgba(255, 107, 122, 0.08);
-  color: #ff9aa5;
+  color: var(--danger);
 }
 
 .route-module-detail__resources {
@@ -1201,15 +1201,15 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 11px;
-  border: 1px solid #293a54;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: #0c192a;
+  background: var(--bg-deep);
   color: var(--muted-strong);
 }
 
 a.route-module-detail__resource:hover,
 a.route-module-detail__resource:focus-visible {
-  border-color: rgba(16, 216, 242, 0.52);
+  border-color: rgba(var(--cyan-rgb), 0.52);
   color: var(--text);
 }
 
@@ -1219,7 +1219,7 @@ a.route-module-detail__resource:focus-visible {
   display: grid;
   place-items: center;
   border-radius: 9px;
-  background: rgba(16, 216, 242, 0.08);
+  background: rgba(var(--cyan-rgb), 0.08);
   color: var(--cyan);
 }
 
@@ -1257,7 +1257,7 @@ a.route-module-detail__resource:focus-visible {
 .route-module-detail__empty {
   margin: 14px 0 0;
   padding: 14px;
-  border: 1px dashed #31425b;
+  border: 1px dashed var(--border);
   border-radius: 10px;
   color: var(--muted);
   font-size: 13px;
@@ -1338,7 +1338,7 @@ a.route-module-detail__resource:focus-visible {
   width: 38px;
   height: 38px;
   flex: 0 0 auto;
-  border: 3px solid rgba(16, 216, 242, 0.16);
+  border: 3px solid rgba(var(--cyan-rgb), 0.16);
   border-top-color: var(--cyan);
   border-radius: 50%;
   animation: route-spin 0.8s linear infinite;
@@ -1450,7 +1450,7 @@ a.route-module-detail__resource:focus-visible {
   }
 
   .route-progress-hours > div + div {
-    border-top: 1px solid #263650;
+    border-top: 1px solid var(--border);
     border-left: 0;
   }
 

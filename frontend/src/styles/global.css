@@ -5,20 +5,26 @@
   --panel: #121e32;
   --panel-soft: #17243a;
   --panel-strong: #0b1424;
+  --panel-strong-rgb: 11, 20, 36;
   --border: #223049;
   --text: #f7fbff;
   --muted: #96a3b7;
   --muted-strong: #c4ccda;
   --cyan: #10d8f2;
+  --cyan-rgb: 16, 216, 242;
   --cyan-strong: #05c7e6;
+  --on-accent: #06101d;
   --green: #22d09b;
+  --green-rgb: 34, 208, 155;
   --amber: #f6a400;
   --violet: #a77cff;
   --pink: #ee70b9;
   --danger: #ff6b7a;
+  --blue: #3486ff;
+  --on-muted: #dbe4ef;
   --radius-sm: 8px;
   --radius-card: 8px;
-  --focus-ring: 0 0 0 3px rgba(16, 216, 242, 0.22);
+  --focus-ring: 0 0 0 3px rgba(var(--cyan-rgb), 0.22);
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
   --shadow-soft: 0 16px 46px rgba(0, 0, 0, 0.16);
 }
@@ -30,17 +36,23 @@
   --panel: #ffffff;
   --panel-soft: #f3f6fb;
   --panel-strong: #ffffff;
+  --panel-strong-rgb: 255, 255, 255;
   --border: #d7deec;
   --text: #101828;
   --muted: #64748b;
   --muted-strong: #334155;
   --cyan: #0891a8;
+  --cyan-rgb: 8, 145, 168;
   --cyan-strong: #067a8f;
+  --on-accent: #ffffff;
   --green: #0f9d72;
+  --green-rgb: 15, 157, 114;
   --amber: #b4740a;
   --violet: #7c5cd6;
   --pink: #c94d92;
   --danger: #d6394a;
+  --blue: #2563eb;
+  --on-muted: #ffffff;
   --focus-ring: 0 0 0 3px rgba(8, 145, 168, 0.22);
   --shadow: 0 24px 60px rgba(16, 24, 40, 0.1);
   --shadow-soft: 0 12px 30px rgba(16, 24, 40, 0.08);
@@ -64,7 +76,7 @@ body {
 }
 
 ::selection {
-  background: rgba(16, 216, 242, 0.35);
+  background: rgba(var(--cyan-rgb), 0.35);
   color: var(--text);
 }
 
@@ -89,7 +101,7 @@ a {
 }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 3px solid rgba(16, 216, 242, 0.7);
+  outline: 3px solid rgba(var(--cyan-rgb), 0.7);
   outline-offset: 3px;
 }
 
