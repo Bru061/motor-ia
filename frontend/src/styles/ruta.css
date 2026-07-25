@@ -71,7 +71,7 @@
 .route-no-modules {
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: linear-gradient(145deg, rgba(18, 30, 50, 0.96), rgba(11, 20, 36, 0.96));
+  background: linear-gradient(145deg, rgba(var(--panel-rgb), 0.96), rgba(var(--bg-deep-rgb), 0.96));
   box-shadow: 0 16px 46px rgba(0, 0, 0, 0.16);
 }
 
@@ -173,7 +173,7 @@
   border-radius: 16px;
   background:
     radial-gradient(circle at top right, rgba(var(--cyan-rgb), 0.08), transparent 34%),
-    linear-gradient(145deg, rgba(18, 30, 50, 0.98), rgba(11, 20, 36, 0.98));
+    linear-gradient(145deg, rgba(var(--panel-rgb), 0.98), rgba(var(--bg-deep-rgb), 0.98));
   box-shadow: 0 16px 46px rgba(0, 0, 0, 0.16);
 }
 
@@ -231,7 +231,7 @@
   gap: 13px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: rgba(8, 19, 33, 0.72);
+  background: rgba(var(--panel-strong-rgb), 0.72);
 }
 
 .route-progress-kpi__icon {
@@ -279,7 +279,7 @@
   padding: 17px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: rgba(8, 19, 33, 0.55);
+  background: rgba(var(--panel-strong-rgb), 0.55);
 }
 
 .route-progress-bar__labels {
@@ -330,7 +330,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: rgba(8, 19, 33, 0.55);
+  background: rgba(var(--panel-strong-rgb), 0.55);
 }
 
 .route-progress-hours > div {
@@ -766,7 +766,7 @@
   gap: 18px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(18, 30, 50, 0.96), rgba(11, 20, 36, 0.96));
+  background: linear-gradient(145deg, rgba(var(--panel-rgb), 0.96), rgba(var(--bg-deep-rgb), 0.96));
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -961,7 +961,7 @@
   justify-content: space-between;
   gap: 20px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(145deg, rgba(18, 36, 58, 0.98), rgba(9, 20, 35, 0.98));
+  background: linear-gradient(145deg, rgba(var(--panel-rgb), 0.98), rgba(var(--bg-deep-rgb), 0.98));
 }
 
 .route-module-detail__header span,

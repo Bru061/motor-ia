@@ -1,12 +1,14 @@
 :root {
   color-scheme: dark;
-  --bg: #080f1d;
-  --bg-deep: #050a14;
-  --panel: #121e32;
-  --panel-soft: #17243a;
-  --panel-strong: #0b1424;
-  --panel-strong-rgb: 11, 20, 36;
-  --border: #223049;
+  --bg: #05070d;
+  --bg-deep: #030408;
+  --bg-deep-rgb: 3, 4, 8;
+  --panel: #0c1220;
+  --panel-rgb: 12, 18, 32;
+  --panel-soft: #121a2c;
+  --panel-strong: #090d18;
+  --panel-strong-rgb: 9, 13, 24;
+  --border: #1e2636;
   --text: #f7fbff;
   --muted: #96a3b7;
   --muted-strong: #c4ccda;
@@ -25,15 +27,25 @@
   --radius-sm: 8px;
   --radius-card: 8px;
   --focus-ring: 0 0 0 3px rgba(var(--cyan-rgb), 0.22);
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
-  --shadow-soft: 0 16px 46px rgba(0, 0, 0, 0.16);
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+  --shadow-soft: 0 16px 46px rgba(0, 0, 0, 0.24);
+
+  /* Chrome: sidebar, header y la ventana de auth. Siempre oscuro,
+     sin importar el tema activo (negro-azul en oscuro, marino en claro). */
+  --chrome-bg: #04060b;
+  --chrome-bg-soft: #0c1322;
+  --chrome-border: rgba(255, 255, 255, 0.08);
+  --chrome-text: #f5f8fc;
+  --chrome-muted: #8fa0ba;
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
   --bg: #eef2f8;
   --bg-deep: #e4e9f2;
+  --bg-deep-rgb: 228, 233, 242;
   --panel: #ffffff;
+  --panel-rgb: 255, 255, 255;
   --panel-soft: #f3f6fb;
   --panel-strong: #ffffff;
   --panel-strong-rgb: 255, 255, 255;
@@ -56,6 +68,13 @@
   --focus-ring: 0 0 0 3px rgba(8, 145, 168, 0.22);
   --shadow: 0 24px 60px rgba(16, 24, 40, 0.1);
   --shadow-soft: 0 12px 30px rgba(16, 24, 40, 0.08);
+
+  /* Chrome siempre marino en tema claro */
+  --chrome-bg: #0f2148;
+  --chrome-bg-soft: #17325f;
+  --chrome-border: rgba(255, 255, 255, 0.14);
+  --chrome-text: #f5f8fc;
+  --chrome-muted: #a9b8d6;
 }
 
 * {

@@ -13,9 +13,9 @@
   padding: 28px 16px 24px;
   display: flex;
   flex-direction: column;
-  background: var(--panel-strong);
-  border-right: 1px solid var(--border);
-  color: var(--muted-strong);
+  background: var(--chrome-bg);
+  border-right: 1px solid var(--chrome-border);
+  color: var(--chrome-muted);
   overflow-y: auto;
 }
 
@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--text);
+  color: var(--chrome-text);
 }
 
 .sidebar__brand svg {
@@ -45,7 +45,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--chrome-border);
 }
 
 .sidebar__link,
@@ -59,7 +59,7 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: var(--muted);
+  color: var(--chrome-muted);
   font-size: 14px;
   font-weight: 600;
   text-align: left;
@@ -68,8 +68,8 @@
 
 .sidebar__link:hover,
 .sidebar__action:hover {
-  background: var(--panel-soft);
-  color: var(--text);
+  background: var(--chrome-bg-soft);
+  color: var(--chrome-text);
 }
 
 .sidebar__link--active {
@@ -106,8 +106,8 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  background: var(--panel-strong);
-  border-bottom: 1px solid var(--border);
+  background: var(--chrome-bg);
+  border-bottom: 1px solid var(--chrome-border);
 }
 
 .header__menu-toggle {
@@ -116,10 +116,10 @@
   display: none;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--chrome-border);
   border-radius: 8px;
-  background: var(--panel-soft);
-  color: var(--muted-strong);
+  background: var(--chrome-bg-soft);
+  color: var(--chrome-muted);
   font-size: 18px;
 }
 
@@ -154,8 +154,8 @@
   gap: 10px;
   border: 1px solid transparent;
   border-radius: 999px;
-  background: var(--panel-soft);
-  color: var(--text);
+  background: var(--chrome-bg-soft);
+  color: var(--chrome-text);
   font-size: 13px;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
@@ -166,7 +166,7 @@
 
 .header-user-menu__trigger[aria-expanded="true"] {
   border-color: rgba(var(--cyan-rgb), 0.55);
-  background: var(--panel);
+  background: var(--chrome-bg);
 }
 
 .header-user-menu__trigger strong {
@@ -178,7 +178,7 @@
 }
 
 .header-user-menu__trigger svg:last-child {
-  color: var(--muted);
+  color: var(--chrome-muted);
   transition: transform 0.15s ease;
 }
 
@@ -271,7 +271,20 @@
   min-height: 100vh;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr);
-  background: var(--bg-deep);
+  background: var(--chrome-bg);
+  /* La ventana de auth (hero + tarjeta) siempre usa los tonos "chrome":
+     negro-azul en tema oscuro, marino en tema claro. Redefinir las
+     variables semánticas aquí hace que Auth.css (que ya usa var(--text),
+     var(--border), var(--bg-deep), etc.) las herede automáticamente. */
+  --bg: var(--chrome-bg);
+  --bg-deep: var(--chrome-bg);
+  --panel: var(--chrome-bg-soft);
+  --panel-soft: var(--chrome-bg-soft);
+  --panel-strong: var(--chrome-bg-soft);
+  --border: var(--chrome-border);
+  --text: var(--chrome-text);
+  --muted: var(--chrome-muted);
+  --muted-strong: var(--chrome-text);
 }
 
 .public-hero {
