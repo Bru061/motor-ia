@@ -275,7 +275,11 @@
   /* La ventana de auth (hero + tarjeta) siempre usa los tonos "chrome":
      negro-azul en tema oscuro, marino en tema claro. Redefinir las
      variables semánticas aquí hace que Auth.css (que ya usa var(--text),
-     var(--border), var(--bg-deep), etc.) las herede automáticamente. */
+     var(--border), var(--bg-deep), etc.) las herede automáticamente.
+     El "color" explícito es necesario: body ya fijó su propio color con
+     el --text global, y sin esta línea el <h1> del hero heredaría ese
+     valor viejo en vez de recalcularse con el --text de este scope. */
+  color: var(--chrome-text);
   --bg: var(--chrome-bg);
   --bg-deep: var(--chrome-bg);
   --panel: var(--chrome-bg-soft);
@@ -295,6 +299,22 @@
   align-items: center;
   overflow: hidden;
   background: var(--bg-deep);
+  border-right: 1px solid rgba(var(--cyan-rgb), 0.28);
+  box-shadow: 18px 0 60px -28px rgba(var(--cyan-rgb), 0.55);
+}
+
+.public-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(var(--cyan-rgb), 0.9) 50%,
+    transparent
+  );
+  filter: blur(1px);
 }
 
 .public-hero__content {
@@ -379,16 +399,19 @@
   display: grid;
   place-items: center;
   padding: 32px;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(var(--cyan-rgb), 0.08), transparent 45%),
+    var(--bg);
 }
 
 .public-card {
   width: min(430px, 100%);
   padding: 40px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  border: 1px solid rgba(var(--cyan-rgb), 0.22);
+  border-radius: 12px;
   background: var(--panel-strong);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), 0 0 0 1px rgba(var(--cyan-rgb), 0.06),
+    0 30px 90px -20px rgba(var(--cyan-rgb), 0.28);
 }
 
 @media (max-width: 980px) {
@@ -427,6 +450,21 @@
   .public-hero {
     min-height: auto;
     padding: 56px 28px 36px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(var(--cyan-rgb), 0.28);
+    box-shadow: 0 18px 60px -28px rgba(var(--cyan-rgb), 0.55);
+  }
+
+  .public-hero::after {
+    inset: auto 0 0 0;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(var(--cyan-rgb), 0.9) 50%,
+      transparent
+    );
   }
 
   .public-auth {
