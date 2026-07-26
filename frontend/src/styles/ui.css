@@ -163,7 +163,7 @@
   gap: 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  background: linear-gradient(145deg, rgba(18, 30, 50, 0.96), rgba(11, 20, 36, 0.96));
+  background: linear-gradient(145deg, rgba(var(--panel-rgb), 0.96), rgba(var(--bg-deep-rgb), 0.96));
   box-shadow: var(--shadow-soft);
   text-align: center;
 }

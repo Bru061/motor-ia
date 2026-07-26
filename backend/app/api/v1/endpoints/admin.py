@@ -78,9 +78,14 @@ def listar_usuarios(
 
     if meta_profesional and (meta_term := meta_profesional.strip()):
         meta_pattern = f"%{_escape_like(meta_term)}%"
-        query = query.join(
-            PerfilUsuario, PerfilUsuario.usuario_id == Usuario.id
-        ).filter(PerfilUsuario.meta_profesional.ilike(meta_pattern, escape="\\"))
+        query = query.filter(
+            db.query(PerfilUsuario.id)
+            .filter(
+                PerfilUsuario.usuario_id == Usuario.id,
+                PerfilUsuario.meta_profesional.ilike(meta_pattern, escape="\\"),
+            )
+            .exists()
+        )
 
     total = query.count()
     rows = (
