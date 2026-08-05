@@ -177,6 +177,7 @@ function DashboardPage() {
     dashboard.profileStatus === "error" || dashboard.routeStatus === "error";
   const progress = dashboard.summary;
   const roundedProgress = Math.round(progress.porcentaje_avance);
+  const isRouteComplete = hasRoute && roundedProgress >= 100;
 
   const retryDashboard = () => setRetryCount((current) => current + 1);
 
@@ -245,11 +246,10 @@ function DashboardPage() {
                   : "Crea tu perfil para personalizar tu experiencia de aprendizaje."}
             </p>
           </div>
-          {hasProfile && (
-            <FiCheckCircle
-              className="student-dashboard-card__check"
-              aria-label="Completado"
-            />
+          {hasProfile ? (
+            <FiCheckCircle className="student-dashboard-card__check" aria-label="Completado" />
+          ) : (
+            <FiArrowRight className="student-dashboard-card__arrow" aria-hidden="true" />
           )}
         </article>
 
@@ -280,11 +280,10 @@ function DashboardPage() {
                   : "Genera una ruta cuando tu perfil tecnológico esté listo."}
             </p>
           </div>
-          {hasRoute && (
-            <FiCheckCircle
-              className="student-dashboard-card__check"
-              aria-label="Activa"
-            />
+          {hasRoute ? (
+            <FiCheckCircle className="student-dashboard-card__check" aria-label="Activa" />
+          ) : (
+            <FiArrowRight className="student-dashboard-card__arrow" aria-hidden="true" />
           )}
         </article>
       </div>
@@ -353,28 +352,42 @@ function DashboardPage() {
           <div>
             <span>Acción recomendada</span>
             <h2 id="next-action-title">
-              {hasRoute
-                ? "Continúa con tu aprendizaje"
-                : hasStatusError
-                  ? "Vuelve a consultar tu información"
-                  : !hasProfile
-                    ? "Completa tu perfil tecnológico"
-                    : "Genera tu ruta personalizada"}
+              {isRouteComplete
+                ? "¡Completaste tu ruta de aprendizaje!"
+                : hasRoute
+                  ? "Continúa con tu aprendizaje"
+                  : hasStatusError
+                    ? "Vuelve a consultar tu información"
+                    : !hasProfile
+                      ? "Completa tu perfil tecnológico"
+                      : "Genera tu ruta personalizada"}
             </h2>
             <p>
-              {hasRoute
-                ? "Revisa los módulos de tu ruta o consulta el detalle de tu progreso."
-                : hasStatusError
-                  ? "Necesitamos confirmar tu perfil y tu ruta antes de recomendar el siguiente paso."
-                  : !hasProfile
-                    ? "Necesitamos conocer tu meta y nivel actual antes de construir una ruta."
-                    : "Tu perfil está listo para usarlo como base de una nueva ruta."}
+              {isRouteComplete
+                ? "Actualiza tu perfil tecnológico para definir una nueva meta y genera una ruta a tu medida."
+                : hasRoute
+                  ? "Revisa los módulos de tu ruta o consulta el detalle de tu progreso."
+                  : hasStatusError
+                    ? "Necesitamos confirmar tu perfil y tu ruta antes de recomendar el siguiente paso."
+                    : !hasProfile
+                      ? "Necesitamos conocer tu meta y nivel actual antes de construir una ruta."
+                      : "Tu perfil está listo para usarlo como base de una nueva ruta."}
             </p>
           </div>
         </div>
 
         <div className="student-dashboard-next__actions">
-          {hasRoute ? (
+          {isRouteComplete ? (
+            <>
+              <Link className="student-dashboard-button student-dashboard-button--primary" to="/perfil">
+                Actualizar perfil
+                <FiUser aria-hidden="true" />
+              </Link>
+              <Link className="student-dashboard-button student-dashboard-button--secondary" to="/ruta">
+                Generar ruta nueva
+              </Link>
+            </>
+          ) : hasRoute ? (
             <>
               <Link className="student-dashboard-button student-dashboard-button--primary" to="/ruta">
                 Ver ruta
