@@ -30,13 +30,22 @@
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
   --shadow-soft: 0 16px 46px rgba(0, 0, 0, 0.24);
 
-  /* Chrome: sidebar, header y la ventana de auth. Siempre oscuro,
-     sin importar el tema activo (negro-azul en oscuro, marino en claro). */
+  /* Chrome siempre oscuro, sin importar el tema activo. */
   --chrome-bg: #04060b;
+  --chrome-bg-rgb: 4, 6, 11;
   --chrome-bg-soft: #0c1322;
+  --chrome-bg-soft-rgb: 12, 19, 34;
   --chrome-border: rgba(255, 255, 255, 0.08);
   --chrome-text: #f5f8fc;
   --chrome-muted: #8fa0ba;
+
+  /* Ventana de auth*/
+  --auth-hero-bg: var(--bg-deep);
+  --auth-hero-bg-rgb: 3, 4, 8;
+  --auth-hero-text: var(--text);
+  --auth-hero-muted: var(--muted);
+  --auth-panel-bg: var(--panel);
+  --auth-panel-bg-rgb: 12, 18, 32;
 }
 
 :root[data-theme="light"] {
@@ -53,9 +62,9 @@
   --text: #101828;
   --muted: #64748b;
   --muted-strong: #334155;
-  --cyan: #0891a8;
-  --cyan-rgb: 8, 145, 168;
-  --cyan-strong: #067a8f;
+  --cyan: #1d4ed8;
+  --cyan-rgb: 29, 78, 216;
+  --cyan-strong: #1e3a8a;
   --on-accent: #ffffff;
   --green: #0f9d72;
   --green-rgb: 15, 157, 114;
@@ -65,16 +74,67 @@
   --danger: #d6394a;
   --blue: #2563eb;
   --on-muted: #ffffff;
-  --focus-ring: 0 0 0 3px rgba(8, 145, 168, 0.22);
+  --focus-ring: 0 0 0 3px rgba(var(--cyan-rgb), 0.22);
   --shadow: 0 24px 60px rgba(16, 24, 40, 0.1);
   --shadow-soft: 0 12px 30px rgba(16, 24, 40, 0.08);
 
   /* Chrome siempre marino en tema claro */
-  --chrome-bg: #0f2148;
-  --chrome-bg-soft: #17325f;
+  --chrome-bg: #0f1a3d;
+  --chrome-bg-rgb: 15, 26, 61;
+  --chrome-bg-soft: #26398a;
+  --chrome-bg-soft-rgb: 38, 57, 138;
   --chrome-border: rgba(255, 255, 255, 0.14);
   --chrome-text: #f5f8fc;
   --chrome-muted: #a9b8d6;
+
+  /* Ventana de auth en tema claro. */
+  --auth-hero-bg: var(--chrome-bg);
+  --auth-hero-bg-rgb: 15, 26, 61;
+  --auth-hero-text: var(--chrome-text);
+  --auth-hero-muted: var(--chrome-muted);
+  --auth-panel-bg: var(--bg);
+  --auth-panel-bg-rgb: 238, 242, 248;
+}
+
+/* Registro de las custom properties que usan las gráficas de tipo donut
+   (conic-gradient), necesario para que el navegador pueda animar/transicionar
+   el porcentaje en vez de saltar directo al valor final. */
+@property --progress-donut {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+@property --dashboard-progress {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+/* Animaciones de "llenado" reutilizadas por las gráficas de barras y
+   donuts de toda la app (progreso de ruta, analítica, dashboards). */
+@keyframes chart-fill-width {
+  from {
+    width: 0%;
+  }
+}
+
+@keyframes chart-fill-height {
+  from {
+    height: 0%;
+  }
+}
+
+@keyframes chart-fill-donut {
+  from {
+    --progress-donut: 0%;
+  }
+}
+
+@keyframes chart-fill-ring {
+  from {
+    --dashboard-progress: 0%;
+  }
 }
 
 * {
@@ -148,7 +208,18 @@ a {
   }
 
   .main-content > section,
-  .public-card > section {
+  .public-card > section,
+  .public-fade-in {
+    animation: none;
+  }
+
+  .route-progress-bar__track span,
+  .column-chart__bar,
+  .analytics-bar-row__track span,
+  .skill-gap-item__track span,
+  .progress-donut,
+  .student-dashboard-progress-ring,
+  .trend-line-chart svg {
     animation: none;
   }
 }
