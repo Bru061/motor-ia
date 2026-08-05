@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.dependencies import get_current_user
 from app.db.session import get_db
 from app.models.modulo import Modulo
+from app.models.dependencia_modulo import DependenciaModulo
 from app.models.progreso import Progreso
 from app.models.recurso import Recurso
 from app.models.recurso_progreso import RecursoProgreso
@@ -109,6 +110,7 @@ def _construir_ruta_con_progreso(
                 tiempo_estimado_hrs=modulo.tiempo_estimado_hrs,
                 orden=modulo.orden,
                 estado=estados_modulos.get(modulo.id, "pendiente"),
+                actividad_practica=modulo.actividad_practica,
                 recursos=[
                     RecursoConProgresoResponse(
                         id=recurso.id,
@@ -129,6 +131,46 @@ def _construir_ruta_con_progreso(
 def _momento_completado(estado: str) -> datetime | None:
     return datetime.now(timezone.utc) if estado == "completado" else None
 
+def _validar_prerequisitos(
+    db: Session,
+    usuario_id: UUID,
+    modulo_id: UUID,
+) -> None:
+    """Verifica que todos los módulos de los que depende `modulo_id`
+    ya estén marcados como completado por este usuario. Si falta alguno,
+    lanza 400 con el título del primer módulo pendiente encontrado."""
+    dependencias = (
+        db.query(DependenciaModulo)
+        .filter(DependenciaModulo.modulo_id == modulo_id)
+        .all()
+    )
+    if not dependencias:
+        return
+
+    prerrequisito_ids = [dependencia.depende_de_id for dependencia in dependencias]
+
+    completados = dict(
+        db.query(Progreso.modulo_id, Progreso.estado)
+        .filter(
+            Progreso.usuario_id == usuario_id,
+            Progreso.modulo_id.in_(prerrequisito_ids),
+        )
+        .all()
+    )
+
+    for dependencia in dependencias:
+        if completados.get(dependencia.depende_de_id) != "completado":
+            modulo_previo = (
+                db.query(Modulo).filter(Modulo.id == dependencia.depende_de_id).first()
+            )
+            titulo_previo = modulo_previo.titulo if modulo_previo else "el módulo anterior"
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Debes completar primero el módulo «{titulo_previo}» antes "
+                    "de avanzar en este."
+                ),
+            )
 
 def _guardar_progreso(
     db: Session,
@@ -191,12 +233,25 @@ def actualizar_progreso_modulo(
         )
         .first()
     )
+
+    if (
+        progreso is not None
+        and progreso.estado == "completado"
+        and request.estado != "completado"
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Este módulo ya fue completado y no puede regresar a un estado anterior.",
+        )
+
     if progreso is None:
         progreso = Progreso(
             usuario_id=current_user.id,
             modulo_id=modulo_id,
         )
         db.add(progreso)
+    if request.estado in ("en_progreso", "completado"):
+        _validar_prerequisitos(db, current_user.id, modulo_id)
 
     progreso.estado = request.estado
     progreso.completado_at = _momento_completado(request.estado)
@@ -228,6 +283,8 @@ def actualizar_progreso_recurso(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="El recurso no pertenece a la ruta activa del usuario.",
         )
+    if request.estado == "completado":
+        _validar_prerequisitos(db, current_user.id, recurso.modulo_id)
 
     progreso = (
         db.query(RecursoProgreso)
@@ -248,7 +305,61 @@ def actualizar_progreso_recurso(
     progreso.completado_at = _momento_completado(request.estado)
     progreso.visto = request.estado == "completado"
     progreso.visto_at = progreso.completado_at
-    return _guardar_progreso(db, progreso)
+    progreso_recurso = _guardar_progreso(db, progreso)
+
+    if request.estado == "completado":
+        recursos_del_modulo_ids = [
+            fila_recurso_id
+            for (fila_recurso_id,) in db.query(Recurso.id).filter(
+                Recurso.modulo_id == recurso.modulo_id
+            )
+        ]
+        total_recursos_modulo = len(recursos_del_modulo_ids)
+        recursos_vistos_modulo = (
+            db.query(func.count(func.distinct(RecursoProgreso.recurso_id)))
+            .filter(
+                RecursoProgreso.usuario_id == current_user.id,
+                RecursoProgreso.recurso_id.in_(recursos_del_modulo_ids),
+                RecursoProgreso.estado == "completado",
+            )
+            .scalar()
+            if recursos_del_modulo_ids
+            else 0
+        )
+        todos_los_recursos_vistos = (
+            total_recursos_modulo > 0
+            and recursos_vistos_modulo == total_recursos_modulo
+        )
+        nuevo_estado_modulo = (
+            "completado" if todos_los_recursos_vistos else "en_progreso"
+        )
+
+        progreso_modulo = (
+            db.query(Progreso)
+            .filter(
+                Progreso.usuario_id == current_user.id,
+                Progreso.modulo_id == recurso.modulo_id,
+            )
+            .first()
+        )
+        if progreso_modulo is None:
+            db.add(
+                Progreso(
+                    usuario_id=current_user.id,
+                    modulo_id=recurso.modulo_id,
+                    estado=nuevo_estado_modulo,
+                    completado_at=_momento_completado(nuevo_estado_modulo),
+                )
+            )
+            db.commit()
+        elif progreso_modulo.estado != "completado" and (
+            progreso_modulo.estado == "pendiente" or todos_los_recursos_vistos
+        ):
+            progreso_modulo.estado = nuevo_estado_modulo
+            progreso_modulo.completado_at = _momento_completado(nuevo_estado_modulo)
+            db.commit()
+
+    return progreso_recurso
 
 
 def _porcentaje(completados: int, total: int) -> float:
