@@ -2,6 +2,102 @@
   margin-bottom: 24px;
 }
 
+.page-heading {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.page-heading h1 {
+  margin: 10px 0 8px;
+  color: var(--text);
+  font-size: clamp(26px, 3.6vw, 34px);
+  line-height: 1.15;
+}
+
+.page-heading p {
+  max-width: 700px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.page-heading__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cyan);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-heading__action {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .page-heading {
+    flex-direction: column;
+  }
+
+  .page-heading__action {
+    width: 100%;
+  }
+}
+
+/* Animación suave al pasar el mouse, en las tarjetas principales de
+   toda la app (dashboard, admin, perfil, kpis, módulos de ruta). */
+.dashboard-card,
+.admin-panel,
+.student-dashboard-card,
+.perfil-section,
+.settings-panel,
+.route-progress-kpi,
+.route-module {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.dashboard-card:hover,
+.admin-panel:hover,
+.student-dashboard-card:hover,
+.perfil-section:hover,
+.settings-panel:hover,
+.route-progress-kpi:hover,
+.route-module:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-card,
+  .admin-panel,
+  .student-dashboard-card,
+  .perfil-section,
+  .settings-panel,
+  .route-progress-kpi,
+  .route-module {
+    transition: none;
+  }
+
+  .dashboard-card:hover,
+  .admin-panel:hover,
+  .student-dashboard-card:hover,
+  .perfil-section:hover,
+  .settings-panel:hover,
+  .route-progress-kpi:hover,
+  .route-module:hover {
+    transform: none;
+  }
+}
+
 .admin-page {
   display: flex;
   flex-direction: column;
@@ -44,13 +140,19 @@
 }
 
 .dashboard-card,
-.admin-panel,
 .assessment-shell,
 .module-detail {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+}
+
+.admin-panel {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(var(--panel-rgb), 0.96), rgba(var(--bg-deep-rgb), 0.96));
+  box-shadow: 0 16px 46px rgba(0, 0, 0, 0.16);
 }
 
 .dashboard-card {
@@ -988,6 +1090,20 @@
   white-space: nowrap;
 }
 
+.users-table__name-link {
+  width: fit-content;
+}
+
+.users-table__name-link strong {
+  color: var(--text);
+  transition: color 0.15s ease;
+}
+
+.users-table__name-link:hover strong {
+  color: var(--cyan);
+  text-decoration: underline;
+}
+
 .user-initial {
   font-weight: 900;
   text-align: center;
@@ -1753,6 +1869,34 @@
   display: block;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--cyan), var(--green));
+  animation: chart-fill-width 900ms ease-out;
+}
+
+/* Cada fila de Analítica usa un color distinto (se repite cada 6 filas).
+   El degradado ámbar/rojo de brechas (más abajo) no se toca a propósito:
+   ahí el color comunica severidad, no categoría. */
+.analytics-bar-row:nth-child(6n + 1) .analytics-bar-row__track span {
+  background: linear-gradient(90deg, var(--cyan), var(--cyan-strong));
+}
+
+.analytics-bar-row:nth-child(6n + 2) .analytics-bar-row__track span {
+  background: linear-gradient(90deg, var(--green), var(--green));
+}
+
+.analytics-bar-row:nth-child(6n + 3) .analytics-bar-row__track span {
+  background: linear-gradient(90deg, var(--violet), var(--violet));
+}
+
+.analytics-bar-row:nth-child(6n + 4) .analytics-bar-row__track span {
+  background: linear-gradient(90deg, var(--amber), var(--amber));
+}
+
+.analytics-bar-row:nth-child(6n + 5) .analytics-bar-row__track span {
+  background: linear-gradient(90deg, var(--pink), var(--pink));
+}
+
+.analytics-bar-row:nth-child(6n + 6) .analytics-bar-row__track span {
+  background: linear-gradient(90deg, var(--blue), var(--blue));
 }
 
 .skill-gap-item {
@@ -1776,6 +1920,116 @@
 .skill-gap-item__track span {
   width: var(--skill-gap-progress);
   background: linear-gradient(90deg, var(--amber), var(--danger));
+}
+
+/* Donut de progreso (conic-gradient), usado en el dashboard admin y
+   disponible para reutilizarse donde haga falta un solo valor circular. */
+.admin-donut-row {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+
+.progress-chart-card {
+  flex: 1 1 160px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.progress-chart-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.progress-donut {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--cyan) var(--progress-donut, 0%),
+    var(--panel-soft) 0
+  );
+  transition: --progress-donut 700ms ease;
+  animation: chart-fill-donut 1s ease-out;
+}
+
+.progress-donut::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: var(--panel-strong);
+  z-index: 0;
+}
+
+.progress-donut strong,
+.progress-donut span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  text-align: center;
+}
+
+.progress-donut strong {
+  color: var(--text);
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.progress-donut span {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.25;
+  max-width: 82px;
+  white-space: normal;
+}
+
+/* Toggle lista/barras para los paneles de Analítica */
+.section-heading__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.view-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-soft);
+}
+
+.view-toggle__btn {
+  width: 30px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.view-toggle__btn:hover {
+  color: var(--text);
+}
+
+.view-toggle__btn.is-active {
+  background: var(--cyan);
+  color: var(--on-accent);
 }
 
 /* Camino de avance de la ruta (RouteProgressPath) */
@@ -1863,6 +2117,225 @@
 
 .progress-module--compact > strong {
   font-size: 16px;
+}
+
+/* Caja de ícono en encabezados de panel admin, mismo tratamiento que
+   .student-dashboard-card__icon, para que se vean consistentes. */
+.section-heading__title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.section-heading__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(var(--cyan-rgb), 0.28);
+  border-radius: 12px;
+  background: rgba(var(--cyan-rgb), 0.08);
+  color: var(--cyan);
+  font-size: 18px;
+}
+
+.section-heading__icon--green {
+  border-color: rgba(34, 208, 155, 0.3);
+  background: rgba(34, 208, 155, 0.09);
+  color: var(--green);
+}
+
+.section-heading__icon--amber {
+  border-color: rgba(246, 164, 0, 0.3);
+  background: rgba(246, 164, 0, 0.09);
+  color: var(--amber);
+}
+
+.section-heading__icon--violet {
+  border-color: rgba(167, 124, 255, 0.3);
+  background: rgba(167, 124, 255, 0.09);
+  color: var(--violet);
+}
+
+/* Fix: las barras de column-chart no se veían porque el contenedor
+   solo tenía min-height (no una altura definida), y los hijos con
+   alturas en % necesitan que toda la cadena de ancestros tenga una
+   altura fija para poder calcularse. */
+.column-chart {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 76px;
+  justify-content: start;
+  align-items: end;
+  gap: 16px;
+  height: 240px;
+  min-height: 240px;
+  padding-top: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--cyan-rgb), 0.35) transparent;
+}
+
+.column-chart::-webkit-scrollbar {
+  height: 6px;
+}
+
+.column-chart::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.column-chart::-webkit-scrollbar-thumb {
+  background: rgba(var(--cyan-rgb), 0.35);
+  border-radius: 999px;
+}
+
+.column-chart__col {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.column-chart__value {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.column-chart__track {
+  flex: 1;
+  width: 100%;
+  max-width: 46px;
+  display: flex;
+  align-items: flex-end;
+  background: var(--panel-soft);
+  border-radius: 8px 8px 4px 4px;
+  overflow: hidden;
+}
+
+.column-chart__bar {
+  width: 100%;
+  height: var(--column-height, 2%);
+  background: linear-gradient(180deg, var(--cyan), var(--cyan-strong));
+  border-radius: 8px 8px 0 0;
+  transition: height 0.5s ease;
+  animation: chart-fill-height 900ms ease-out;
+}
+
+/* Cada barra usa un color distinto (se repite cada 6 columnas). */
+.column-chart__col:nth-child(6n + 1) .column-chart__bar {
+  background: linear-gradient(180deg, var(--cyan), var(--cyan-strong));
+}
+
+.column-chart__col:nth-child(6n + 2) .column-chart__bar {
+  background: linear-gradient(180deg, var(--green), var(--green));
+}
+
+.column-chart__col:nth-child(6n + 3) .column-chart__bar {
+  background: linear-gradient(180deg, var(--violet), var(--violet));
+}
+
+.column-chart__col:nth-child(6n + 4) .column-chart__bar {
+  background: linear-gradient(180deg, var(--amber), var(--amber));
+}
+
+.column-chart__col:nth-child(6n + 5) .column-chart__bar {
+  background: linear-gradient(180deg, var(--pink), var(--pink));
+}
+
+.column-chart__col:nth-child(6n + 6) .column-chart__bar {
+  background: linear-gradient(180deg, var(--blue), var(--blue));
+}
+
+.column-chart__label {
+  max-width: 76px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-user-hero__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.admin-roadmap-readonly {
+  margin-bottom: 18px;
+}
+
+.admin-roadmap-readonly .admin-muted-text {
+  margin: 0 0 10px;
+}
+
+.analytics-panel__body {
+  max-height: 360px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--cyan-rgb), 0.35) transparent;
+}
+
+.analytics-panel__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.analytics-panel__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.analytics-panel__body::-webkit-scrollbar-thumb {
+  background: rgba(var(--cyan-rgb), 0.35);
+  border-radius: 999px;
+}
+
+/* Gráfico de línea (TrendLineChart) */
+.trend-line-chart {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--cyan-rgb), 0.35) transparent;
+}
+
+.trend-line-chart svg {
+  animation: chart-fade-in-up 600ms ease-out;
+}
+
+@keyframes chart-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.trend-line-chart::-webkit-scrollbar {
+  height: 6px;
+}
+
+.trend-line-chart::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.trend-line-chart::-webkit-scrollbar-thumb {
+  background: rgba(var(--cyan-rgb), 0.35);
+  border-radius: 999px;
+}
+
+.trend-line-chart__label {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.trend-line-chart__value {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 800;
 }
 
 @media (max-width: 1120px) {
