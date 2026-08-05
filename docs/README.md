@@ -8,7 +8,7 @@ Esta carpeta contiene los diagramas y documentación técnica del proyecto.
 - `er/` — Diagrama Entidad-Relación de la base de datos
 - `wireframes/` — Wireframes de las pantallas principales
 - `endpoints/` — Diseño de la API REST
-- `prompts/` — Esquema del prompt LangChain
+- `prompts/` — Esquema del prompt
 
 ## Herramientas utilizadas
 

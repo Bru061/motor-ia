@@ -16,6 +16,7 @@ class ModuloIA(BaseModel):
     tiempo_estimado_hrs: int = Field(gt=0)
     recursos: List[RecursoIA] = Field(min_length=1)
     dependencias: List[str] = Field(default_factory=list)
+    actividad_practica: str = Field(min_length=1)
 
 
 class RutaIAResponse(BaseModel):

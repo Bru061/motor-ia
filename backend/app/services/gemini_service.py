@@ -85,7 +85,8 @@ Estructura obligatoria:
           "url": "https://docs.python.org/3/"
         }}
       ],
-      "dependencias": []
+      "dependencias": [],
+      "actividad_practica": "Escribe un script en Python que lea un archivo y calcule el promedio de una columna numerica."
     }}
   ]
 }}
@@ -107,6 +108,7 @@ Reglas:
 - Ningun modulo puede depender de si mismo, de una clave inexistente ni formar ciclos.
 - Salvo los modulos introductorios raiz, conecta cada modulo con al menos un prerrequisito anterior cuando corresponda.
 - URLs en texto plano, sin markdown.
+- actividad_practica: una sola actividad breve (1-2 oraciones) para poner en practica lo visto en ese modulo especifico. No es una evaluacion ni un examen, es una sugerencia practica y accionable (ej. "construye...", "escribe...", "configura..."). Debe ser especifica al contenido del modulo, no generica.
 """.strip()
 
 

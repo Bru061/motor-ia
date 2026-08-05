@@ -25,12 +25,6 @@ function ProgressSummary({ summary, nextModule, onOpenModule, warning }) {
         <p>Tu avance se actualiza cuando cambias el estado de un módulo.</p>
       </div>
 
-      {warning && (
-        <p className="route-progress-dashboard__warning" role="status">
-          {warning}
-        </p>
-      )}
-
       <div className="route-progress-kpis">
         <KpiCard
           icon={FiPieChart}
@@ -72,21 +66,21 @@ function ProgressSummary({ summary, nextModule, onOpenModule, warning }) {
             <div>
               <span>
                 <FiCheckCircle aria-hidden="true" />
-                Horas completadas
+                Horas completadas (Aprox.)
               </span>
               <strong>{formatHours(summary.horas_completadas)} h</strong>
             </div>
             <div>
               <span>
                 <FiClock aria-hidden="true" />
-                Horas restantes
+                Horas restantes (Aprox.)
               </span>
               <strong>{formatHours(summary.horas_restantes)} h</strong>
             </div>
             <div>
               <span>
                 <FiLayers aria-hidden="true" />
-                Horas totales
+                Horas totales (Aprox.)
               </span>
               <strong>{formatHours(summary.horas_totales)} h</strong>
             </div>

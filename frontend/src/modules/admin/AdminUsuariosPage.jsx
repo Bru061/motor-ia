@@ -3,13 +3,14 @@ import { Link, useSearchParams } from "react-router-dom";
 import { FiRefreshCw, FiSearch, FiTarget, FiUsers, FiX } from "react-icons/fi";
 import { obtenerUsuariosAdmin } from "../../api/adminApi";
 import EmptyState from "../../components/ui/EmptyState";
+import PageHeading from "../../components/ui/PageHeading";
 import PageLoader from "../../components/ui/PageLoader";
 import SelectDropdown from "../../components/ui/SelectDropdown";
 import useToast from "../../hooks/useToast";
 import AdminPagination from "./components/AdminPagination";
 import AdminUsersTable from "./components/AdminUsersTable";
 
-const DEFAULT_LIMIT = 10;
+const DEFAULT_LIMIT = 5;
 
 function getPositiveInteger(value, fallback) {
   const number = Number(value);
@@ -135,15 +136,12 @@ function AdminUsuariosPage() {
 
   return (
     <section className="admin-page">
-      <div className="page-title admin-page-title">
-        <div>
-          <h1>Usuarios registrados</h1>
-          <p>Consulta usuarios por nombre, correo o meta profesional.</p>
-        </div>
-        <Link className="route-button route-button--secondary" to="/admin">
-          Volver al dashboard
-        </Link>
-      </div>
+        <PageHeading
+          eyebrow="Panel administrativo"
+          icon={FiUsers}
+          title="Usuarios registrados"
+          description="Consulta usuarios por nombre, correo o meta profesional."
+        />
 
       <div className="admin-toolbar">
         <label className="admin-search" htmlFor="admin-users-search">
@@ -171,16 +169,10 @@ function AdminUsuariosPage() {
         </label>
 
         <div className="admin-toolbar__actions">
-          {(searchInput || metaInput) && (
-            <button className="admin-clear-button" type="button" onClick={clearFilters}>
-              <FiX aria-hidden="true" />
-              Limpiar
-            </button>
-          )}
           <SelectDropdown
             label="Por página"
             value={limit}
-            options={[10, 20, 50, 100].map((option) => ({
+            options={[5, 10, 20, 50, 100].map((option) => ({
               value: option,
               label: String(option),
             }))}
@@ -218,7 +210,7 @@ function AdminUsuariosPage() {
           title={search || metaProfesional ? "Sin resultados" : "No hay usuarios registrados"}
           description={
             search || metaProfesional
-              ? "El backend no encontró usuarios que coincidan con la búsqueda."
+              ? "No se encontraron usuarios que coincidan con la búsqueda."
               : "Cuando existan usuarios registrados aparecerán en este listado."
           }
           action={

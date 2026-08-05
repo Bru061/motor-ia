@@ -315,6 +315,104 @@
   color: var(--text);
 }
 
+/* Modal de confirmación genérico (ConfirmModal) */
+.confirm-modal-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 8, 17, 0.7);
+  backdrop-filter: blur(3px);
+  animation: app-view-in 0.15s ease-out;
+}
+
+.confirm-modal {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 32px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.confirm-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.confirm-modal__close:hover {
+  color: var(--text);
+  background: var(--panel-soft);
+}
+
+.confirm-modal__icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(246, 164, 0, 0.12);
+  color: var(--amber);
+  font-size: 24px;
+}
+
+.confirm-modal--danger .confirm-modal__icon {
+  background: rgba(255, 107, 122, 0.12);
+  color: var(--danger);
+}
+
+.confirm-modal h2 {
+  margin: 4px 0 0;
+  font-size: 18px;
+}
+
+.confirm-modal p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.confirm-modal__actions {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Confeti de celebración al completar una ruta (ConfettiBurst) */
+.confetti-burst {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-modal-backdrop {
+    animation: none;
+  }
+}
+
 @keyframes ui-spin {
   to {
     transform: rotate(360deg);

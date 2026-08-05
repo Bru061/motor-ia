@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, String, Integer, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.db.session import Base
@@ -14,6 +14,8 @@ class Modulo(Base):
     nivel = Column(String(20), nullable=False)  # junior, intermediate, advanced
     tiempo_estimado_hrs = Column(Integer, nullable=False, default=0)
     orden = Column(Integer, nullable=False, default=0)
+    # Nullable: los módulos generados antes de esta función no la tienen.
+    actividad_practica = Column(Text, nullable=True)
 
     # Relaciones
     ruta = relationship("RutaAprendizaje", back_populates="modulos")

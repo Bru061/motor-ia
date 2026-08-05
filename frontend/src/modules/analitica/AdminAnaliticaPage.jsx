@@ -1,15 +1,49 @@
 import { useEffect, useMemo, useState } from "react";
-import { FiAlertCircle, FiBarChart2, FiRefreshCw, FiTarget, FiUsers } from "react-icons/fi";
+import {
+  FiAlertCircle,
+  FiBarChart2,
+  FiList,
+  FiRefreshCw,
+  FiTarget,
+  FiUsers,
+} from "react-icons/fi";
 import {
   obtenerSkillGapAdmin,
   obtenerTecnologiasDemandadasAdmin,
 } from "../../api/adminApi";
 import EmptyState from "../../components/ui/EmptyState";
+import PageHeading from "../../components/ui/PageHeading";
 import PageLoader from "../../components/ui/PageLoader";
 import useToast from "../../hooks/useToast";
 import AdminMetricCard from "../admin/components/AdminMetricCard";
 import AnalyticsBarChart from "./components/AnalyticsBarChart";
+import ColumnChart from "./components/ColumnChart";
 import SkillGapChart from "./components/SkillGapChart";
+
+function ViewToggle({ view, onChange }) {
+  return (
+    <div className="view-toggle" role="group" aria-label="Cambiar visualización">
+      <button
+        type="button"
+        className={view === "lista" ? "view-toggle__btn is-active" : "view-toggle__btn"}
+        aria-pressed={view === "lista"}
+        onClick={() => onChange("lista")}
+        title="Ver como lista"
+      >
+        <FiList aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className={view === "barras" ? "view-toggle__btn is-active" : "view-toggle__btn"}
+        aria-pressed={view === "barras"}
+        onClick={() => onChange("barras")}
+        title="Ver como gráfico de barras"
+      >
+        <FiBarChart2 aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
 
 function AdminAnaliticaPage() {
   const toast = useToast();
@@ -20,6 +54,8 @@ function AdminAnaliticaPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
+  const [vistaTecnologias, setVistaTecnologias] = useState("lista");
+  const [vistaSkillGap, setVistaSkillGap] = useState("lista");
 
   useEffect(() => {
     let ignoreResults = false;
@@ -105,14 +141,12 @@ function AdminAnaliticaPage() {
 
   return (
     <section className="admin-page">
-      <div className="page-title admin-page-title">
-        <div>
-          <h1>Analítica Administrativa</h1>
-          <p>
-            Tecnologías demandadas y brechas de habilidades calculadas por el backend.
-          </p>
-        </div>
-      </div>
+      <PageHeading
+        eyebrow="Panel administrativo"
+        icon={FiBarChart2}
+        title="Analítica Administrativa"
+        description="Tecnologías demandadas y brechas de habilidades."
+      />
 
       <div className="admin-metric-grid analytics-kpi-grid">
         <AdminMetricCard
@@ -147,40 +181,72 @@ function AdminAnaliticaPage() {
 
       <div className="admin-insights admin-insights--wide analytics-layout">
         <article className="admin-panel analytics-panel">
-          <div className="section-heading">
+          <div className="section-heading__title-group">
+            <span className="section-heading__icon section-heading__icon--amber">
+              <FiTarget aria-hidden="true" />
+            </span>
             <div>
               <h2>Tecnologías más demandadas</h2>
-              <span>GET /admin/analitica/tecnologias-demandadas</span>
             </div>
-            {topTecnologia && (
-              <span className="admin-badge admin-badge--success">
-                Top: {topTecnologia.nombre}
-              </span>
-            )}
+            <div className="section-heading__actions">
+              {topTecnologia && (
+                <span className="admin-badge admin-badge--success">
+                  Top: {topTecnologia.nombre}
+                </span>
+              )}
+              <ViewToggle view={vistaTecnologias} onChange={setVistaTecnologias} />
+            </div>
           </div>
 
-          <AnalyticsBarChart
-            items={tecnologias}
-            labelKey="nombre"
-            countKey="total_usuarios"
-            emptyLabel="No hay tecnologías demandadas para mostrar."
-          />
+          <div className="analytics-panel__body">
+          {vistaTecnologias === "lista" ? (
+            <AnalyticsBarChart
+              items={tecnologias}
+              labelKey="nombre"
+              countKey="total_usuarios"
+              emptyLabel="No hay tecnologías demandadas para mostrar."
+            />
+          ) : (
+            <ColumnChart
+              items={tecnologias}
+              labelKey="nombre"
+              valueKey="porcentaje"
+              emptyLabel="No hay tecnologías demandadas para mostrar."
+            />
+          )}
+          </div>
         </article>
 
         <article className="admin-panel analytics-panel">
-          <div className="section-heading">
+          <div className="section-heading__title-group">
+            <span className="section-heading__icon section-heading__icon--violet">
+              <FiTarget aria-hidden="true" />
+            </span>
             <div>
               <h2>Skill Gap Analysis</h2>
-              <span>GET /admin/analitica/skill-gap</span>
             </div>
-            {topBrecha && (
-              <span className="admin-badge admin-badge--en_progreso">
-                Mayor brecha: {topBrecha.tecnologia}
-              </span>
-            )}
+            <div className="section-heading__actions">
+              {topBrecha && (
+                <span className="admin-badge admin-badge--en_progreso">
+                  Mayor brecha: {topBrecha.tecnologia}
+                </span>
+              )}
+              <ViewToggle view={vistaSkillGap} onChange={setVistaSkillGap} />
+            </div>
           </div>
 
-          <SkillGapChart gaps={brechas} />
+          <div className="analytics-panel__body">
+          {vistaSkillGap === "lista" ? (
+            <SkillGapChart gaps={brechas} />
+          ) : (
+            <ColumnChart
+              items={brechas}
+              labelKey="tecnologia"
+              valueKey="porcentaje"
+              emptyLabel="No hay brechas de habilidades para mostrar."
+            />
+          )}
+          </div>
         </article>
       </div>
     </section>

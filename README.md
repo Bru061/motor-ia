@@ -10,7 +10,7 @@ Analiza el perfil tecnológico del usuario (conocimientos actuales, nivel y meta
 
 - **Módulo del Estudiante** — Skill assessment, roadmap interactivo (React Flow) y dashboard de progreso
 - **Módulo del Administrador** — Analítica de tecnologías más demandadas y Skill Gap Analysis
-- **Motor de IA** — Integración LangChain + Gemini API con generación de JSON validado con Pydantic
+- **Motor de IA** — Integración con Gemini API con generación de JSON validado con Pydantic
 
 ## Stack tecnológico
 
@@ -18,7 +18,7 @@ Analiza el perfil tecnológico del usuario (conocimientos actuales, nivel y meta
 |---|---|
 | Frontend | React + Vite, Tailwind CSS, React Flow, React Router, Axios |
 | Backend | FastAPI (Python), SQLAlchemy, Alembic, python-jose |
-| Motor de IA | LangChain, Gemini API, JsonOutputParser, Pydantic |
+| Motor de IA | GoogleGenAI, Gemini API, JsonOutputParser, Pydantic |
 | Base de datos | PostgreSQL |
 | Deploy | Railway (backend + BD), Vercel (frontend) |
 

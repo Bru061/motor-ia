@@ -481,20 +481,6 @@ function PerfilPage() {
           </article>
         </fieldset>
 
-        {saveError && (
-          <div className="perfil-feedback perfil-feedback--error" role="alert">
-            <FiAlertCircle aria-hidden="true" />
-            <span>{saveError}</span>
-          </div>
-        )}
-
-        {successMessage && (
-          <div className="perfil-feedback perfil-feedback--success" role="status">
-            <FiCheck aria-hidden="true" />
-            <span>{successMessage}</span>
-          </div>
-        )}
-
         <div className="perfil-actions">
           <p>
             {formData.categorias_ids.length} categoría
