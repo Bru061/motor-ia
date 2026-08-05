@@ -223,6 +223,8 @@
     radial-gradient(circle at center, var(--bg-deep) 60%, transparent 61%),
     conic-gradient(var(--cyan) var(--dashboard-progress), var(--border) 0);
   text-align: center;
+  transition: --dashboard-progress 700ms ease;
+  animation: chart-fill-ring 1s ease-out;
 }
 
 .student-dashboard-progress-ring strong {
