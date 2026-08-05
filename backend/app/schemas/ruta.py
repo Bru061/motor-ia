@@ -25,6 +25,7 @@ class ModuloResponse(BaseModel):
     nivel: str
     tiempo_estimado_hrs: int
     orden: int
+    actividad_practica: str | None = None
     recursos: List[RecursoResponse] = []
     dependencias: List[DependenciaModuloResponse] = []
     model_config = ConfigDict(from_attributes=True)

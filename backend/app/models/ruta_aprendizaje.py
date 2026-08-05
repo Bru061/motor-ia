@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.session import Base
@@ -14,6 +14,10 @@ class RutaAprendizaje(Base):
     titulo = Column(String(255), nullable=False)
     estado = Column(String(20), nullable=False, default="activa")  # activa, completada, archivada
     desde_cache = Column(Boolean, default=False)
+    # Snapshot del perfil del usuario en el momento en que se generó/clonó esta ruta.
+    # Nullable: rutas creadas antes de esta función no lo tienen.
+    nivel_actual = Column(String(20), nullable=True)
+    tecnologias_nombres = Column(JSONB, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relaciones

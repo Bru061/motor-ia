@@ -18,6 +18,7 @@ from app.schemas.ruta import RutaResponse
 from app.schemas.ruta_ia import ModuloIA, RecursoIA, RutaIAResponse
 from app.services.gemini_service import (
     GeminiServiceError,
+    _obtener_tecnologias,
     generar_ruta_con_gemini,
     obtener_limites_modulos,
 )
@@ -69,6 +70,7 @@ def _crear_modulos(
             nivel=modulo_origen.nivel,
             tiempo_estimado_hrs=modulo_origen.tiempo_estimado_hrs,
             orden=modulo_origen.orden,
+            actividad_practica=getattr(modulo_origen, "actividad_practica", None),
         )
         db.add(modulo)
         db.flush()
@@ -95,14 +97,16 @@ def _crear_dependencias(
 
 def _guardar_ruta_generada(
     db: Session,
-    usuario_id: UUID,
+    perfil: PerfilUsuario,
     ruta_ia: RutaIAResponse,
 ) -> RutaAprendizaje:
     ruta = RutaAprendizaje(
-        usuario_id=usuario_id,
+        usuario_id=perfil.usuario_id,
         titulo=ruta_ia.titulo,
         estado="activa",
         desde_cache=False,
+        nivel_actual=perfil.nivel_actual,
+        tecnologias_nombres=_obtener_tecnologias(perfil),
     )
     db.add(ruta)
     db.flush()
@@ -127,13 +131,15 @@ def _guardar_ruta_generada(
 def _clonar_ruta_existente(
     db: Session,
     ruta_origen: RutaAprendizaje,
-    usuario_id: UUID,
+    perfil: PerfilUsuario,
 ) -> RutaAprendizaje:
     ruta = RutaAprendizaje(
-        usuario_id=usuario_id,
+        usuario_id=perfil.usuario_id,
         titulo=ruta_origen.titulo,
         estado="activa",
         desde_cache=True,
+        nivel_actual=perfil.nivel_actual,
+        tecnologias_nombres=_obtener_tecnologias(perfil),
     )
     db.add(ruta)
     db.flush()
@@ -224,10 +230,10 @@ def _crear_ruta_para_usuario(
 ) -> RutaAprendizaje:
     ruta_en_cache = _buscar_ruta_compatible_en_cache(db, perfil)
     if ruta_en_cache is not None:
-        return _clonar_ruta_existente(db, ruta_en_cache, perfil.usuario_id)
+        return _clonar_ruta_existente(db, ruta_en_cache, perfil)
 
     ruta_ia = generar_ruta_con_gemini(perfil)
-    return _guardar_ruta_generada(db, perfil.usuario_id, ruta_ia)
+    return _guardar_ruta_generada(db, perfil, ruta_ia)
 
 
 def _archivar_rutas_activas(db: Session, usuario_id: UUID) -> None:

@@ -51,6 +51,7 @@ class ModuloConProgresoResponse(BaseModel):
     tiempo_estimado_hrs: int
     orden: int
     estado: EstadoProgreso
+    actividad_practica: str | None = None
     recursos: list[RecursoConProgresoResponse] = Field(default_factory=list)
     dependencias: list[DependenciaModuloResponse] = Field(default_factory=list)
 
