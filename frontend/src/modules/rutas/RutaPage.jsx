@@ -19,17 +19,19 @@ import {
 import { obtenerPerfilActual } from "../../api/perfilApi";
 import {
   actualizarProgresoModulo,
+  actualizarProgresoRecurso,
   obtenerRutaActiva,
   obtenerResumenProgreso,
 } from "../../api/progresoApi";
 import { generarRuta, regenerarRuta } from "../../api/rutasApi";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 import EmptyState from "../../components/ui/EmptyState";
 import PageLoader from "../../components/ui/PageLoader";
 import Skeleton from "../../components/ui/Skeleton";
 import useToast from "../../hooks/useToast";
 import ModuloDetalle from "./components/ModuloDetalle";
-import ProgressSummary from "./components/ProgressSummary";
 import RoadmapFlow from "./components/RoadmapFlow";
+import ConfettiBurst from "../../components/ui/ConfettiBurst";
 import "../../styles/ruta.css";
 
 const INITIAL_STATE = {
@@ -38,7 +40,6 @@ const INITIAL_STATE = {
   route: null,
   routeStatus: "loading",
   progressSummary: null,
-  progressWarning: "",
   loadError: "",
 };
 
@@ -125,6 +126,13 @@ function getModuleUpdateError(error) {
 
   if (status === 404) {
     return "El módulo no existe o ya no pertenece a tu ruta activa.";
+  }
+
+  if (status === 400) {
+    return (
+      error.response?.data?.detail ||
+      "No fue posible actualizar el módulo con el estado solicitado."
+    );
   }
 
   if (status === 422) {
@@ -232,7 +240,8 @@ function RutaPage() {
   const [feedback, setFeedback] = useState(null);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
   const [updatingModuleId, setUpdatingModuleId] = useState(null);
-  const [moduleFeedback, setModuleFeedback] = useState(null);
+  const [updatingResourceId, setUpdatingResourceId] = useState(null);
+  const [isCelebrating, setIsCelebrating] = useState(false);
   const [roadmapFocus, setRoadmapFocus] = useState({
     moduleId: null,
     requestId: 0,
@@ -248,7 +257,6 @@ function RutaPage() {
         ...current,
         profileStatus: "loading",
         routeStatus: "loading",
-        progressWarning: "",
         loadError: "",
       }));
 
@@ -265,6 +273,16 @@ function RutaPage() {
       const [profileResult, routeResult, progressResult] = results;
       const route =
         routeResult.status === "fulfilled" ? routeResult.value : null;
+
+      if (
+        route &&
+        progressResult.status === "rejected" &&
+        !isNotFound(progressResult)
+      ) {
+        toast.warning(
+          "No pudimos consultar el resumen guardado. Mostramos el avance calculado desde tu ruta.",
+        );
+      }
 
       setPageState({
         profile:
@@ -289,12 +307,6 @@ function RutaPage() {
                 progressResult.value,
               )
             : calculateProgressSummary(route?.modulos),
-        progressWarning:
-          route &&
-          progressResult.status === "rejected" &&
-          !isNotFound(progressResult)
-            ? "No pudimos consultar el resumen guardado. Mostramos el avance calculado desde tu ruta."
-            : "",
         loadError: getLoadError([profileResult, routeResult]),
       });
     };
@@ -316,12 +328,10 @@ function RutaPage() {
       route,
       routeStatus: "exists",
       progressSummary: calculateProgressSummary(route?.modulos),
-      progressWarning: "",
       loadError: "",
     }));
     setSelectedModuleId(null);
     setRoadmapFocus({ moduleId: null, requestId: 0 });
-    setModuleFeedback(null);
     setFeedback({ type: "success", message: successMessage });
     toast.success(successMessage);
   };
@@ -403,30 +413,18 @@ function RutaPage() {
   const selectedModule = modules.find(
     (module) => String(module.id) === String(selectedModuleId),
   );
-  const progressSummary =
-    pageState.progressSummary || calculateProgressSummary(modules);
-  const nextModule = modules.find(
-    (module) => (module.estado || "pendiente") === "pendiente",
-  );
+  const isRouteFullyCompleted =
+    modules.length > 0 &&
+    modules.every((module) => (module.estado || "pendiente") === "completado");
 
   const handleSelectModule = (module) => {
     setSelectedModuleId(module.id);
-    setModuleFeedback(null);
   };
 
   const handleCloseModuleDetail = () => {
     if (!updatingModuleId) {
       setSelectedModuleId(null);
-      setModuleFeedback(null);
     }
-  };
-
-  const handleGoToModule = (module) => {
-    handleSelectModule(module);
-    setRoadmapFocus((current) => ({
-      moduleId: module.id,
-      requestId: current.requestId + 1,
-    }));
   };
 
   const handleUpdateModuleStatus = async (estado) => {
@@ -436,16 +434,10 @@ function RutaPage() {
 
     const moduleId = selectedModule.id;
     setUpdatingModuleId(moduleId);
-    setModuleFeedback(null);
 
     try {
       const updatedProgress = await actualizarProgresoModulo(moduleId, estado);
-
-      toast.success(
-        `Módulo actualizado a ${
-          STATUS_LABELS[updatedProgress.estado]?.toLowerCase() || "actualizado"
-        }.`,
-      );
+      let rutaRecienCompletada = false;
 
       setPageState((current) => {
         const updatedModules = (current.route?.modulos || []).map((module) =>
@@ -454,27 +446,139 @@ function RutaPage() {
             : module,
         );
 
+        rutaRecienCompletada =
+          updatedProgress.estado === "completado" &&
+          updatedModules.length > 0 &&
+          updatedModules.every((module) => module.estado === "completado");
+
         return {
           ...current,
           route: current.route
             ? { ...current.route, modulos: updatedModules }
             : current.route,
           progressSummary: calculateProgressSummary(updatedModules),
-          progressWarning: "",
         };
       });
-      setModuleFeedback({
-        type: "success",
-        message: `El módulo ahora está ${
+
+      toast.success(
+        `El módulo ahora está ${
           STATUS_LABELS[updatedProgress.estado]?.toLowerCase() || "actualizado"
         }.`,
-      });
+      );
+
+      if (rutaRecienCompletada) {
+        setIsCelebrating(true);
+        toast.success(
+          "Completaste el 100% de tu ruta de aprendizaje. ¡Excelente trabajo!",
+          { title: "¡Felicidades!", duration: 7000 },
+        );
+      }
     } catch (error) {
       const message = getModuleUpdateError(error);
-      setModuleFeedback({ type: "error", message });
       toast.error(message);
     } finally {
       setUpdatingModuleId(null);
+    }
+  };
+
+  const handleToggleResourceSeen = async (recursoId, wasSeen) => {
+    if (updatingResourceId) {
+      return;
+    }
+
+    const nextEstado = wasSeen ? "pendiente" : "completado";
+    setUpdatingResourceId(recursoId);
+
+    try {
+      const updatedResource = await actualizarProgresoRecurso(recursoId, nextEstado);
+
+      let moduleAutoAdvanced = false;
+      let moduleAutoCompleted = false;
+      let rutaRecienCompletada = false;
+
+      setPageState((current) => {
+        const updatedModules = (current.route?.modulos || []).map((module) => {
+          const recursos = Array.isArray(module.recursos) ? module.recursos : [];
+          const tieneRecurso = recursos.some(
+            (recurso) => String(recurso.id) === String(recursoId),
+          );
+
+          if (!tieneRecurso) {
+            return module;
+          }
+
+          const recursosActualizados = recursos.map((recurso) =>
+            String(recurso.id) === String(recursoId)
+              ? { ...recurso, estado: updatedResource.estado }
+              : recurso,
+          );
+
+          if (module.estado === "completado") {
+            return { ...module, recursos: recursosActualizados };
+          }
+
+          const todosVistos =
+            updatedResource.estado === "completado" &&
+            recursosActualizados.length > 0 &&
+            recursosActualizados.every(
+              (recurso) => recurso.estado === "completado",
+            );
+          const debeAvanzar =
+            updatedResource.estado === "completado" && module.estado === "pendiente";
+
+          let nuevoEstadoModulo = module.estado;
+          if (todosVistos) {
+            nuevoEstadoModulo = "completado";
+            moduleAutoCompleted = true;
+          } else if (debeAvanzar) {
+            nuevoEstadoModulo = "en_progreso";
+            moduleAutoAdvanced = true;
+          }
+
+          return {
+            ...module,
+            recursos: recursosActualizados,
+            estado: nuevoEstadoModulo,
+          };
+        });
+
+        rutaRecienCompletada =
+          moduleAutoCompleted &&
+          updatedModules.length > 0 &&
+          updatedModules.every((module) => module.estado === "completado");
+
+        return {
+          ...current,
+          route: current.route
+            ? { ...current.route, modulos: updatedModules }
+            : current.route,
+          progressSummary: calculateProgressSummary(updatedModules),
+        };
+      });
+
+      toast.success(
+        updatedResource.estado === "completado"
+          ? "Recurso marcado como visto."
+          : "Recurso marcado como pendiente.",
+      );
+      if (moduleAutoCompleted) {
+        toast.info("Todos los recursos están vistos: el módulo se completó.");
+      } else if (moduleAutoAdvanced) {
+        toast.info("El módulo ahora está en progreso.");
+      }
+
+      if (rutaRecienCompletada) {
+        setIsCelebrating(true);
+        toast.success(
+          "Completaste el 100% de tu ruta de aprendizaje. ¡Excelente trabajo!",
+          { title: "¡Felicidades!", duration: 7000 },
+        );
+      }
+    } catch (error) {
+      const message = getModuleUpdateError(error);
+      toast.error(message);
+    } finally {
+      setUpdatingResourceId(null);
     }
   };
 
@@ -615,9 +719,6 @@ function RutaPage() {
         </div>
 
         <div className="route-page__actions">
-          <Link className="route-button route-button--secondary" to="/progreso">
-            Ver progreso
-          </Link>
           <button
             className="route-button route-button--primary"
             type="button"
@@ -644,35 +745,31 @@ function RutaPage() {
         </div>
       )}
 
-      {showRegenerateConfirmation && (
-        <div className="route-confirmation" role="alertdialog" aria-labelledby="route-confirm-title">
-          <div>
-            <FiAlertCircle aria-hidden="true" />
-            <div>
-              <h2 id="route-confirm-title">¿Regenerar esta ruta?</h2>
-              <p>
-                La ruta actual será archivada y se creará una nueva a partir de
-                tu perfil tecnológico.
-              </p>
-            </div>
-          </div>
-          <div className="route-confirmation__actions">
-            <button
-              className="route-button route-button--ghost"
-              type="button"
-              onClick={() => setShowRegenerateConfirmation(false)}
-            >
-              <FiX aria-hidden="true" /> Cancelar
-            </button>
-            <button
-              className="route-button route-button--danger"
-              type="button"
-              onClick={handleRegenerate}
-            >
-              Confirmar regeneración
-            </button>
-          </div>
+      {isCelebrating && (
+        <ConfettiBurst onComplete={() => setIsCelebrating(false)} />
+      )}
+
+      {isRouteFullyCompleted && (
+        <div className="route-feedback route-feedback--success" role="status">
+          <FiCheckCircle aria-hidden="true" />
+          <span>
+            Completaste esta ruta. Actualiza tu perfil tecnológico para
+            definir una nueva meta y genera una ruta nueva.{" "}
+            <Link to="/perfil">Actualizar perfil</Link>
+          </span>
         </div>
+      )}
+
+      {showRegenerateConfirmation && (
+        <ConfirmModal
+          title="¿Regenerar esta ruta?"
+          description="La ruta actual será archivada y se creará una nueva a partir de tu perfil tecnológico."
+          confirmLabel="Confirmar regeneración"
+          tone="danger"
+          isConfirming={currentAction === "regenerating"}
+          onConfirm={handleRegenerate}
+          onCancel={() => setShowRegenerateConfirmation(false)}
+        />
       )}
 
       {currentAction === "regenerating" && (
@@ -684,13 +781,6 @@ function RutaPage() {
           </div>
         </div>
       )}
-
-      <ProgressSummary
-        summary={progressSummary}
-        nextModule={nextModule}
-        onOpenModule={handleGoToModule}
-        warning={pageState.progressWarning}
-      />
 
       {modules.length > 0 && (
         <section className="route-roadmap-section" aria-labelledby="route-roadmap-title">
@@ -839,7 +929,8 @@ function RutaPage() {
           onClose={handleCloseModuleDetail}
           onChangeStatus={handleUpdateModuleStatus}
           isUpdating={String(updatingModuleId) === String(selectedModule.id)}
-          feedback={moduleFeedback}
+          onToggleResourceSeen={handleToggleResourceSeen}
+          updatingResourceId={updatingResourceId}
         />
       )}
     </section>

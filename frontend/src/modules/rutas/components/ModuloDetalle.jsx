@@ -41,7 +41,8 @@ function ModuloDetalle({
   onClose,
   onChangeStatus,
   isUpdating,
-  feedback,
+  onToggleResourceSeen,
+  updatingResourceId,
 }) {
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -120,15 +121,32 @@ function ModuloDetalle({
             <span>
               <FiClock aria-hidden="true" />
               {module.tiempo_estimado_hrs !== undefined &&
-              module.tiempo_estimado_hrs !== null
+                module.tiempo_estimado_hrs !== null
                 ? `${module.tiempo_estimado_hrs} h estimadas`
                 : "Duración no disponible"}
             </span>
           </div>
 
-          <p className="route-module-detail__description">
-            Este módulo no incluye una descripción adicional.
-          </p>
+          {module.actividad_practica ? (
+            <section
+              className="route-module-detail__section route-module-detail__practice"
+              aria-labelledby="module-practice-title"
+            >
+              <div className="route-module-detail__section-heading">
+                <div>
+                  <span>Pon a prueba lo aprendido</span>
+                  <h3 id="module-practice-title">Actividad práctica</h3>
+                </div>
+              </div>
+              <p className="route-module-detail__description">
+                {module.actividad_practica}
+              </p>
+            </section>
+          ) : (
+            <p className="route-module-detail__description">
+              Este módulo no incluye una descripción adicional.
+            </p>
+          )}
 
           <section className="route-module-detail__section" aria-labelledby="module-status-title">
             <div className="route-module-detail__section-heading">
@@ -147,7 +165,11 @@ function ModuloDetalle({
                   className={`route-module-detail__status-button route-module-detail__status-button--${option.value}`}
                   type="button"
                   key={option.value}
-                  disabled={isUpdating || status === option.value}
+                  disabled={
+                    isUpdating ||
+                    status === option.value ||
+                    status === "completado"
+                  }
                   aria-pressed={status === option.value}
                   onClick={() => onChangeStatus(option.value)}
                 >
@@ -161,25 +183,18 @@ function ModuloDetalle({
               ))}
             </div>
 
+            {status === "completado" && (
+              <p className="route-module-detail__hint">
+                Este módulo ya fue completado y no puede regresar a un estado
+                anterior.
+              </p>
+            )}
+
             {isUpdating && (
               <p className="route-module-detail__saving" role="status">
                 <span className="route-button__spinner" aria-hidden="true" />
                 Guardando el nuevo estado…
               </p>
-            )}
-
-            {feedback && (
-              <div
-                className={`route-module-detail__feedback route-module-detail__feedback--${feedback.type}`}
-                role={feedback.type === "error" ? "alert" : "status"}
-              >
-                {feedback.type === "success" ? (
-                  <FiCheckCircle aria-hidden="true" />
-                ) : (
-                  <FiAlertCircle aria-hidden="true" />
-                )}
-                <span>{feedback.message}</span>
-              </div>
             )}
           </section>
 
@@ -196,44 +211,58 @@ function ModuloDetalle({
               <div className="route-module-detail__resources">
                 {resources.map((resource) => {
                   const safeUrl = getSafeResourceUrl(resource.url);
-                  const content = (
-                    <>
-                      <div className="route-module-detail__resource-icon">
-                        <FiBookOpen aria-hidden="true" />
-                      </div>
-                      <div>
-                        <strong>{resource.titulo || "Recurso sin título"}</strong>
-                        <span>
-                          {resource.tipo || "Tipo no disponible"}
-                          {STATUS_LABELS[resource.estado]
-                            ? ` · ${STATUS_LABELS[resource.estado]}`
-                            : ""}
-                        </span>
-                      </div>
-                      {safeUrl ? (
-                        <FiExternalLink aria-hidden="true" />
-                      ) : (
-                        <FiAlertCircle aria-label="Enlace no disponible" />
-                      )}
-                    </>
-                  );
+                  const isSeen = resource.estado === "completado";
+                  const isSavingThis = updatingResourceId === resource.id;
 
-                  return safeUrl ? (
-                    <a
-                      className="route-module-detail__resource"
-                      href={safeUrl}
-                      key={resource.id}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {content}
-                    </a>
-                  ) : (
-                    <div
-                      className="route-module-detail__resource route-module-detail__resource--unavailable"
-                      key={resource.id}
-                    >
-                      {content}
+                  return (
+                    <div className="route-module-detail__resource" key={resource.id}>
+                      {safeUrl ? (
+                        <a
+                          className="route-module-detail__resource-link"
+                          href={safeUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <div className="route-module-detail__resource-icon">
+                            <FiBookOpen aria-hidden="true" />
+                          </div>
+                          <div>
+                            <strong>{resource.titulo || "Recurso sin título"}</strong>
+                            <span>{resource.tipo || "Tipo no disponible"}</span>
+                          </div>
+                          <FiExternalLink aria-hidden="true" />
+                        </a>
+                      ) : (
+                        <div className="route-module-detail__resource-link route-module-detail__resource-link--unavailable">
+                          <div className="route-module-detail__resource-icon">
+                            <FiBookOpen aria-hidden="true" />
+                          </div>
+                          <div>
+                            <strong>{resource.titulo || "Recurso sin título"}</strong>
+                            <span>{resource.tipo || "Tipo no disponible"}</span>
+                          </div>
+                          <FiAlertCircle aria-label="Enlace no disponible" />
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        className={
+                          isSeen
+                            ? "route-module-detail__seen-toggle route-module-detail__seen-toggle--seen"
+                            : "route-module-detail__seen-toggle"
+                        }
+                        disabled={isSavingThis}
+                        aria-pressed={isSeen}
+                        onClick={() => onToggleResourceSeen(resource.id, isSeen)}
+                      >
+                        {isSavingThis ? (
+                          <span className="route-button__spinner" aria-hidden="true" />
+                        ) : (
+                          <FiCheckCircle aria-hidden="true" />
+                        )}
+                        {isSeen ? "Visto" : "Marcar como visto"}
+                      </button>
                     </div>
                   );
                 })}

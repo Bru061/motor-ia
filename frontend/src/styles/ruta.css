@@ -66,6 +66,12 @@
   color: var(--green);
 }
 
+.route-feedback a {
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 900;
+}
+
 .route-empty-card,
 .route-ready-card,
 .route-no-modules {
@@ -1143,6 +1149,13 @@
   opacity: 1;
 }
 
+.route-module-detail__hint {
+  margin: 13px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .route-module-detail__saving {
   margin: 13px 0 0;
   display: flex;
@@ -1196,6 +1209,13 @@
 
 .route-module-detail__resource {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.route-module-detail__resource-link {
+  min-width: 0;
   padding: 12px;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -1205,6 +1225,77 @@
   border-radius: 10px;
   background: var(--bg-deep);
   color: var(--muted-strong);
+}
+
+a.route-module-detail__resource-link:hover,
+a.route-module-detail__resource-link:focus-visible {
+  border-color: rgba(var(--cyan-rgb), 0.52);
+  color: var(--text);
+}
+
+.route-module-detail__resource-icon {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: rgba(var(--cyan-rgb), 0.08);
+  color: var(--cyan);
+}
+
+.route-module-detail__resource-link > div:nth-child(2) {
+  min-width: 0;
+}
+
+.route-module-detail__resource-link strong,
+.route-module-detail__resource-link span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.route-module-detail__resource-link span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.route-module-detail__resource-link--unavailable {
+  opacity: 0.64;
+}
+
+.route-module-detail__seen-toggle {
+  align-self: flex-end;
+  min-height: 32px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.route-module-detail__seen-toggle:hover:not(:disabled) {
+  border-color: rgba(var(--cyan-rgb), 0.5);
+  color: var(--text);
+}
+
+.route-module-detail__seen-toggle--seen {
+  border-color: rgba(var(--green-rgb), 0.45);
+  background: rgba(var(--green-rgb), 0.1);
+  color: var(--green);
+}
+
+.route-module-detail__seen-toggle:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 a.route-module-detail__resource:hover,
