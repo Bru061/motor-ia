@@ -9,17 +9,27 @@ import {
   FiInfo,
   FiLayers,
   FiRefreshCw,
+  FiUsers,
 } from "react-icons/fi";
 import { obtenerUsuarioAdmin } from "../../api/adminApi";
 import EmptyState from "../../components/ui/EmptyState";
+import PageHeading from "../../components/ui/PageHeading";
 import PageLoader from "../../components/ui/PageLoader";
 import useToast from "../../hooks/useToast";
 import { formatDate, getInitials } from "../../utils/formatters";
+import RoadmapFlow from "../rutas/components/RoadmapFlow";
+import "../../styles/ruta.css";
 
 const STATUS_LABELS = {
   pendiente: "Pendiente",
   en_progreso: "En progreso",
   completado: "Completado",
+};
+
+const NIVEL_LABELS = {
+  junior: "Junior",
+  mid: "Mid",
+  senior: "Senior",
 };
 
 const LONG_DATE_FORMAT = {
@@ -95,6 +105,11 @@ function AdminUsuarioDetallePage() {
   const progress = user?.progreso;
   const route = user?.ruta_activa;
   const modules = route?.modulos || [];
+  const archivedRoutes = user?.rutas_archivadas || [];
+  const roadmapModules = useMemo(
+    () => modules.map((module) => ({ ...module, estado: module.estado_progreso })),
+    [modules],
+  );
   const initials = useMemo(
     () => getInitials(user?.nombre, user?.email),
     [user?.email, user?.nombre],
@@ -148,23 +163,17 @@ function AdminUsuarioDetallePage() {
 
   return (
     <section className="admin-page">
-      <div className="page-title admin-page-title">
-        <div>
-          <button
-            className="admin-back-button"
-            type="button"
-            onClick={() => navigate(-1)}
-          >
-            <FiArrowLeft aria-hidden="true" />
-            Volver
-          </button>
-          <h1>Detalle de usuario</h1>
-          <p>Información administrativa devuelta por el backend.</p>
-        </div>
-        <Link className="route-button route-button--secondary" to="/admin/usuarios">
-          Ver listado
-        </Link>
-      </div>
+      <button className="admin-back-button" type="button" onClick={() => navigate(-1)}>
+        <FiArrowLeft aria-hidden="true" />
+        Volver
+      </button>
+
+      <PageHeading
+        eyebrow="Panel administrativo"
+        icon={FiUsers}
+        title="Detalle de usuario"
+        description={`Información del usuario ${user.nombre}.`}
+      />
 
       <article className="admin-panel admin-user-hero">
         <div className="profile-heading">
@@ -177,6 +186,10 @@ function AdminUsuarioDetallePage() {
         <div className="admin-user-hero__meta">
           <span className="admin-badge admin-badge--role">{user.rol}</span>
           <span>Registro: {formatDate(user.created_at, LONG_DATE_FORMAT)}</span>
+          <span>
+            <FiClock aria-hidden="true" /> Última actividad: {" "}
+            {formatDate(user.ultima_actividad, LONG_DATE_FORMAT)}
+          </span>
         </div>
       </article>
 
@@ -272,6 +285,15 @@ function AdminUsuarioDetallePage() {
               </div>
             )}
 
+            {modules.length > 0 && (
+              <div className="admin-roadmap-readonly">
+                <p className="admin-muted-text">
+                  Vista de solo lectura — no se pueden abrir ni editar módulos desde aquí.
+                </p>
+                <RoadmapFlow modules={roadmapModules} />
+              </div>
+            )}
+
             {modules.length > 0 ? (
               <div className="admin-modules-list">
                 {modules.map((module) => (
@@ -318,10 +340,49 @@ function AdminUsuarioDetallePage() {
             <span>Rutas archivadas</span>
           </div>
         </div>
-        <p className="admin-inline-notice">
-          <FiInfo aria-hidden="true" />
-          El endpoint de detalle actual no devuelve historial de rutas archivadas.
-        </p>
+
+        {archivedRoutes.length > 0 ? (
+          <div className="admin-modules-list">
+            {archivedRoutes.map((historyRoute) => (
+              <article className="admin-route-heading admin-route-heading--history" key={historyRoute.id}>
+                <div>
+                  <h3>{historyRoute.titulo}</h3>
+                  <p>
+                    Archivada · Creada el{" "}
+                    {formatDate(historyRoute.created_at, LONG_DATE_FORMAT)}
+                    {historyRoute.desde_cache ? " · Generada desde cache" : ""}
+                    {" · "}
+                    {historyRoute.modulos_completados}/
+                    {historyRoute.total_modulos} módulos completados
+                  </p>
+                  {(historyRoute.nivel_actual ||
+                    historyRoute.tecnologias.length > 0) && (
+                    <div className="admin-history-meta">
+                      {historyRoute.nivel_actual && (
+                        <span className="admin-badge">
+                          Nivel{" "}
+                          {NIVEL_LABELS[historyRoute.nivel_actual] ||
+                            historyRoute.nivel_actual}
+                        </span>
+                      )}
+                      {historyRoute.tecnologias.map((tecnologia) => (
+                        <span className="admin-badge" key={tecnologia}>
+                          {tecnologia}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <strong>{Math.round(historyRoute.porcentaje)}%</strong>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="admin-inline-notice">
+            <FiInfo aria-hidden="true" />
+            Este usuario no tiene rutas archivadas todavía.
+          </p>
+        )}
       </article>
     </section>
   );

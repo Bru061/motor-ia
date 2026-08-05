@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 from uuid import UUID
-
+from app.schemas.ruta import DependenciaModuloResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -10,6 +10,7 @@ class AdminUsuarioListItem(BaseModel):
     email: str
     nombre: str
     rol: str
+    meta_profesional: str | None = None
     created_at: datetime | None = None
     tiene_perfil: bool
     tiene_ruta_activa: bool
@@ -50,6 +51,8 @@ class AdminModuloRutaResponse(BaseModel):
     tiempo_estimado_hrs: int
     orden: int
     estado_progreso: Literal["pendiente", "en_progreso", "completado"]
+    actividad_practica: str | None = None
+    dependencias: list[DependenciaModuloResponse] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -74,17 +77,36 @@ class AdminProgresoResumenResponse(BaseModel):
     porcentaje: float
 
 
+class AdminRutaHistorialResponse(BaseModel):
+    id: UUID
+    titulo: str
+    estado: str
+    desde_cache: bool
+    created_at: datetime | None = None
+    nivel_actual: str | None = None
+    tecnologias: list[str] = Field(default_factory=list)
+    total_modulos: int
+    modulos_completados: int
+    porcentaje: float
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class AdminUsuarioDetalleResponse(BaseModel):
     id: UUID
     email: str
     nombre: str
     rol: str
     created_at: datetime | None = None
+    ultima_actividad: datetime | None = None
     perfil: AdminPerfilUsuarioResponse | None = None
     tecnologias: list[AdminTecnologiaUsuarioResponse] = Field(
         default_factory=list
     )
     ruta_activa: AdminRutaActivaResponse | None = None
     progreso: AdminProgresoResumenResponse | None = None
+    rutas_archivadas: list[AdminRutaHistorialResponse] = Field(
+        default_factory=list
+    )
 
     model_config = ConfigDict(from_attributes=True)

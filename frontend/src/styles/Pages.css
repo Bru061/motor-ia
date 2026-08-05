@@ -1566,6 +1566,17 @@
   color: var(--cyan);
 }
 
+.admin-route-heading--history {
+  align-items: flex-start;
+}
+
+.admin-history-meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .admin-progress-grid {
   margin-top: 14px;
   display: grid;

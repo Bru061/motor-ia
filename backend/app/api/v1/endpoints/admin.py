@@ -1,11 +1,12 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import get_current_admin_user
 from app.db.session import get_db
+from app.models.recurso_progreso import RecursoProgreso
 from app.models.modulo import Modulo
 from app.models.perfil_tecnologia import PerfilTecnologia
 from app.models.perfil_usuario import PerfilUsuario
@@ -17,6 +18,7 @@ from app.schemas.admin import (
     AdminPerfilUsuarioResponse,
     AdminProgresoResumenResponse,
     AdminRutaActivaResponse,
+    AdminRutaHistorialResponse,
     AdminTecnologiaUsuarioResponse,
     AdminUsuarioDetalleResponse,
     AdminUsuarioListItem,
@@ -61,10 +63,17 @@ def listar_usuarios(
         )
         .exists()
     )
+    meta_profesional_subquery = (
+        db.query(PerfilUsuario.meta_profesional)
+        .filter(PerfilUsuario.usuario_id == Usuario.id)
+        .limit(1)
+        .scalar_subquery()
+    )
     query = db.query(
         Usuario,
         tiene_perfil.label("tiene_perfil"),
         tiene_ruta_activa.label("tiene_ruta_activa"),
+        meta_profesional_subquery.label("meta_profesional"),
     )
 
     if search and (term := search.strip()):
@@ -106,11 +115,12 @@ def listar_usuarios(
                 email=usuario.email,
                 nombre=usuario.nombre,
                 rol=usuario.rol,
+                meta_profesional=meta_profesional,
                 created_at=usuario.created_at,
                 tiene_perfil=bool(perfil),
                 tiene_ruta_activa=bool(ruta_activa),
             )
-            for usuario, perfil, ruta_activa in rows
+            for usuario, perfil, ruta_activa, meta_profesional in rows
         ],
     )
 
@@ -142,7 +152,10 @@ def obtener_usuario(
 
     ruta = (
         db.query(RutaAprendizaje)
-        .options(selectinload(RutaAprendizaje.modulos))
+        .options(
+            selectinload(RutaAprendizaje.modulos)
+            .selectinload(Modulo.recursos)
+        )
         .filter(
             RutaAprendizaje.usuario_id == usuario.id,
             RutaAprendizaje.estado == "activa",
@@ -177,6 +190,72 @@ def obtener_usuario(
         estados.get(modulo.id) == "en_progreso" for modulo in modulos
     )
 
+    ultima_actividad_modulo = (
+        db.query(func.max(Progreso.updated_at))
+        .filter(Progreso.usuario_id == usuario.id)
+        .scalar()
+    )
+    ultima_actividad_recurso = (
+        db.query(func.max(RecursoProgreso.updated_at))
+        .filter(RecursoProgreso.usuario_id == usuario.id)
+        .scalar()
+    )
+    ultima_actividad = max(
+        filter(
+            None,
+            [ultima_actividad_modulo, ultima_actividad_recurso, usuario.created_at],
+        )
+    )
+
+    rutas_archivadas = (
+        db.query(RutaAprendizaje)
+        .options(selectinload(RutaAprendizaje.modulos))
+        .filter(
+            RutaAprendizaje.usuario_id == usuario.id,
+            RutaAprendizaje.estado == "archivada",
+        )
+        .order_by(
+            RutaAprendizaje.created_at.desc(),
+            RutaAprendizaje.id.desc(),
+        )
+        .all()
+    )
+
+    historial_rutas: list[AdminRutaHistorialResponse] = []
+    for ruta_archivada in rutas_archivadas:
+        modulo_ids_archivados = [modulo.id for modulo in ruta_archivada.modulos]
+        estados_archivados = (
+            dict(
+                db.query(Progreso.modulo_id, Progreso.estado)
+                .filter(
+                    Progreso.usuario_id == usuario.id,
+                    Progreso.modulo_id.in_(modulo_ids_archivados),
+                )
+                .all()
+            )
+            if modulo_ids_archivados
+            else {}
+        )
+        total_archivados = len(modulo_ids_archivados)
+        completados_archivados = sum(
+            estados_archivados.get(modulo.id) == "completado"
+            for modulo in ruta_archivada.modulos
+        )
+        historial_rutas.append(
+            AdminRutaHistorialResponse(
+                id=ruta_archivada.id,
+                titulo=ruta_archivada.titulo,
+                estado=ruta_archivada.estado,
+                desde_cache=bool(ruta_archivada.desde_cache),
+                created_at=ruta_archivada.created_at,
+                nivel_actual=ruta_archivada.nivel_actual,
+                tecnologias=ruta_archivada.tecnologias_nombres or [],
+                total_modulos=total_archivados,
+                modulos_completados=completados_archivados,
+                porcentaje=_porcentaje(completados_archivados, total_archivados),
+            )
+        )
+
     perfil = usuario.perfil
     tecnologias = (
         sorted(
@@ -193,6 +272,7 @@ def obtener_usuario(
         nombre=usuario.nombre,
         rol=usuario.rol,
         created_at=usuario.created_at,
+        ultima_actividad=ultima_actividad,
         perfil=(
             AdminPerfilUsuarioResponse.model_validate(perfil)
             if perfil is not None
@@ -223,6 +303,8 @@ def obtener_usuario(
                         tiempo_estimado_hrs=modulo.tiempo_estimado_hrs,
                         orden=modulo.orden,
                         estado_progreso=estados.get(modulo.id, "pendiente"),
+                        actividad_practica=modulo.actividad_practica,
+                        dependencias=modulo.dependencias,
                     )
                     for modulo in modulos
                 ],
@@ -248,4 +330,5 @@ def obtener_usuario(
             if ruta is not None
             else None
         ),
+        rutas_archivadas=historial_rutas,
     )
