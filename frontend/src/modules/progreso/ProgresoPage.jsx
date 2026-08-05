@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FiAlertCircle,
   FiCheckCircle,
@@ -15,9 +15,50 @@ import {
 import EmptyState from "../../components/ui/EmptyState";
 import PageLoader from "../../components/ui/PageLoader";
 import useToast from "../../hooks/useToast";
-import KpiCard from "../rutas/components/KpiCard";
-import ProgressBar from "../rutas/components/ProgressBar";
+import ProgressSummary from "../rutas/components/ProgressSummary";
+import RouteProgressPath from "./components/RouteProgressPath";
 import "../../styles/ruta.css";
+
+function safeNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function buildProgressSummary(modules, apiSummary) {
+  const safeModules = Array.isArray(modules) ? modules : [];
+  const modulesWithDuration = safeModules.filter(
+    (module) =>
+      module.tiempo_estimado_hrs !== undefined &&
+      module.tiempo_estimado_hrs !== null &&
+      module.tiempo_estimado_hrs !== "" &&
+      Number.isFinite(Number(module.tiempo_estimado_hrs)),
+  );
+  const completedModules = safeModules.filter(
+    (module) => module.estado === "completado",
+  );
+  const totalHours = modulesWithDuration.reduce(
+    (total, module) => total + safeNumber(module.tiempo_estimado_hrs),
+    0,
+  );
+  const completedHours = completedModules.reduce(
+    (total, module) => total + safeNumber(module.tiempo_estimado_hrs),
+    0,
+  );
+
+  return {
+    total_modulos: safeNumber(apiSummary?.total_modulos ?? safeModules.length),
+    porcentaje_avance: safeNumber(apiSummary?.porcentaje_avance),
+    modulos_completados: safeNumber(
+      apiSummary?.modulos_completados ?? completedModules.length,
+    ),
+    modulos_en_progreso: safeNumber(apiSummary?.modulos_en_progreso),
+    modulos_pendientes: safeNumber(apiSummary?.modulos_pendientes),
+    hasDurations: modulesWithDuration.length > 0,
+    horas_completadas: completedHours,
+    horas_restantes: Math.max(0, totalHours - completedHours),
+    horas_totales: totalHours,
+  };
+}
 
 function isNotFound(error) {
   return error?.response?.status === 404;
@@ -38,6 +79,7 @@ function formatHours(value) {
 
 function ProgresoPage() {
   const toast = useToast();
+  const navigate = useNavigate();
   const [route, setRoute] = useState(null);
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -108,6 +150,21 @@ function ProgresoPage() {
     [route],
   );
 
+  const progressSummary = useMemo(
+    () => buildProgressSummary(modules, summary),
+    [modules, summary],
+  );
+
+  const nextModule = useMemo(
+    () =>
+      modules.find((module) => (module.estado || "pendiente") === "pendiente"),
+    [modules],
+  );
+
+  const handleOpenModule = () => {
+    navigate("/ruta");
+  };
+
   if (isLoading) {
     return (
       <PageLoader
@@ -166,38 +223,17 @@ function ProgresoPage() {
       </div>
 
       <div className="route-progress-dashboard progreso-dashboard">
-        <div className="route-progress-kpis">
-          <KpiCard
-            icon={FiCheckCircle}
-            value={summary.modulos_completados}
-            label="Módulos completados"
-            tone="success"
-          />
-          <KpiCard
-            icon={FiClock}
-            value={summary.modulos_en_progreso}
-            label="Módulos en progreso"
-            tone="warning"
-          />
-          <KpiCard
-            icon={FiLayers}
-            value={summary.modulos_pendientes}
-            label="Módulos pendientes"
-            tone="muted"
-          />
-          <KpiCard
-            icon={FiGitBranch}
-            value={`${Math.round(summary.porcentaje_general ?? summary.porcentaje_avance)}%`}
-            label="Avance general"
-            tone="primary"
-          />
-        </div>
+        <ProgressSummary
+          summary={progressSummary}
+          nextModule={nextModule}
+          onOpenModule={handleOpenModule}
+        />
 
-        <ProgressBar value={summary.porcentaje_avance} />
+        <RouteProgressPath modules={modules} />
 
         <div className="progress-overview progress-overview--real">
           {modules.map((module) => (
-            <article className="dashboard-card progress-module" key={module.id}>
+            <article className="dashboard-card progress-module progress-module--compact" key={module.id}>
               <span>
                 {module.estado === "completado" ? (
                   <FiCheckCircle aria-hidden="true" />

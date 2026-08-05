@@ -1778,6 +1778,93 @@
   background: linear-gradient(90deg, var(--amber), var(--danger));
 }
 
+/* Camino de avance de la ruta (RouteProgressPath) */
+.route-progress-path {
+  margin: 4px 0 6px;
+  padding: 18px 16px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--panel-strong);
+}
+
+.route-progress-path__step {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.route-progress-path__dot {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--panel-soft);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  transition: transform 0.15s ease;
+}
+
+.route-progress-path__dot:hover {
+  transform: scale(1.12);
+}
+
+.route-progress-path__dot--completado {
+  border-color: var(--green);
+  background: rgba(var(--green-rgb), 0.16);
+  color: var(--green);
+}
+
+.route-progress-path__dot--en_progreso {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: rgba(246, 164, 0, 0.14);
+}
+
+.route-progress-path__line {
+  width: 26px;
+  height: 2px;
+  flex-shrink: 0;
+  background: var(--border);
+}
+
+.route-progress-path__line--done {
+  background: var(--green);
+}
+
+/* Variante compacta de la lista de módulos, para que ocupe menos
+   espacio ahora que el camino de arriba ya da la vista general. */
+.progress-module--compact {
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.progress-module--compact > span {
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+}
+
+.progress-module--compact h2 {
+  font-size: 14px;
+}
+
+.progress-module--compact p {
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+.progress-module--compact > strong {
+  font-size: 16px;
+}
+
 @media (max-width: 1120px) {
   .dashboard-grid,
   .admin-metric-grid {
