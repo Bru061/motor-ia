@@ -1,3 +1,5 @@
+import hashlib
+import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
@@ -34,3 +36,13 @@ def decode_access_token(token: str) -> Optional[dict]:
         return payload
     except JWTError:
         return None
+
+
+def generate_reset_token() -> str:
+    """Genera un token aleatorio de un solo uso para recuperar contraseña."""
+    return secrets.token_urlsafe(32)
+
+
+def hash_reset_token(token: str) -> str:
+    """Hashea el token de recuperación para almacenarlo en la BD (no se guarda en texto plano)."""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()

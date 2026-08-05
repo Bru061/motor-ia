@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { loginRequest, registerRequest } from "../api/authApi";
+import {
+  loginRequest,
+  registerRequest,
+  googleAuthRequest,
+  forgotPasswordRequest,
+  resetPasswordRequest,
+} from "../api/authApi";
 import { AuthContext } from "./authContext";
 
 function decodeJwtPayload(token) {
@@ -132,6 +138,44 @@ function AuthProvider({ children }) {
     }
   };
 
+  const loginWithGoogle = async (credential) => {
+    setLoading(true);
+
+    try {
+      const data = await googleAuthRequest(credential);
+
+      saveSession(data);
+
+      return data;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const forgotPassword = async (email) => {
+    setLoading(true);
+
+    try {
+      return await forgotPasswordRequest(email);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetPassword = async (token, newPassword) => {
+    setLoading(true);
+
+    try {
+      const data = await resetPasswordRequest(token, newPassword);
+
+      saveSession(data);
+
+      return data;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_role");
@@ -154,6 +198,9 @@ function AuthProvider({ children }) {
     loading,
     login,
     register,
+    loginWithGoogle,
+    forgotPassword,
+    resetPassword,
     logout,
   };
 

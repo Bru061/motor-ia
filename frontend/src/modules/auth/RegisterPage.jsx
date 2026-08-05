@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
+import { GoogleLogin } from "@react-oauth/google";
 import FloatingInput from "../../components/ui/FloatingInput";
 import LoadingButton from "../../components/ui/LoadingButton";
 import useAuth from "../../hooks/useAuth";
+import useTheme from "../../hooks/useTheme";
 import useToast from "../../hooks/useToast";
 import "../../styles/Auth.css";
 
 function RegisterPage() {
   const navigate = useNavigate();
   const toast = useToast();
-  const { register, loading } = useAuth();
+  const { theme } = useTheme();
+  const { register, loginWithGoogle, loading } = useAuth();
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -30,10 +32,32 @@ function RegisterPage() {
     setError("");
   };
 
-  const notifyUnavailable = () => {
-    toast.info("Esta opción aún no está disponible.", {
-      title: "Próximamente",
-    });
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setError("");
+
+    try {
+      const data = await loginWithGoogle(credentialResponse.credential);
+      const role = data.rol || data.role;
+
+      toast.success("Cuenta creada correctamente.");
+
+      if (role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (err) {
+      const message =
+        err.response?.data?.detail ||
+        "No fue posible registrarte con Google.";
+
+      setError(message);
+      toast.error(message);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("No fue posible registrarte con Google.");
   };
 
   const handleSubmit = async (event) => {
@@ -94,14 +118,8 @@ function RegisterPage() {
       <form
         className="auth-form"
         onSubmit={handleSubmit}
-        aria-describedby={error ? "register-error" : undefined}
         noValidate
       >
-        {error && (
-          <div className="auth-form__error" id="register-error" role="alert">
-            {error}
-          </div>
-        )}
 
         <FloatingInput
           id="register-name"
@@ -146,23 +164,25 @@ function RegisterPage() {
         </LoadingButton>
       </form>
 
-      <button className="auth-link-button" type="button" onClick={notifyUnavailable}>
+      <Link className="auth-link-button" to="/forgot-password">
         ¿Olvidaste tu contraseña?
-      </button>
+      </Link>
 
       <div className="auth-separator">
         <span>o continúa con</span>
       </div>
 
-      <button
-        className="auth-social"
-        type="button"
-        aria-label="Continuar con Google"
-        onClick={notifyUnavailable}
-      >
-        <FcGoogle aria-hidden="true" />
-        <span>Google</span>
-      </button>
+      <div className="auth-social">
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+          text="signup_with"
+          theme={theme === "dark" ? "filled_black" : "outline"}
+          shape="pill"
+          size="large"
+          width="320"
+        />
+      </div>
     </section>
   );
 }

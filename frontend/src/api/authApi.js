@@ -9,3 +9,21 @@ export const registerRequest = async (userData) => {
   const response = await api.post("/auth/register", userData);
   return response.data;
 };
+
+export const googleAuthRequest = async (credential) => {
+  const response = await api.post("/auth/google", { credential });
+  return response.data;
+};
+
+export const forgotPasswordRequest = async (email) => {
+  const response = await api.post("/auth/forgot-password", { email });
+  return response.data;
+};
+
+export const resetPasswordRequest = async (token, newPassword) => {
+  const response = await api.post("/auth/reset-password", {
+    token,
+    new_password: newPassword,
+  });
+  return response.data;
+};

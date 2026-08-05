@@ -15,6 +15,15 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str
+
+    # Correo (recuperación de contraseña)
+    RESEND_API_KEY: str
+    RESEND_FROM_EMAIL: str = "MotorIA <onboarding@resend.dev>"
+    FRONTEND_URL: str = "http://localhost:5173"
+    PASSWORD_RESET_EXPIRE_MINUTES: int = 30
+
     # Gemini
     GEMINI_API_KEY: str
     GEMINI_MODEL: str = "gemini-3.5-flash"
