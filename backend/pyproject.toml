@@ -1,0 +1,19 @@
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+# B008: Depends(...) como valor por defecto es el patron estandar de FastAPI,
+#       no un bug (bugbear lo marca porque en general una llamada en un
+#       default es peligrosa, pero FastAPI la evalua por request).
+# EXE002: los archivos llegan con el bit ejecutable activado por el entorno
+#         de desarrollo en Windows; no son scripts y no deben llevar shebang.
+extend-ignore = ["B008", "EXE002"]
+
+[tool.ruff.lint.per-file-ignores]
+# app/models/__init__.py importa todos los modelos únicamente para que
+# SQLAlchemy los registre en Base.metadata (side-effect import), no para
+# reexportarlos por nombre.
+"app/models/__init__.py" = ["F401"]

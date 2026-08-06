@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-import app.models  # noqa: F401: registra todos los modelos en metadata
+import app.models
 from app.core.dependencies import get_current_user
 from app.db.session import Base, get_db
 from app.main import app
@@ -163,9 +163,7 @@ class ProgresoDia11Tests(unittest.TestCase):
         response = self.client.patch(url, json={"estado": "pendiente"})
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
-            self.db.query(Progreso)
-            .filter(Progreso.modulo_id == modulos[0].id)
-            .count(),
+            self.db.query(Progreso).filter(Progreso.modulo_id == modulos[0].id).count(),
             1,
         )
 
@@ -325,6 +323,7 @@ class ProgresoDia11Tests(unittest.TestCase):
             paths["/api/v1/progreso/ruta-activa"]["get"]["security"],
             [{"HTTPBearer": []}],
         )
+
 
 if __name__ == "__main__":
     unittest.main()

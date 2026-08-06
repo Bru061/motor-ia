@@ -7,8 +7,8 @@ from pydantic import ValidationError
 
 from app.schemas.ruta_ia import RutaIAResponse
 from app.services.gemini_service import (
-    GeminiServiceError,
     MAX_INTENTOS_GENERACION,
+    GeminiServiceError,
     construir_prompt,
     generar_ruta_con_gemini,
     obtener_limites_modulos,
@@ -152,9 +152,8 @@ class GeminiServiceTests(unittest.TestCase):
         with patch(
             "app.services.gemini_service.crear_cliente_gemini",
             return_value=cliente,
-        ):
-            with self.assertRaises(GeminiServiceError):
-                generar_ruta_con_gemini(self.perfil)
+        ), self.assertRaises(GeminiServiceError):
+            generar_ruta_con_gemini(self.perfil)
 
         self.assertEqual(modelos.llamadas, MAX_INTENTOS_GENERACION)
 

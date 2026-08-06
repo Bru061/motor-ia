@@ -1,13 +1,13 @@
 import unittest
-from uuid import uuid4
 from unittest.mock import patch
+from uuid import uuid4
 
 from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import joinedload, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-import app.models  # noqa: F401: registra todos los modelos en metadata
+import app.models
 from app.api.v1.endpoints.rutas import (
     _crear_ruta_para_usuario,
     _generar_ruta_usuario,
@@ -46,9 +46,7 @@ def _ruta_ia(
                             "url": f"https://example.com/{orden}",
                         }
                     ],
-                    "dependencias": (
-                        [] if orden == 1 else [f"modulo_{orden - 1}"]
-                    ),
+                    "dependencias": ([] if orden == 1 else [f"modulo_{orden - 1}"]),
                     "actividad_practica": f"Practica del modulo {orden}",
                 }
                 for orden in range(1, cantidad_modulos + 1)
@@ -179,7 +177,9 @@ class RutasDia10Tests(unittest.TestCase):
 
         usuario_origen = self._crear_usuario("origen-corto@example.com")
         usuario_destino = self._crear_usuario("destino-completo@example.com")
-        perfil_origen = self._crear_perfil(usuario_origen, categoria, "Backend Developer")
+        perfil_origen = self._crear_perfil(
+            usuario_origen, categoria, "Backend Developer"
+        )
         self._crear_perfil(usuario_destino, categoria, "Backend Developer")
         _guardar_ruta_generada(
             self.db,

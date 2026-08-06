@@ -13,7 +13,6 @@ from app.services.analitica_service import (
     obtener_tecnologias_demandadas,
 )
 
-
 router = APIRouter()
 
 

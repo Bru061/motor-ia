@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from typing import List
 
 
 class Settings(BaseSettings):
@@ -14,7 +13,9 @@ class Settings(BaseSettings):
     def DATABASE_URL_SYNC(self) -> str:
         """URL con el driver psycopg3 explícito para SQLAlchemy/Alembic"""
         if self.DATABASE_URL.startswith("postgresql://"):
-            return self.DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+            return self.DATABASE_URL.replace(
+                "postgresql://", "postgresql+psycopg://", 1
+            )
         return self.DATABASE_URL
 
     # JWT
@@ -39,7 +40,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = "http://localhost:5173"
 
     @property
-    def ALLOWED_ORIGINS_LIST(self) -> List[str]:
+    def ALLOWED_ORIGINS_LIST(self) -> list[str]:
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
     class Config:

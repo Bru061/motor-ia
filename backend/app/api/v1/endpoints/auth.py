@@ -5,21 +5,22 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
 from sqlalchemy.orm import Session
+
 from app.core.config import settings
-from app.db.session import get_db
 from app.core.security import (
-    hash_password,
-    verify_password,
     create_access_token,
     generate_reset_token,
+    hash_password,
     hash_reset_token,
+    verify_password,
 )
+from app.db.session import get_db
 from app.models.usuario import Usuario
 from app.schemas.auth import (
-    RegisterRequest,
-    LoginRequest,
-    GoogleAuthRequest,
     ForgotPasswordRequest,
+    GoogleAuthRequest,
+    LoginRequest,
+    RegisterRequest,
     ResetPasswordRequest,
     TokenResponse,
 )
@@ -31,7 +32,9 @@ router = APIRouter()
 _google_request = google_requests.Request()
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
+)
 async def registrar_usuario(request: RegisterRequest, db: Session = Depends(get_db)):
     """Registra un nuevo usuario y retorna un JWT."""
 
@@ -55,11 +58,13 @@ async def registrar_usuario(request: RegisterRequest, db: Session = Depends(get_
     db.refresh(usuario)
 
     # Generar JWT
-    token = create_access_token({
-        "usuario_id": str(usuario.id),
-        "email": usuario.email,
-        "rol": usuario.rol,
-    })
+    token = create_access_token(
+        {
+            "usuario_id": str(usuario.id),
+            "email": usuario.email,
+            "rol": usuario.rol,
+        }
+    )
 
     return TokenResponse(access_token=token, rol=usuario.rol, nombre=usuario.nombre)
 
@@ -80,17 +85,21 @@ async def iniciar_sesion(request: LoginRequest, db: Session = Depends(get_db)):
             detail="Correo o contraseña incorrectos",
         )
 
-    token = create_access_token({
-        "usuario_id": str(usuario.id),
-        "email": usuario.email,
-        "rol": usuario.rol,
-    })
+    token = create_access_token(
+        {
+            "usuario_id": str(usuario.id),
+            "email": usuario.email,
+            "rol": usuario.rol,
+        }
+    )
 
     return TokenResponse(access_token=token, rol=usuario.rol, nombre=usuario.nombre)
 
 
 @router.post("/google", response_model=TokenResponse)
-async def autenticar_con_google(request: GoogleAuthRequest, db: Session = Depends(get_db)):
+async def autenticar_con_google(
+    request: GoogleAuthRequest, db: Session = Depends(get_db)
+):
     """Autentica (o registra) un usuario a partir de un ID token de Google."""
 
     try:
@@ -146,17 +155,21 @@ async def autenticar_con_google(request: GoogleAuthRequest, db: Session = Depend
         db.commit()
         db.refresh(usuario)
 
-    token = create_access_token({
-        "usuario_id": str(usuario.id),
-        "email": usuario.email,
-        "rol": usuario.rol,
-    })
+    token = create_access_token(
+        {
+            "usuario_id": str(usuario.id),
+            "email": usuario.email,
+            "rol": usuario.rol,
+        }
+    )
 
     return TokenResponse(access_token=token, rol=usuario.rol, nombre=usuario.nombre)
 
 
 @router.post("/forgot-password")
-async def solicitar_recuperacion_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
+async def solicitar_recuperacion_password(
+    request: ForgotPasswordRequest, db: Session = Depends(get_db)
+):
     """Genera un token de recuperación y envía el correo si el usuario existe.
 
     Siempre responde con el mismo mensaje genérico, exista o no la cuenta,
@@ -182,7 +195,9 @@ async def solicitar_recuperacion_password(request: ForgotPasswordRequest, db: Se
 
 
 @router.post("/reset-password", response_model=TokenResponse)
-async def restablecer_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+async def restablecer_password(
+    request: ResetPasswordRequest, db: Session = Depends(get_db)
+):
     """Valida el token de recuperación y establece la nueva contraseña."""
 
     token_hash = hash_reset_token(request.token)
@@ -208,10 +223,12 @@ async def restablecer_password(request: ResetPasswordRequest, db: Session = Depe
     db.commit()
     db.refresh(usuario)
 
-    token = create_access_token({
-        "usuario_id": str(usuario.id),
-        "email": usuario.email,
-        "rol": usuario.rol,
-    })
+    token = create_access_token(
+        {
+            "usuario_id": str(usuario.id),
+            "email": usuario.email,
+            "rol": usuario.rol,
+        }
+    )
 
     return TokenResponse(access_token=token, rol=usuario.rol, nombre=usuario.nombre)

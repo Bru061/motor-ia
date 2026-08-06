@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import List
 from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -26,8 +26,8 @@ class ModuloResponse(BaseModel):
     tiempo_estimado_hrs: int
     orden: int
     actividad_practica: str | None = None
-    recursos: List[RecursoResponse] = []
-    dependencias: List[DependenciaModuloResponse] = []
+    recursos: list[RecursoResponse] = []
+    dependencias: list[DependenciaModuloResponse] = []
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -38,5 +38,5 @@ class RutaResponse(BaseModel):
     estado: str
     desde_cache: bool
     created_at: datetime
-    modulos: List[ModuloResponse] = []
+    modulos: list[ModuloResponse] = []
     model_config = ConfigDict(from_attributes=True)

@@ -1,12 +1,12 @@
-from pydantic import BaseModel
-from typing import List, Optional
 from uuid import UUID
+
+from pydantic import BaseModel
 
 
 class CategoriaResponse(BaseModel):
     id: UUID
     nombre: str
-    descripcion: Optional[str] = None
+    descripcion: str | None = None
 
     class Config:
         from_attributes = True
@@ -22,20 +22,20 @@ class PerfilTecnologiaResponse(BaseModel):
 class PerfilCreate(BaseModel):
     meta_profesional: str
     nivel_actual: str
-    categorias_ids: List[UUID]
+    categorias_ids: list[UUID]
 
 
 class PerfilUpdate(BaseModel):
-    meta_profesional: Optional[str] = None
-    nivel_actual: Optional[str] = None
-    categorias_ids: Optional[List[UUID]] = None
+    meta_profesional: str | None = None
+    nivel_actual: str | None = None
+    categorias_ids: list[UUID] | None = None
 
 
 class PerfilResponse(BaseModel):
     id: UUID
     meta_profesional: str
     nivel_actual: str
-    tecnologias: List[PerfilTecnologiaResponse] = []
+    tecnologias: list[PerfilTecnologiaResponse] = []
 
     class Config:
         from_attributes = True

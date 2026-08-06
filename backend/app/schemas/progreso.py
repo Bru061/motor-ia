@@ -6,7 +6,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.ruta import DependenciaModuloResponse
 
-
 EstadoProgreso = Literal["pendiente", "en_progreso", "completado"]
 
 

@@ -1,29 +1,36 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
-from uuid import UUID
-from app.db.session import get_db
+
 from app.core.dependencies import get_current_user
-from app.models.usuario import Usuario
-from app.models.perfil_usuario import PerfilUsuario
-from app.models.perfil_tecnologia import PerfilTecnologia
+from app.db.session import get_db
 from app.models.categoria_tecnologia import CategoriaTecnologia
-from app.schemas.perfil import PerfilCreate, PerfilUpdate, PerfilResponse
+from app.models.perfil_tecnologia import PerfilTecnologia
+from app.models.perfil_usuario import PerfilUsuario
+from app.models.usuario import Usuario
+from app.schemas.perfil import PerfilCreate, PerfilResponse, PerfilUpdate
 
 router = APIRouter()
 
 
 def obtener_perfil_con_categorias(db: Session, perfil_id: UUID) -> PerfilUsuario:
     """Helper que carga el perfil con todas sus relaciones."""
-    return db.query(PerfilUsuario).options(
-        joinedload(PerfilUsuario.tecnologias).joinedload(PerfilTecnologia.categoria)
-    ).filter(PerfilUsuario.id == perfil_id).first()
+    return (
+        db.query(PerfilUsuario)
+        .options(
+            joinedload(PerfilUsuario.tecnologias).joinedload(PerfilTecnologia.categoria)
+        )
+        .filter(PerfilUsuario.id == perfil_id)
+        .first()
+    )
 
 
 def _obtener_perfil_por_usuario(db: Session, usuario_id: UUID) -> PerfilUsuario | None:
     """Busca el perfil tecnologico de un usuario (sin relaciones cargadas)."""
-    return db.query(PerfilUsuario).filter(
-        PerfilUsuario.usuario_id == usuario_id
-    ).first()
+    return (
+        db.query(PerfilUsuario).filter(PerfilUsuario.usuario_id == usuario_id).first()
+    )
 
 
 def _validar_categorias_existentes(
@@ -33,9 +40,11 @@ def _validar_categorias_existentes(
 
     Lanza HTTP 400 si alguna categoria de categorias_ids no existe.
     """
-    categorias = db.query(CategoriaTecnologia).filter(
-        CategoriaTecnologia.id.in_(categorias_ids)
-    ).all()
+    categorias = (
+        db.query(CategoriaTecnologia)
+        .filter(CategoriaTecnologia.id.in_(categorias_ids))
+        .all()
+    )
     if len(categorias) != len(categorias_ids):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -54,7 +63,7 @@ async def obtener_categorias(db: Session = Depends(get_db)):
 async def crear_perfil(
     request: PerfilCreate,
     current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Crea el perfil tecnológico del estudiante."""
     existing = _obtener_perfil_por_usuario(db, current_user.id)
@@ -84,8 +93,7 @@ async def crear_perfil(
 
 @router.get("/", response_model=PerfilResponse)
 async def obtener_perfil(
-    current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     """Retorna el perfil tecnológico del usuario autenticado."""
     perfil = _obtener_perfil_por_usuario(db, current_user.id)
@@ -101,7 +109,7 @@ async def obtener_perfil(
 async def actualizar_perfil(
     request: PerfilUpdate,
     current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Actualiza el perfil tecnológico del usuario autenticado."""
     perfil = _obtener_perfil_por_usuario(db, current_user.id)

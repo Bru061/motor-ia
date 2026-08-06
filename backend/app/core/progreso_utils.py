@@ -3,6 +3,7 @@
 Evita duplicar la misma lógica de cálculo de porcentaje y de consulta de
 estados de módulos en `progreso.py` y `admin.py`.
 """
+
 from uuid import UUID
 
 from sqlalchemy.orm import Session

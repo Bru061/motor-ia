@@ -15,7 +15,6 @@ from app.schemas.analitica import (
     TecnologiasDemandadasResponse,
 )
 
-
 # El mapa usa exclusivamente categorias disponibles en el catalogo real.
 TECNOLOGIAS_REQUERIDAS_POR_META: dict[str, tuple[str, ...]] = {
     "backend": (
@@ -129,10 +128,7 @@ def clasificar_meta_profesional(meta_profesional: str | None) -> str | None:
 
     meta_delimitada = f" {meta} "
     for clasificacion, palabras_clave in PALABRAS_CLAVE_POR_META:
-        if any(
-            f" {palabra} " in meta_delimitada
-            for palabra in palabras_clave
-        ):
+        if any(f" {palabra} " in meta_delimitada for palabra in palabras_clave):
             return clasificacion
 
     return "sin_clasificar"
@@ -145,9 +141,7 @@ def obtener_tecnologias_demandadas(
     if total_perfiles == 0:
         return TecnologiasDemandadasResponse(total_perfiles_analizados=0)
 
-    total_por_categoria = func.count(
-        func.distinct(PerfilTecnologia.perfil_id)
-    )
+    total_por_categoria = func.count(func.distinct(PerfilTecnologia.perfil_id))
     filas = (
         db.query(
             CategoriaTecnologia.id,

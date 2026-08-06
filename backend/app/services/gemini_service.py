@@ -131,9 +131,7 @@ def generar_ruta_con_gemini(perfil: PerfilUsuario) -> RutaIAResponse:
                 },
             )
         except Exception as exc:
-            raise GeminiServiceError(
-                "No se pudo generar la ruta con Gemini."
-            ) from exc
+            raise GeminiServiceError("No se pudo generar la ruta con Gemini.") from exc
 
         texto = getattr(response, "text", None)
         if not texto:

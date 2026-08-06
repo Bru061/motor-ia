@@ -1,4 +1,5 @@
-from typing import List, Literal
+from typing import Literal
+
 from pydantic import BaseModel, Field, ValidationInfo, model_validator
 
 
@@ -14,14 +15,14 @@ class ModuloIA(BaseModel):
     nivel: Literal["junior", "intermediate", "advanced"]
     orden: int = Field(gt=0)
     tiempo_estimado_hrs: int = Field(gt=0)
-    recursos: List[RecursoIA] = Field(min_length=1)
-    dependencias: List[str] = Field(default_factory=list)
+    recursos: list[RecursoIA] = Field(min_length=1)
+    dependencias: list[str] = Field(default_factory=list)
     actividad_practica: str = Field(min_length=1)
 
 
 class RutaIAResponse(BaseModel):
     titulo: str = Field(min_length=1, max_length=255)
-    modulos: List[ModuloIA] = Field(min_length=3)
+    modulos: list[ModuloIA] = Field(min_length=3)
 
     @model_validator(mode="after")
     def validar_ruta(self, info: ValidationInfo):
@@ -44,9 +45,7 @@ class RutaIAResponse(BaseModel):
         cantidad_modulos = len(self.modulos)
 
         if cantidad_modulos < minimo_modulos:
-            raise ValueError(
-                f"La ruta debe incluir al menos {minimo_modulos} modulos."
-            )
+            raise ValueError(f"La ruta debe incluir al menos {minimo_modulos} modulos.")
 
         if maximo_modulos is not None and cantidad_modulos > maximo_modulos:
             raise ValueError(

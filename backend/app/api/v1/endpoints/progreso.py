@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.dependencies import get_current_user
 from app.core.progreso_utils import calcular_porcentaje, obtener_estados_modulos
 from app.db.session import get_db
-from app.models.modulo import Modulo
 from app.models.dependencia_modulo import DependenciaModulo
+from app.models.modulo import Modulo
 from app.models.progreso import Progreso
 from app.models.recurso import Recurso
 from app.models.recurso_progreso import RecursoProgreso
@@ -26,7 +26,6 @@ from app.schemas.progreso import (
     RutaActivaConProgresoResponse,
 )
 
-
 router = APIRouter()
 
 
@@ -38,9 +37,7 @@ def _obtener_ruta_activa(
         db.query(RutaAprendizaje)
         .options(
             selectinload(RutaAprendizaje.modulos).selectinload(Modulo.recursos),
-            selectinload(RutaAprendizaje.modulos).selectinload(
-                Modulo.dependencias
-            ),
+            selectinload(RutaAprendizaje.modulos).selectinload(Modulo.dependencias),
         )
         .filter(
             RutaAprendizaje.usuario_id == usuario_id,
@@ -86,9 +83,7 @@ def _construir_ruta_con_progreso(
 ) -> RutaActivaConProgresoResponse:
     modulos = sorted(ruta.modulos, key=lambda modulo: modulo.orden)
     modulo_ids = [modulo.id for modulo in modulos]
-    recurso_ids = [
-        recurso.id for modulo in modulos for recurso in modulo.recursos
-    ]
+    recurso_ids = [recurso.id for modulo in modulos for recurso in modulo.recursos]
 
     estados_modulos = obtener_estados_modulos(db, usuario_id, modulo_ids)
     estados_recursos = (
@@ -173,7 +168,9 @@ def _validar_prerequisitos(
             modulo_previo = (
                 db.query(Modulo).filter(Modulo.id == dependencia.depende_de_id).first()
             )
-            titulo_previo = modulo_previo.titulo if modulo_previo else "el módulo anterior"
+            titulo_previo = (
+                modulo_previo.titulo if modulo_previo else "el módulo anterior"
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
@@ -372,9 +369,7 @@ def obtener_resumen_progreso(
 ):
     ruta = _obtener_ruta_activa(db, current_user.id)
     modulo_ids = [modulo.id for modulo in ruta.modulos]
-    recurso_ids = [
-        recurso.id for modulo in ruta.modulos for recurso in modulo.recursos
-    ]
+    recurso_ids = [recurso.id for modulo in ruta.modulos for recurso in modulo.recursos]
 
     estados_modulos = obtener_estados_modulos(db, current_user.id, modulo_ids)
     modulos_completados = sum(
@@ -388,9 +383,7 @@ def obtener_resumen_progreso(
     )
     total_modulos = len(modulo_ids)
     total_recursos = len(recurso_ids)
-    modulos_pendientes = (
-        total_modulos - modulos_completados - modulos_en_progreso
-    )
+    modulos_pendientes = total_modulos - modulos_completados - modulos_en_progreso
     total_elementos = total_modulos + total_recursos
     total_completados = modulos_completados + recursos_completados
     porcentaje_avance = calcular_porcentaje(modulos_completados, total_modulos)

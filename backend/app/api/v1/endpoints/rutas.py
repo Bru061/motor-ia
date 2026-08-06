@@ -30,9 +30,7 @@ def _obtener_perfil_usuario(db: Session, usuario_id: UUID) -> PerfilUsuario | No
     return (
         db.query(PerfilUsuario)
         .options(
-            joinedload(PerfilUsuario.tecnologias).joinedload(
-                PerfilTecnologia.categoria
-            )
+            joinedload(PerfilUsuario.tecnologias).joinedload(PerfilTecnologia.categoria)
         )
         .filter(PerfilUsuario.usuario_id == usuario_id)
         .first()
@@ -167,9 +165,7 @@ def _normalizar_meta_profesional(meta_profesional: str) -> str:
 
 
 def _obtener_categorias(perfil: PerfilUsuario) -> frozenset[UUID]:
-    return frozenset(
-        tecnologia.categoria_id for tecnologia in perfil.tecnologias
-    )
+    return frozenset(tecnologia.categoria_id for tecnologia in perfil.tecnologias)
 
 
 def _buscar_ruta_compatible_en_cache(
@@ -191,8 +187,7 @@ def _buscar_ruta_compatible_en_cache(
     usuarios_compatibles = [
         candidato.usuario_id
         for candidato in perfiles_candidatos
-        if _normalizar_meta_profesional(candidato.meta_profesional)
-        == meta_normalizada
+        if _normalizar_meta_profesional(candidato.meta_profesional) == meta_normalizada
         and _obtener_categorias(candidato) == categorias
     ]
 
@@ -283,7 +278,9 @@ def _generar_ruta_usuario(
         ) from exc
 
 
-@router.post("/generar", response_model=RutaResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/generar", response_model=RutaResponse, status_code=status.HTTP_201_CREATED
+)
 def generar_ruta(
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),

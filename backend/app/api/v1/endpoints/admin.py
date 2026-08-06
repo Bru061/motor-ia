@@ -7,11 +7,11 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.dependencies import get_current_admin_user
 from app.core.progreso_utils import calcular_porcentaje, obtener_estados_modulos
 from app.db.session import get_db
-from app.models.recurso_progreso import RecursoProgreso
 from app.models.modulo import Modulo
 from app.models.perfil_tecnologia import PerfilTecnologia
 from app.models.perfil_usuario import PerfilUsuario
 from app.models.progreso import Progreso
+from app.models.recurso_progreso import RecursoProgreso
 from app.models.ruta_aprendizaje import RutaAprendizaje
 from app.models.usuario import Usuario
 from app.schemas.admin import (
@@ -26,16 +26,11 @@ from app.schemas.admin import (
     AdminUsuariosListResponse,
 )
 
-
 router = APIRouter()
 
 
 def _escape_like(value: str) -> str:
-    return (
-        value.replace("\\", "\\\\")
-        .replace("%", "\\%")
-        .replace("_", "\\_")
-    )
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 @router.get("/usuarios", response_model=AdminUsuariosListResponse)
@@ -149,10 +144,7 @@ def obtener_usuario(
 
     ruta = (
         db.query(RutaAprendizaje)
-        .options(
-            selectinload(RutaAprendizaje.modulos)
-            .selectinload(Modulo.recursos)
-        )
+        .options(selectinload(RutaAprendizaje.modulos).selectinload(Modulo.recursos))
         .filter(
             RutaAprendizaje.usuario_id == usuario.id,
             RutaAprendizaje.estado == "activa",
@@ -232,7 +224,9 @@ def obtener_usuario(
                 tecnologias=ruta_archivada.tecnologias_nombres or [],
                 total_modulos=total_archivados,
                 modulos_completados=completados_archivados,
-                porcentaje=calcular_porcentaje(completados_archivados, total_archivados),
+                porcentaje=calcular_porcentaje(
+                    completados_archivados, total_archivados
+                ),
             )
         )
 
@@ -298,9 +292,7 @@ def obtener_usuario(
                 modulos_completados=modulos_completados,
                 modulos_en_progreso=modulos_en_progreso,
                 modulos_pendientes=(
-                    total_modulos
-                    - modulos_completados
-                    - modulos_en_progreso
+                    total_modulos - modulos_completados - modulos_en_progreso
                 ),
                 porcentaje=calcular_porcentaje(
                     modulos_completados,

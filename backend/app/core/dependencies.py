@@ -37,9 +37,7 @@ def get_current_user(
     except (ValueError, TypeError):
         raise _unauthorized()
 
-    usuario = db.query(Usuario).filter(
-        Usuario.id == usuario_id
-    ).first()
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
 
     if not usuario:
         raise _unauthorized("Usuario no encontrado")

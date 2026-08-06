@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-import app.models  # noqa: F401: registra todos los modelos en metadata
+import app.models
 from app.core.security import create_access_token
 from app.db.session import Base, get_db
 from app.main import app

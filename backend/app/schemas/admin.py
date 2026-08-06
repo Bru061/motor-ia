@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Literal
 from uuid import UUID
-from app.schemas.ruta import DependenciaModuloResponse
+
 from pydantic import BaseModel, ConfigDict, Field
+
+from app.schemas.ruta import DependenciaModuloResponse
 
 
 class AdminUsuarioListItem(BaseModel):
@@ -100,13 +102,9 @@ class AdminUsuarioDetalleResponse(BaseModel):
     created_at: datetime | None = None
     ultima_actividad: datetime | None = None
     perfil: AdminPerfilUsuarioResponse | None = None
-    tecnologias: list[AdminTecnologiaUsuarioResponse] = Field(
-        default_factory=list
-    )
+    tecnologias: list[AdminTecnologiaUsuarioResponse] = Field(default_factory=list)
     ruta_activa: AdminRutaActivaResponse | None = None
     progreso: AdminProgresoResumenResponse | None = None
-    rutas_archivadas: list[AdminRutaHistorialResponse] = Field(
-        default_factory=list
-    )
+    rutas_archivadas: list[AdminRutaHistorialResponse] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)

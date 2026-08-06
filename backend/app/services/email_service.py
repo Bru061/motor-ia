@@ -31,13 +31,17 @@ def send_password_reset_email(to_email: str, nombre: str, reset_link: str) -> bo
     """
 
     try:
-        resend.Emails.send({
-            "from": settings.RESEND_FROM_EMAIL,
-            "to": [to_email],
-            "subject": "Recupera tu contraseña — MotorIA",
-            "html": html,
-        })
+        resend.Emails.send(
+            {
+                "from": settings.RESEND_FROM_EMAIL,
+                "to": [to_email],
+                "subject": "Recupera tu contraseña — MotorIA",
+                "html": html,
+            }
+        )
         return True
     except Exception:
-        logger.exception("Error enviando correo de recuperación de contraseña a %s", to_email)
+        logger.exception(
+            "Error enviando correo de recuperación de contraseña a %s", to_email
+        )
         return False
