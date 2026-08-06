@@ -8,10 +8,17 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # Base de datos
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/motoria"
+    DATABASE_URL: str
+
+    @property
+    def DATABASE_URL_SYNC(self) -> str:
+        """URL con el driver psycopg3 explícito para SQLAlchemy/Alembic"""
+        if self.DATABASE_URL.startswith("postgresql://"):
+            return self.DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+        return self.DATABASE_URL
 
     # JWT
-    SECRET_KEY: str = "[ENCRYPTION_KEY]"
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
