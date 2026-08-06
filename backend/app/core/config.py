@@ -9,10 +9,10 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # Base de datos
-    DATABASE_URL: str 
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/motoria"
 
     # JWT
-    SECRET_KEY: str
+    SECRET_KEY: str = "[ENCRYPTION_KEY]"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
