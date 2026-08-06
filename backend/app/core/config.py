@@ -1,6 +1,7 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, NoDecode
 from pydantic import field_validator
 from typing import List
+from typing_extensions import Annotated
 
 
 class Settings(BaseSettings):
@@ -30,14 +31,14 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = "gemini-2.5-flash"
 
     # CORS
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:5173"]
+    ALLOWED_ORIGINS: Annotated[List[str], NoDecode] = ["http://localhost:5173"]
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
     def parse_allowed_origins(cls, v: str) -> List[str]:
         """Convierte string de origenes separados por coma en lista"""
         if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
+            return [origin.strip() for origin in v.split(",")]
         return v
 
     class Config:
