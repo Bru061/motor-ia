@@ -1305,16 +1305,6 @@ a.route-module-detail__resource:focus-visible {
   color: var(--text);
 }
 
-.route-module-detail__resource-icon {
-  width: 35px;
-  height: 35px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  background: rgba(var(--cyan-rgb), 0.08);
-  color: var(--cyan);
-}
-
 .route-module-detail__resource > div:nth-child(2) {
   min-width: 0;
 }
