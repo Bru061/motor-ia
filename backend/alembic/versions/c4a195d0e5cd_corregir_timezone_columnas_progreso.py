@@ -19,10 +19,10 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.alter_column(
         "progreso",
-        "created_at",
+        "updated_at",
         existing_type=sa.DateTime(timezone=False),
         type_=sa.DateTime(timezone=True),
-        postgresql_using="created_at AT TIME ZONE 'America/Mexico_City'",
+        postgresql_using="updated_at AT TIME ZONE 'America/Mexico_City'",
     )
 
     op.alter_column(
@@ -45,10 +45,10 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.alter_column(
         "progreso",
-        "created_at",
+        "updated_at",
         existing_type=sa.DateTime(timezone=True),
         type_=sa.DateTime(timezone=False),
-        postgresql_using="created_at AT TIME ZONE 'UTC'",
+        postgresql_using="updated_at AT TIME ZONE 'UTC'",
     )
 
     op.alter_column(
