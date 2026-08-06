@@ -7,6 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import get_current_user
+from app.core.progreso_utils import calcular_porcentaje, obtener_estados_modulos
 from app.db.session import get_db
 from app.models.modulo import Modulo
 from app.models.dependencia_modulo import DependenciaModulo
@@ -59,6 +60,25 @@ def _obtener_ruta_activa(
     return ruta
 
 
+def _contar_recursos_completados(
+    db: Session,
+    usuario_id: UUID,
+    recurso_ids: list[UUID],
+) -> int:
+    """Cuenta cuántos de los recursos dados están completados por el usuario."""
+    if not recurso_ids:
+        return 0
+    return (
+        db.query(func.count(func.distinct(RecursoProgreso.recurso_id)))
+        .filter(
+            RecursoProgreso.usuario_id == usuario_id,
+            RecursoProgreso.recurso_id.in_(recurso_ids),
+            RecursoProgreso.estado == "completado",
+        )
+        .scalar()
+    )
+
+
 def _construir_ruta_con_progreso(
     db: Session,
     ruta: RutaAprendizaje,
@@ -70,18 +90,7 @@ def _construir_ruta_con_progreso(
         recurso.id for modulo in modulos for recurso in modulo.recursos
     ]
 
-    estados_modulos = (
-        dict(
-            db.query(Progreso.modulo_id, Progreso.estado)
-            .filter(
-                Progreso.usuario_id == usuario_id,
-                Progreso.modulo_id.in_(modulo_ids),
-            )
-            .all()
-        )
-        if modulo_ids
-        else {}
-    )
+    estados_modulos = obtener_estados_modulos(db, usuario_id, modulo_ids)
     estados_recursos = (
         dict(
             db.query(RecursoProgreso.recurso_id, RecursoProgreso.estado)
@@ -131,6 +140,7 @@ def _construir_ruta_con_progreso(
 def _momento_completado(estado: str) -> datetime | None:
     return datetime.now(timezone.utc) if estado == "completado" else None
 
+
 def _validar_prerequisitos(
     db: Session,
     usuario_id: UUID,
@@ -171,6 +181,7 @@ def _validar_prerequisitos(
                     "de avanzar en este."
                 ),
             )
+
 
 def _guardar_progreso(
     db: Session,
@@ -315,16 +326,8 @@ def actualizar_progreso_recurso(
             )
         ]
         total_recursos_modulo = len(recursos_del_modulo_ids)
-        recursos_vistos_modulo = (
-            db.query(func.count(func.distinct(RecursoProgreso.recurso_id)))
-            .filter(
-                RecursoProgreso.usuario_id == current_user.id,
-                RecursoProgreso.recurso_id.in_(recursos_del_modulo_ids),
-                RecursoProgreso.estado == "completado",
-            )
-            .scalar()
-            if recursos_del_modulo_ids
-            else 0
+        recursos_vistos_modulo = _contar_recursos_completados(
+            db, current_user.id, recursos_del_modulo_ids
         )
         todos_los_recursos_vistos = (
             total_recursos_modulo > 0
@@ -362,10 +365,6 @@ def actualizar_progreso_recurso(
     return progreso_recurso
 
 
-def _porcentaje(completados: int, total: int) -> float:
-    return round(completados * 100 / total, 2) if total else 0.0
-
-
 @router.get("/resumen", response_model=ResumenProgresoResponse)
 def obtener_resumen_progreso(
     current_user: Usuario = Depends(get_current_user),
@@ -377,34 +376,15 @@ def obtener_resumen_progreso(
         recurso.id for modulo in ruta.modulos for recurso in modulo.recursos
     ]
 
-    estados_modulos = (
-        dict(
-            db.query(Progreso.modulo_id, Progreso.estado)
-            .filter(
-                Progreso.usuario_id == current_user.id,
-                Progreso.modulo_id.in_(modulo_ids),
-            )
-            .all()
-        )
-        if modulo_ids
-        else {}
-    )
+    estados_modulos = obtener_estados_modulos(db, current_user.id, modulo_ids)
     modulos_completados = sum(
         estado == "completado" for estado in estados_modulos.values()
     )
     modulos_en_progreso = sum(
         estado == "en_progreso" for estado in estados_modulos.values()
     )
-    recursos_completados = (
-        db.query(func.count(func.distinct(RecursoProgreso.recurso_id)))
-        .filter(
-            RecursoProgreso.usuario_id == current_user.id,
-            RecursoProgreso.recurso_id.in_(recurso_ids),
-            RecursoProgreso.estado == "completado",
-        )
-        .scalar()
-        if recurso_ids
-        else 0
+    recursos_completados = _contar_recursos_completados(
+        db, current_user.id, recurso_ids
     )
     total_modulos = len(modulo_ids)
     total_recursos = len(recurso_ids)
@@ -413,7 +393,7 @@ def obtener_resumen_progreso(
     )
     total_elementos = total_modulos + total_recursos
     total_completados = modulos_completados + recursos_completados
-    porcentaje_avance = _porcentaje(modulos_completados, total_modulos)
+    porcentaje_avance = calcular_porcentaje(modulos_completados, total_modulos)
 
     return ResumenProgresoResponse(
         total_modulos=total_modulos,
@@ -424,6 +404,6 @@ def obtener_resumen_progreso(
         total_recursos=total_recursos,
         recursos_completados=recursos_completados,
         porcentaje_modulos=porcentaje_avance,
-        porcentaje_recursos=_porcentaje(recursos_completados, total_recursos),
-        porcentaje_general=_porcentaje(total_completados, total_elementos),
+        porcentaje_recursos=calcular_porcentaje(recursos_completados, total_recursos),
+        porcentaje_general=calcular_porcentaje(total_completados, total_elementos),
     )

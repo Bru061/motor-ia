@@ -5,6 +5,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import get_current_admin_user
+from app.core.progreso_utils import calcular_porcentaje, obtener_estados_modulos
 from app.db.session import get_db
 from app.models.recurso_progreso import RecursoProgreso
 from app.models.modulo import Modulo
@@ -35,10 +36,6 @@ def _escape_like(value: str) -> str:
         .replace("%", "\\%")
         .replace("_", "\\_")
     )
-
-
-def _porcentaje(completados: int, total: int) -> float:
-    return round(completados * 100 / total, 2) if total else 0.0
 
 
 @router.get("/usuarios", response_model=AdminUsuariosListResponse)
@@ -172,15 +169,7 @@ def obtener_usuario(
     if ruta is not None:
         modulos = sorted(ruta.modulos, key=lambda modulo: modulo.orden)
         modulo_ids = [modulo.id for modulo in modulos]
-        if modulo_ids:
-            estados = dict(
-                db.query(Progreso.modulo_id, Progreso.estado)
-                .filter(
-                    Progreso.usuario_id == usuario.id,
-                    Progreso.modulo_id.in_(modulo_ids),
-                )
-                .all()
-            )
+        estados = obtener_estados_modulos(db, usuario.id, modulo_ids)
 
     total_modulos = len(modulos)
     modulos_completados = sum(
@@ -224,17 +213,8 @@ def obtener_usuario(
     historial_rutas: list[AdminRutaHistorialResponse] = []
     for ruta_archivada in rutas_archivadas:
         modulo_ids_archivados = [modulo.id for modulo in ruta_archivada.modulos]
-        estados_archivados = (
-            dict(
-                db.query(Progreso.modulo_id, Progreso.estado)
-                .filter(
-                    Progreso.usuario_id == usuario.id,
-                    Progreso.modulo_id.in_(modulo_ids_archivados),
-                )
-                .all()
-            )
-            if modulo_ids_archivados
-            else {}
+        estados_archivados = obtener_estados_modulos(
+            db, usuario.id, modulo_ids_archivados
         )
         total_archivados = len(modulo_ids_archivados)
         completados_archivados = sum(
@@ -252,7 +232,7 @@ def obtener_usuario(
                 tecnologias=ruta_archivada.tecnologias_nombres or [],
                 total_modulos=total_archivados,
                 modulos_completados=completados_archivados,
-                porcentaje=_porcentaje(completados_archivados, total_archivados),
+                porcentaje=calcular_porcentaje(completados_archivados, total_archivados),
             )
         )
 
@@ -322,7 +302,7 @@ def obtener_usuario(
                     - modulos_completados
                     - modulos_en_progreso
                 ),
-                porcentaje=_porcentaje(
+                porcentaje=calcular_porcentaje(
                     modulos_completados,
                     total_modulos,
                 ),
