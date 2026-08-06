@@ -21,10 +21,7 @@ import EmptyState from "../../components/ui/EmptyState";
 import LoadingButton from "../../components/ui/LoadingButton";
 import PageLoader from "../../components/ui/PageLoader";
 import Skeleton from "../../components/ui/Skeleton";
-import UserAvatar from "../../components/ui/UserAvatar";
-import useAuth from "../../hooks/useAuth";
 import useToast from "../../hooks/useToast";
-import { formatRole, getUserDisplayName } from "../../utils/user";
 import "../../styles/perfil.css";
 
 const EMPTY_FORM = {

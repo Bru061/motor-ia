@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { FiRefreshCw, FiSearch, FiTarget, FiUsers, FiX } from "react-icons/fi";
+import { useSearchParams } from "react-router-dom";
+import { FiRefreshCw, FiSearch, FiTarget, FiUsers } from "react-icons/fi";
 import { obtenerUsuariosAdmin } from "../../api/adminApi";
 import EmptyState from "../../components/ui/EmptyState";
 import PageHeading from "../../components/ui/PageHeading";
