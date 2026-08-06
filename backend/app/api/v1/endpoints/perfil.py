@@ -19,6 +19,31 @@ def obtener_perfil_con_categorias(db: Session, perfil_id: UUID) -> PerfilUsuario
     ).filter(PerfilUsuario.id == perfil_id).first()
 
 
+def _obtener_perfil_por_usuario(db: Session, usuario_id: UUID) -> PerfilUsuario | None:
+    """Busca el perfil tecnologico de un usuario (sin relaciones cargadas)."""
+    return db.query(PerfilUsuario).filter(
+        PerfilUsuario.usuario_id == usuario_id
+    ).first()
+
+
+def _validar_categorias_existentes(
+    db: Session, categorias_ids: list[UUID]
+) -> list[CategoriaTecnologia]:
+    """Verifica que todas las categorias solicitadas existan y las retorna.
+
+    Lanza HTTP 400 si alguna categoria de categorias_ids no existe.
+    """
+    categorias = db.query(CategoriaTecnologia).filter(
+        CategoriaTecnologia.id.in_(categorias_ids)
+    ).all()
+    if len(categorias) != len(categorias_ids):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Una o más categorías no existen.",
+        )
+    return categorias
+
+
 @router.get("/categorias")
 async def obtener_categorias(db: Session = Depends(get_db)):
     """Retorna todas las categorías tecnológicas disponibles."""
@@ -32,23 +57,14 @@ async def crear_perfil(
     db: Session = Depends(get_db)
 ):
     """Crea el perfil tecnológico del estudiante."""
-    existing = db.query(PerfilUsuario).filter(
-        PerfilUsuario.usuario_id == current_user.id
-    ).first()
+    existing = _obtener_perfil_por_usuario(db, current_user.id)
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="El usuario ya tiene un perfil. Usa PATCH para actualizarlo.",
         )
 
-    categorias = db.query(CategoriaTecnologia).filter(
-        CategoriaTecnologia.id.in_(request.categorias_ids)
-    ).all()
-    if len(categorias) != len(request.categorias_ids):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Una o más categorías no existen.",
-        )
+    categorias = _validar_categorias_existentes(db, request.categorias_ids)
 
     perfil = PerfilUsuario(
         usuario_id=current_user.id,
@@ -72,9 +88,7 @@ async def obtener_perfil(
     db: Session = Depends(get_db)
 ):
     """Retorna el perfil tecnológico del usuario autenticado."""
-    perfil = db.query(PerfilUsuario).filter(
-        PerfilUsuario.usuario_id == current_user.id
-    ).first()
+    perfil = _obtener_perfil_por_usuario(db, current_user.id)
     if not perfil:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -90,9 +104,7 @@ async def actualizar_perfil(
     db: Session = Depends(get_db)
 ):
     """Actualiza el perfil tecnológico del usuario autenticado."""
-    perfil = db.query(PerfilUsuario).filter(
-        PerfilUsuario.usuario_id == current_user.id
-    ).first()
+    perfil = _obtener_perfil_por_usuario(db, current_user.id)
     if not perfil:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -105,14 +117,7 @@ async def actualizar_perfil(
         perfil.nivel_actual = request.nivel_actual
 
     if request.categorias_ids is not None:
-        categorias = db.query(CategoriaTecnologia).filter(
-            CategoriaTecnologia.id.in_(request.categorias_ids)
-        ).all()
-        if len(categorias) != len(request.categorias_ids):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Una o más categorías no existen.",
-            )
+        categorias = _validar_categorias_existentes(db, request.categorias_ids)
         db.query(PerfilTecnologia).filter(
             PerfilTecnologia.perfil_id == perfil.id
         ).delete()
