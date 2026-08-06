@@ -12,7 +12,7 @@ from app.schemas.perfil import PerfilCreate, PerfilUpdate, PerfilResponse
 router = APIRouter()
 
 
-def get_perfil_con_categorias(db: Session, perfil_id: UUID) -> PerfilUsuario:
+def obtener_perfil_con_categorias(db: Session, perfil_id: UUID) -> PerfilUsuario:
     """Helper que carga el perfil con todas sus relaciones."""
     return db.query(PerfilUsuario).options(
         joinedload(PerfilUsuario.tecnologias).joinedload(PerfilTecnologia.categoria)
@@ -20,13 +20,13 @@ def get_perfil_con_categorias(db: Session, perfil_id: UUID) -> PerfilUsuario:
 
 
 @router.get("/categorias")
-async def get_categorias(db: Session = Depends(get_db)):
+async def obtener_categorias(db: Session = Depends(get_db)):
     """Retorna todas las categorías tecnológicas disponibles."""
     return db.query(CategoriaTecnologia).all()
 
 
 @router.post("/", response_model=PerfilResponse, status_code=status.HTTP_201_CREATED)
-async def create_perfil(
+async def crear_perfil(
     request: PerfilCreate,
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -63,11 +63,11 @@ async def create_perfil(
         db.add(pt)
 
     db.commit()
-    return get_perfil_con_categorias(db, perfil.id)
+    return obtener_perfil_con_categorias(db, perfil.id)
 
 
 @router.get("/", response_model=PerfilResponse)
-async def get_perfil(
+async def obtener_perfil(
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -80,11 +80,11 @@ async def get_perfil(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="El usuario no tiene perfil. Completa el skill assessment primero.",
         )
-    return get_perfil_con_categorias(db, perfil.id)
+    return obtener_perfil_con_categorias(db, perfil.id)
 
 
 @router.patch("/", response_model=PerfilResponse)
-async def update_perfil(
+async def actualizar_perfil(
     request: PerfilUpdate,
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -121,4 +121,4 @@ async def update_perfil(
             db.add(pt)
 
     db.commit()
-    return get_perfil_con_categorias(db, perfil.id)
+    return obtener_perfil_con_categorias(db, perfil.id)

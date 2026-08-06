@@ -32,7 +32,7 @@ _google_request = google_requests.Request()
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def register(request: RegisterRequest, db: Session = Depends(get_db)):
+async def registrar_usuario(request: RegisterRequest, db: Session = Depends(get_db)):
     """Registra un nuevo usuario y retorna un JWT."""
 
     # Verificar si el correo ya existe
@@ -65,7 +65,7 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(request: LoginRequest, db: Session = Depends(get_db)):
+async def iniciar_sesion(request: LoginRequest, db: Session = Depends(get_db)):
     """Autentica un usuario y retorna un JWT."""
 
     usuario = db.query(Usuario).filter(Usuario.email == request.email).first()
@@ -90,7 +90,7 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/google", response_model=TokenResponse)
-async def google_auth(request: GoogleAuthRequest, db: Session = Depends(get_db)):
+async def autenticar_con_google(request: GoogleAuthRequest, db: Session = Depends(get_db)):
     """Autentica (o registra) un usuario a partir de un ID token de Google."""
 
     try:
@@ -156,7 +156,7 @@ async def google_auth(request: GoogleAuthRequest, db: Session = Depends(get_db))
 
 
 @router.post("/forgot-password")
-async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
+async def solicitar_recuperacion_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """Genera un token de recuperación y envía el correo si el usuario existe.
 
     Siempre responde con el mismo mensaje genérico, exista o no la cuenta,
@@ -182,7 +182,7 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
 
 
 @router.post("/reset-password", response_model=TokenResponse)
-async def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+async def restablecer_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
     """Valida el token de recuperación y establece la nueva contraseña."""
 
     token_hash = hash_reset_token(request.token)
@@ -215,9 +215,3 @@ async def reset_password(request: ResetPasswordRequest, db: Session = Depends(ge
     })
 
     return TokenResponse(access_token=token, rol=usuario.rol, nombre=usuario.nombre)
-
-
-@router.get("/me")
-async def get_me(db: Session = Depends(get_db)):
-    """Endpoint temporal para verificar que el router funciona."""
-    return {"message": "Auth router funcionando"}

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import {
-  loginRequest,
-  registerRequest,
-  googleAuthRequest,
-  forgotPasswordRequest,
-  resetPasswordRequest,
+  iniciarSesion,
+  registrarUsuario,
+  autenticarConGoogle,
+  solicitarRecuperacionPassword,
+  restablecerPassword,
 } from "../api/authApi";
 import { AuthContext } from "./authContext";
 
@@ -114,7 +114,7 @@ function AuthProvider({ children }) {
     setLoading(true);
 
     try {
-      const data = await loginRequest(credentials);
+      const data = await iniciarSesion(credentials);
 
       saveSession(data, credentials);
 
@@ -128,7 +128,7 @@ function AuthProvider({ children }) {
     setLoading(true);
 
     try {
-      const data = await registerRequest(userData);
+      const data = await registrarUsuario(userData);
 
       saveSession(data, userData);
 
@@ -142,7 +142,7 @@ function AuthProvider({ children }) {
     setLoading(true);
 
     try {
-      const data = await googleAuthRequest(credential);
+      const data = await autenticarConGoogle(credential);
 
       saveSession(data);
 
@@ -156,7 +156,7 @@ function AuthProvider({ children }) {
     setLoading(true);
 
     try {
-      return await forgotPasswordRequest(email);
+      return await solicitarRecuperacionPassword(email);
     } finally {
       setLoading(false);
     }
@@ -166,7 +166,7 @@ function AuthProvider({ children }) {
     setLoading(true);
 
     try {
-      const data = await resetPasswordRequest(token, newPassword);
+      const data = await restablecerPassword(token, newPassword);
 
       saveSession(data);
 
