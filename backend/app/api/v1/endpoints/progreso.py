@@ -7,7 +7,13 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import get_current_user
-from app.core.progreso_utils import calcular_porcentaje, obtener_estados_modulos
+from app.core.progreso_utils import (
+    ESTADO_COMPLETADO,
+    ESTADO_EN_PROGRESO,
+    ESTADO_PENDIENTE,
+    calcular_porcentaje,
+    obtener_estados_modulos,
+)
 from app.db.session import get_db
 from app.models.dependencia_modulo import DependenciaModulo
 from app.models.modulo import Modulo
@@ -72,7 +78,7 @@ def _contar_recursos_completados(
         .filter(
             RecursoProgreso.usuario_id == usuario_id,
             RecursoProgreso.recurso_id.in_(recurso_ids),
-            RecursoProgreso.estado == "completado",
+            RecursoProgreso.estado == ESTADO_COMPLETADO,
         )
         .scalar()
     )
@@ -118,7 +124,7 @@ def _construir_ruta_con_progreso(
                 nivel=modulo.nivel,
                 tiempo_estimado_hrs=modulo.tiempo_estimado_hrs,
                 orden=modulo.orden,
-                estado=estados_modulos.get(modulo.id, "pendiente"),
+                estado=estados_modulos.get(modulo.id, ESTADO_PENDIENTE),
                 actividad_practica=modulo.actividad_practica,
                 recursos=[
                     RecursoConProgresoResponse(
@@ -126,7 +132,7 @@ def _construir_ruta_con_progreso(
                         titulo=recurso.titulo,
                         tipo=recurso.tipo,
                         url=recurso.url,
-                        estado=estados_recursos.get(recurso.id, "pendiente"),
+                        estado=estados_recursos.get(recurso.id, ESTADO_PENDIENTE),
                     )
                     for recurso in modulo.recursos
                 ],
@@ -138,7 +144,7 @@ def _construir_ruta_con_progreso(
 
 
 def _momento_completado(estado: str) -> datetime | None:
-    return datetime.now(timezone.utc) if estado == "completado" else None
+    return datetime.now(timezone.utc) if estado == ESTADO_COMPLETADO else None
 
 
 def _validar_prerequisitos(
@@ -169,7 +175,7 @@ def _validar_prerequisitos(
     )
 
     for dependencia in dependencias:
-        if completados.get(dependencia.depende_de_id) != "completado":
+        if completados.get(dependencia.depende_de_id) != ESTADO_COMPLETADO:
             modulo_previo = (
                 db.query(Modulo).filter(Modulo.id == dependencia.depende_de_id).first()
             )
@@ -249,8 +255,8 @@ def actualizar_progreso_modulo(
 
     if (
         progreso is not None
-        and progreso.estado == "completado"
-        and request.estado != "completado"
+        and progreso.estado == ESTADO_COMPLETADO
+        and request.estado != ESTADO_COMPLETADO
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -263,7 +269,7 @@ def actualizar_progreso_modulo(
             modulo_id=modulo_id,
         )
         db.add(progreso)
-    if request.estado in ("en_progreso", "completado"):
+    if request.estado in (ESTADO_EN_PROGRESO, ESTADO_COMPLETADO):
         _validar_prerequisitos(db, current_user.id, modulo_id)
 
     progreso.estado = request.estado
@@ -301,7 +307,7 @@ def actualizar_progreso_recurso(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="El recurso no pertenece a la ruta activa del usuario.",
         )
-    if request.estado == "completado":
+    if request.estado == ESTADO_COMPLETADO:
         _validar_prerequisitos(db, current_user.id, recurso.modulo_id)
 
     progreso = (
@@ -321,11 +327,11 @@ def actualizar_progreso_recurso(
 
     progreso.estado = request.estado
     progreso.completado_at = _momento_completado(request.estado)
-    progreso.visto = request.estado == "completado"
+    progreso.visto = request.estado == ESTADO_COMPLETADO
     progreso.visto_at = progreso.completado_at
     progreso_recurso = _guardar_progreso(db, progreso)
 
-    if request.estado == "completado":
+    if request.estado == ESTADO_COMPLETADO:
         recursos_del_modulo_ids = [
             fila_recurso_id
             for (fila_recurso_id,) in db.query(Recurso.id).filter(
@@ -341,7 +347,7 @@ def actualizar_progreso_recurso(
             and recursos_vistos_modulo == total_recursos_modulo
         )
         nuevo_estado_modulo = (
-            "completado" if todos_los_recursos_vistos else "en_progreso"
+            ESTADO_COMPLETADO if todos_los_recursos_vistos else ESTADO_EN_PROGRESO
         )
 
         progreso_modulo = (
@@ -362,8 +368,8 @@ def actualizar_progreso_recurso(
                 )
             )
             db.commit()
-        elif progreso_modulo.estado != "completado" and (
-            progreso_modulo.estado == "pendiente" or todos_los_recursos_vistos
+        elif progreso_modulo.estado != ESTADO_COMPLETADO and (
+            progreso_modulo.estado == ESTADO_PENDIENTE or todos_los_recursos_vistos
         ):
             progreso_modulo.estado = nuevo_estado_modulo
             progreso_modulo.completado_at = _momento_completado(nuevo_estado_modulo)
@@ -383,10 +389,10 @@ def obtener_resumen_progreso(
 
     estados_modulos = obtener_estados_modulos(db, current_user.id, modulo_ids)
     modulos_completados = sum(
-        estado == "completado" for estado in estados_modulos.values()
+        estado == ESTADO_COMPLETADO for estado in estados_modulos.values()
     )
     modulos_en_progreso = sum(
-        estado == "en_progreso" for estado in estados_modulos.values()
+        estado == ESTADO_EN_PROGRESO for estado in estados_modulos.values()
     )
     recursos_completados = _contar_recursos_completados(
         db, current_user.id, recurso_ids

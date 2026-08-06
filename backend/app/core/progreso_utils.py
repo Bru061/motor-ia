@@ -10,6 +10,14 @@ from sqlalchemy.orm import Session
 
 from app.models.progreso import Progreso
 
+# Valores posibles del campo `estado` en Progreso/RecursoProgreso.
+# Ver tambien app.schemas.progreso.EstadoProgreso (el Literal usado para
+# validar el request/response); estas constantes son para comparar contra
+# ese mismo valor en la logica interna sin repetir el string literal.
+ESTADO_PENDIENTE = "pendiente"
+ESTADO_EN_PROGRESO = "en_progreso"
+ESTADO_COMPLETADO = "completado"
+
 
 def calcular_porcentaje(completados: int, total: int) -> float:
     """Redondea el porcentaje completados/total a 2 decimales (0 si total es 0)."""

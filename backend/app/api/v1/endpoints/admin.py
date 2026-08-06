@@ -5,7 +5,13 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import get_current_admin_user
-from app.core.progreso_utils import calcular_porcentaje, obtener_estados_modulos
+from app.core.progreso_utils import (
+    ESTADO_COMPLETADO,
+    ESTADO_EN_PROGRESO,
+    ESTADO_PENDIENTE,
+    calcular_porcentaje,
+    obtener_estados_modulos,
+)
 from app.db.session import get_db
 from app.models.modulo import Modulo
 from app.models.perfil_tecnologia import PerfilTecnologia
@@ -169,10 +175,10 @@ def obtener_usuario(
 
     total_modulos = len(modulos)
     modulos_completados = sum(
-        estados.get(modulo.id) == "completado" for modulo in modulos
+        estados.get(modulo.id) == ESTADO_COMPLETADO for modulo in modulos
     )
     modulos_en_progreso = sum(
-        estados.get(modulo.id) == "en_progreso" for modulo in modulos
+        estados.get(modulo.id) == ESTADO_EN_PROGRESO for modulo in modulos
     )
 
     ultima_actividad_modulo = (
@@ -214,7 +220,7 @@ def obtener_usuario(
         )
         total_archivados = len(modulo_ids_archivados)
         completados_archivados = sum(
-            estados_archivados.get(modulo.id) == "completado"
+            estados_archivados.get(modulo.id) == ESTADO_COMPLETADO
             for modulo in ruta_archivada.modulos
         )
         historial_rutas.append(
@@ -280,7 +286,7 @@ def obtener_usuario(
                         nivel=modulo.nivel,
                         tiempo_estimado_hrs=modulo.tiempo_estimado_hrs,
                         orden=modulo.orden,
-                        estado_progreso=estados.get(modulo.id, "pendiente"),
+                        estado_progreso=estados.get(modulo.id, ESTADO_PENDIENTE),
                         actividad_practica=modulo.actividad_practica,
                         dependencias=modulo.dependencias,
                     )
