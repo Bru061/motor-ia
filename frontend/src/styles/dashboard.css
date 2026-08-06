@@ -98,7 +98,11 @@
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: linear-gradient(145deg, rgba(var(--panel-rgb), 0.96), rgba(var(--bg-deep-rgb), 0.96));
+  background: linear-gradient(
+    145deg,
+    rgba(var(--panel-rgb), 0.96),
+    rgba(var(--bg-deep-rgb), 0.96)
+  );
   box-shadow: 0 16px 46px rgba(0, 0, 0, 0.16);
 }
 
@@ -268,7 +272,11 @@
   gap: 28px;
   border: 1px solid rgba(var(--cyan-rgb), 0.24);
   border-radius: 16px;
-  background: linear-gradient(125deg, rgba(var(--cyan-rgb), 0.08), rgba(var(--panel-strong-rgb), 0.98) 46%);
+  background: linear-gradient(
+    125deg,
+    rgba(var(--cyan-rgb), 0.08),
+    rgba(var(--panel-strong-rgb), 0.98) 46%
+  );
 }
 
 .student-dashboard-next > div:first-child {
@@ -381,7 +389,9 @@
   align-self: center;
   color: var(--muted);
   font-size: 18px;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
 }
 
 .student-dashboard-card--clickable:hover .student-dashboard-card__arrow {

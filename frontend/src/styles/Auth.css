@@ -84,7 +84,9 @@
   background: var(--bg-deep);
   color: var(--text);
   font-size: 15px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .auth-floating-field--with-action input {
@@ -100,7 +102,10 @@
   font-weight: 600;
   pointer-events: none;
   transform-origin: left top;
-  transition: transform 0.15s ease, color 0.15s ease, top 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease,
+    top 0.15s ease;
 }
 
 .auth-floating-field input:focus + label,
@@ -120,7 +125,9 @@
 }
 
 .auth-floating-field input:-webkit-autofill {
-  transition: background-color 600000s 0s, color 600000s 0s;
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s;
   -webkit-text-fill-color: var(--text);
 }
 
@@ -154,7 +161,10 @@
   font-size: 14px;
   font-weight: 900;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .auth-form__button:hover:not(:disabled) {
@@ -249,7 +259,10 @@
 
 .auth-social > div {
   border-radius: 999px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
 }
 
 .auth-social > div:hover {

@@ -46,7 +46,9 @@ export function getUserHomePath(role) {
 }
 
 export function getUserProfilePath(role) {
-  return String(role || "").toLowerCase() === "admin" ? "/admin/perfil" : "/perfil";
+  return String(role || "").toLowerCase() === "admin"
+    ? "/admin/perfil"
+    : "/perfil";
 }
 
 export function getUserSettingsPath(role) {

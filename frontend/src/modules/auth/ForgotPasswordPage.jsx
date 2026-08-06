@@ -24,7 +24,9 @@ function ForgotPasswordPage() {
     try {
       await forgotPassword(email.trim());
       setSent(true);
-      toast.success("Si el correo está registrado, te llegará un enlace en breve.");
+      toast.success(
+        "Si el correo está registrado, te llegará un enlace en breve.",
+      );
     } catch {
       toast.error("Ocurrió un error. Intenta nuevamente en unos minutos.");
     }
@@ -39,8 +41,8 @@ function ForgotPasswordPage() {
 
       {sent ? (
         <p className="auth-form__hint">
-          Si <strong>{email}</strong> está registrado, te enviamos un enlace para
-          restablecer tu contraseña. Revisa tu bandeja de entrada (y spam).
+          Si <strong>{email}</strong> está registrado, te enviamos un enlace
+          para restablecer tu contraseña. Revisa tu bandeja de entrada (y spam).
         </p>
       ) : (
         <form className="auth-form" onSubmit={handleSubmit} noValidate>

@@ -44,7 +44,9 @@ function buildUser(data, fallback = {}) {
     "";
   const storedEmail = localStorage.getItem("user_email");
   const storedName =
-    storedEmail && storedEmail === email ? localStorage.getItem("user_name") : "";
+    storedEmail && storedEmail === email
+      ? localStorage.getItem("user_name")
+      : "";
 
   return {
     nombre:
@@ -61,7 +63,9 @@ function buildUser(data, fallback = {}) {
 }
 
 function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem("access_token"));
+  const [token, setToken] = useState(() =>
+    localStorage.getItem("access_token"),
+  );
   const [role, setRole] = useState(() => localStorage.getItem("user_role"));
   const [user, setUser] = useState(() => ({
     nombre: localStorage.getItem("user_name") || "",

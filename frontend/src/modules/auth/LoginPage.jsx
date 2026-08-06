@@ -51,7 +51,7 @@ function LoginPage() {
     } catch (err) {
       const message = getApiErrorMessage(
         err,
-        "No fue posible iniciar sesión con Google."
+        "No fue posible iniciar sesión con Google.",
       );
 
       setError(message);
@@ -81,7 +81,7 @@ function LoginPage() {
     } catch (err) {
       const message = getApiErrorMessage(
         err,
-        "No fue posible iniciar sesión. Verifica tus credenciales."
+        "No fue posible iniciar sesión. Verifica tus credenciales.",
       );
 
       setError(message);
@@ -93,17 +93,16 @@ function LoginPage() {
     <section className="auth-page">
       <div className="auth-tabs" aria-label="Acceso a Motor IA">
         <Link to="/register">Registrarse</Link>
-        <Link className="auth-tabs__item--active" to="/login" aria-current="page">
+        <Link
+          className="auth-tabs__item--active"
+          to="/login"
+          aria-current="page"
+        >
           Iniciar sesión
         </Link>
       </div>
 
-      <form
-        className="auth-form"
-        onSubmit={handleSubmit}
-        noValidate
-      >
-
+      <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <FloatingInput
           id="login-email"
           name="email"

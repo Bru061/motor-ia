@@ -50,7 +50,7 @@ function RegisterPage() {
     } catch (err) {
       const message = getApiErrorMessage(
         err,
-        "No fue posible registrarte con Google."
+        "No fue posible registrarte con Google.",
       );
 
       setError(message);
@@ -101,7 +101,7 @@ function RegisterPage() {
     } catch (err) {
       const message = getApiErrorMessage(
         err,
-        "No fue posible crear la cuenta. Intenta nuevamente."
+        "No fue posible crear la cuenta. Intenta nuevamente.",
       );
 
       setError(message);
@@ -112,18 +112,17 @@ function RegisterPage() {
   return (
     <section className="auth-page">
       <div className="auth-tabs" aria-label="Acceso a Motor IA">
-        <Link className="auth-tabs__item--active" to="/register" aria-current="page">
+        <Link
+          className="auth-tabs__item--active"
+          to="/register"
+          aria-current="page"
+        >
           Registrarse
         </Link>
         <Link to="/login">Iniciar sesión</Link>
       </div>
 
-      <form
-        className="auth-form"
-        onSubmit={handleSubmit}
-        noValidate
-      >
-
+      <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <FloatingInput
           id="register-name"
           name="nombre"

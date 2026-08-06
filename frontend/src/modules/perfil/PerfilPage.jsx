@@ -44,7 +44,8 @@ const LEVELS = [
   {
     value: "senior",
     label: "Senior",
-    description: "Lidero decisiones técnicas y busco una especialización avanzada.",
+    description:
+      "Lidero decisiones técnicas y busco una especialización avanzada.",
   },
 ];
 
@@ -321,14 +322,20 @@ function PerfilPage() {
             <FiUser aria-hidden="true" />
             Perfil tecnológico
           </span>
-          <h1>{hasProfile ? "Actualiza tu perfil" : "Construye tu punto de partida"}</h1>
+          <h1>
+            {hasProfile
+              ? "Actualiza tu perfil"
+              : "Construye tu punto de partida"}
+          </h1>
           <p>
             Define tu meta y experiencia para que Motor IA pueda personalizar tu
             ruta de aprendizaje.
           </p>
         </div>
 
-        <span className={`perfil-mode ${hasProfile ? "perfil-mode--edit" : ""}`}>
+        <span
+          className={`perfil-mode ${hasProfile ? "perfil-mode--edit" : ""}`}
+        >
           {hasProfile ? "Modo edición" : "Perfil nuevo"}
         </span>
       </header>
@@ -442,7 +449,9 @@ function PerfilPage() {
                 }
               >
                 {categories.map((category) => {
-                  const isSelected = formData.categorias_ids.includes(category.id);
+                  const isSelected = formData.categorias_ids.includes(
+                    category.id,
+                  );
 
                   return (
                     <button
@@ -452,11 +461,16 @@ function PerfilPage() {
                       aria-pressed={isSelected}
                       onClick={() => toggleCategory(category.id)}
                     >
-                      <span className="perfil-category__check" aria-hidden="true">
+                      <span
+                        className="perfil-category__check"
+                        aria-hidden="true"
+                      >
                         {isSelected && <FiCheck />}
                       </span>
                       <strong>{category.nombre}</strong>
-                      {category.descripcion && <small>{category.descripcion}</small>}
+                      {category.descripcion && (
+                        <small>{category.descripcion}</small>
+                      )}
                     </button>
                   );
                 })}
@@ -481,7 +495,9 @@ function PerfilPage() {
         <div className="perfil-actions">
           <p>
             {formData.categorias_ids.length} categoría
-            {formData.categorias_ids.length === 1 ? " seleccionada" : "s seleccionadas"}
+            {formData.categorias_ids.length === 1
+              ? " seleccionada"
+              : "s seleccionadas"}
           </p>
           <LoadingButton
             type="submit"

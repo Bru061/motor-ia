@@ -88,7 +88,11 @@ function Header() {
         </button>
 
         {isMenuOpen && (
-          <div className="header-user-dropdown" id="header-user-menu" role="menu">
+          <div
+            className="header-user-dropdown"
+            id="header-user-menu"
+            role="menu"
+          >
             {role !== "admin" && (
               <Link
                 to={getUserProfilePath(role)}
@@ -107,7 +111,11 @@ function Header() {
                 setIsMenuOpen(false);
               }}
             >
-              {isLight ? <FiMoon aria-hidden="true" /> : <FiSun aria-hidden="true" />}
+              {isLight ? (
+                <FiMoon aria-hidden="true" />
+              ) : (
+                <FiSun aria-hidden="true" />
+              )}
               <span>{isLight ? "Tema oscuro" : "Tema claro"}</span>
             </button>
             <button type="button" role="menuitem" onClick={handleLogout}>

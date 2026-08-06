@@ -16,7 +16,10 @@ function ForbiddenPage() {
         title="Acceso sin permisos"
         description="Tu rol actual no tiene autorización para abrir esta sección."
         action={
-          <Link className="route-button route-button--primary" to={getUserHomePath(role)}>
+          <Link
+            className="route-button route-button--primary"
+            to={getUserHomePath(role)}
+          >
             <FiArrowLeft aria-hidden="true" />
             Volver al inicio
           </Link>

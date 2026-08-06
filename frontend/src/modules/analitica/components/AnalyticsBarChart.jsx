@@ -27,15 +27,24 @@ function AnalyticsBarChart({
         const count = item[countKey];
 
         return (
-          <article className="analytics-bar-row" key={item.categoria_id || label}>
+          <article
+            className="analytics-bar-row"
+            key={item.categoria_id || label}
+          >
             <div className="analytics-bar-row__header">
               <div>
                 <strong>{label}</strong>
                 {item.descripcion && <span>{item.descripcion}</span>}
               </div>
               <div className="analytics-bar-row__value">
-                <strong>{percentage.toFixed(percentage % 1 === 0 ? 0 : 1)}%</strong>
-                {count !== undefined && <span>{count} usuario{count === 1 ? "" : "s"}</span>}
+                <strong>
+                  {percentage.toFixed(percentage % 1 === 0 ? 0 : 1)}%
+                </strong>
+                {count !== undefined && (
+                  <span>
+                    {count} usuario{count === 1 ? "" : "s"}
+                  </span>
+                )}
               </div>
             </div>
             <div className="analytics-bar-row__track" aria-hidden="true">

@@ -42,7 +42,10 @@ function buildGrowthSeries(usuarios) {
     date.setDate(date.getDate() - (GROWTH_DAYS - 1 - index));
     return {
       key: date.toISOString().slice(0, 10),
-      label: date.toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit" }),
+      label: date.toLocaleDateString("es-MX", {
+        day: "2-digit",
+        month: "2-digit",
+      }),
       count: 0,
     };
   });
@@ -94,7 +97,7 @@ function AdminDashboardPage() {
         if (!ignoreResults) {
           const message = getApiErrorMessage(
             err,
-            "No fue posible cargar el dashboard administrativo."
+            "No fue posible cargar el dashboard administrativo.",
           );
 
           setError(message);
@@ -126,14 +129,12 @@ function AdminDashboardPage() {
       porcentajeConPerfil:
         (usuarios.filter((user) => user.tiene_perfil).length / muestra) * 100,
       porcentajeConRuta:
-        (usuarios.filter((user) => user.tiene_ruta_activa).length / muestra) * 100,
+        (usuarios.filter((user) => user.tiene_ruta_activa).length / muestra) *
+        100,
     };
   }, [data]);
 
-  const growth = useMemo(
-    () => buildGrowthSeries(data?.usuarios || []),
-    [data],
-  );
+  const growth = useMemo(() => buildGrowthSeries(data?.usuarios || []), [data]);
 
   const topTecnologias = useMemo(() => tecnologias.slice(0, 5), [tecnologias]);
 
@@ -238,7 +239,9 @@ function AdminDashboardPage() {
               </span>
               <div>
                 <h2>Estado de la muestra</h2>
-                <span>Perfil y ruta activa, sobre {metrics.muestraActual} usuarios</span>
+                <span>
+                  Perfil y ruta activa, sobre {metrics.muestraActual} usuarios
+                </span>
               </div>
             </div>
           </div>
@@ -284,7 +287,6 @@ function AdminDashboardPage() {
           />
         </article>
       )}
-
     </section>
   );
 }

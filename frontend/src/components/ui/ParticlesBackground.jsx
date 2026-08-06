@@ -134,7 +134,13 @@ function ParticlesBackground({ className = "", splitRatio = 0.6 }) {
         const color = colorFor(particle.x);
 
         context.beginPath();
-        context.arc(particle.x, particle.y, particle.radius * pulse, 0, Math.PI * 2);
+        context.arc(
+          particle.x,
+          particle.y,
+          particle.radius * pulse,
+          0,
+          Math.PI * 2,
+        );
         context.fillStyle = `rgba(${color.rgb}, ${color.alpha})`;
         context.shadowColor = `rgba(${color.rgb}, ${color.alpha})`;
         context.shadowBlur = 8;

@@ -114,7 +114,10 @@ function ProgresoPage() {
         return;
       }
 
-      if (routeResult.status === "rejected" && !isNotFound(routeResult.reason)) {
+      if (
+        routeResult.status === "rejected" &&
+        !isNotFound(routeResult.reason)
+      ) {
         const message = getProgressError(routeResult.reason);
         setError(message);
         toast.error(message);
@@ -122,7 +125,10 @@ function ProgresoPage() {
         return;
       }
 
-      if (summaryResult.status === "rejected" && !isNotFound(summaryResult.reason)) {
+      if (
+        summaryResult.status === "rejected" &&
+        !isNotFound(summaryResult.reason)
+      ) {
         const message = getProgressError(summaryResult.reason);
         setError(message);
         toast.error(message);
@@ -131,7 +137,9 @@ function ProgresoPage() {
       }
 
       setRoute(routeResult.status === "fulfilled" ? routeResult.value : null);
-      setSummary(summaryResult.status === "fulfilled" ? summaryResult.value : null);
+      setSummary(
+        summaryResult.status === "fulfilled" ? summaryResult.value : null,
+      );
       setIsLoading(false);
     };
 
@@ -233,7 +241,10 @@ function ProgresoPage() {
 
         <div className="progress-overview progress-overview--real">
           {modules.map((module) => (
-            <article className="dashboard-card progress-module progress-module--compact" key={module.id}>
+            <article
+              className="dashboard-card progress-module progress-module--compact"
+              key={module.id}
+            >
               <span>
                 {module.estado === "completado" ? (
                   <FiCheckCircle aria-hidden="true" />
@@ -246,7 +257,8 @@ function ProgresoPage() {
               <div>
                 <h2>{module.titulo}</h2>
                 <p>
-                  {module.estado.replace("_", " ")} · {formatHours(module.tiempo_estimado_hrs)}
+                  {module.estado.replace("_", " ")} ·{" "}
+                  {formatHours(module.tiempo_estimado_hrs)}
                 </p>
               </div>
               <strong>{module.orden}</strong>

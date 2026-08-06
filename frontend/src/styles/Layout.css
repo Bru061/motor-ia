@@ -63,7 +63,9 @@
   font-size: 14px;
   font-weight: 600;
   text-align: left;
-  transition: background-color 0.18s ease, color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
 }
 
 .sidebar__link:hover,
@@ -157,7 +159,9 @@
   background: var(--chrome-bg-soft);
   color: var(--chrome-text);
   font-size: 13px;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .header-user-menu__trigger:hover {
@@ -395,7 +399,9 @@
 }
 
 .public-card:hover {
-  box-shadow: var(--shadow), 0 0 40px -12px rgba(var(--cyan-rgb), 0.35);
+  box-shadow:
+    var(--shadow),
+    0 0 40px -12px rgba(var(--cyan-rgb), 0.35);
 }
 
 :root[data-theme="light"] .public-layout {
@@ -444,7 +450,11 @@
    marino plano de siempre) para darles un poco de brillo/desvanecido. */
 :root[data-theme="light"] .sidebar,
 :root[data-theme="light"] .header {
-  background: linear-gradient(155deg, var(--chrome-bg-soft) 0%, var(--chrome-bg) 65%);
+  background: linear-gradient(
+    155deg,
+    var(--chrome-bg-soft) 0%,
+    var(--chrome-bg) 65%
+  );
 }
 
 /* El sidebar y el header siempre usan fondo marino fijo (--chrome-bg), sin
@@ -473,7 +483,9 @@
   border-color: rgba(255, 255, 255, 0.55);
 }
 
-:root[data-theme="light"] .header-user-menu__trigger[aria-expanded="true"] svg:last-child {
+:root[data-theme="light"]
+  .header-user-menu__trigger[aria-expanded="true"]
+  svg:last-child {
   color: #ffffff;
 }
 

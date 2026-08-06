@@ -31,7 +31,10 @@ function AdminPagination({ page, pages, total, limit, onPageChange }) {
   if (!pages || pages <= 1) {
     return (
       <div className="table-footer">
-        <span>{total} usuario{total === 1 ? "" : "s"} encontrado{total === 1 ? "" : "s"}</span>
+        <span>
+          {total} usuario{total === 1 ? "" : "s"} encontrado
+          {total === 1 ? "" : "s"}
+        </span>
       </div>
     );
   }

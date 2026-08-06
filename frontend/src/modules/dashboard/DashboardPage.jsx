@@ -39,7 +39,9 @@ const INITIAL_DASHBOARD = {
 };
 
 function isNotFound(result) {
-  return result.status === "rejected" && result.reason?.response?.status === 404;
+  return (
+    result.status === "rejected" && result.reason?.response?.status === 404
+  );
 }
 
 function hasConnectionError(results) {
@@ -247,9 +249,15 @@ function DashboardPage() {
             </p>
           </div>
           {hasProfile ? (
-            <FiCheckCircle className="student-dashboard-card__check" aria-label="Completado" />
+            <FiCheckCircle
+              className="student-dashboard-card__check"
+              aria-label="Completado"
+            />
           ) : (
-            <FiArrowRight className="student-dashboard-card__arrow" aria-hidden="true" />
+            <FiArrowRight
+              className="student-dashboard-card__arrow"
+              aria-hidden="true"
+            />
           )}
         </article>
 
@@ -281,14 +289,23 @@ function DashboardPage() {
             </p>
           </div>
           {hasRoute ? (
-            <FiCheckCircle className="student-dashboard-card__check" aria-label="Activa" />
+            <FiCheckCircle
+              className="student-dashboard-card__check"
+              aria-label="Activa"
+            />
           ) : (
-            <FiArrowRight className="student-dashboard-card__arrow" aria-hidden="true" />
+            <FiArrowRight
+              className="student-dashboard-card__arrow"
+              aria-hidden="true"
+            />
           )}
         </article>
       </div>
 
-      <section className="student-dashboard__progress" aria-labelledby="progress-title">
+      <section
+        className="student-dashboard__progress"
+        aria-labelledby="progress-title"
+      >
         <div className="student-dashboard__section-heading">
           <div>
             <span>Progreso actual</span>
@@ -309,7 +326,9 @@ function DashboardPage() {
               <span>completado</span>
             </div>
             <div>
-              <span className="student-dashboard-card__label">Avance general</span>
+              <span className="student-dashboard-card__label">
+                Avance general
+              </span>
               <p>
                 {hasRoute
                   ? "Porcentaje de módulos completados en tu ruta activa."
@@ -344,7 +363,10 @@ function DashboardPage() {
         </div>
       </section>
 
-      <section className="student-dashboard-next" aria-labelledby="next-action-title">
+      <section
+        className="student-dashboard-next"
+        aria-labelledby="next-action-title"
+      >
         <div>
           <span className="student-dashboard-next__icon">
             <FiArrowRight aria-hidden="true" />
@@ -379,21 +401,33 @@ function DashboardPage() {
         <div className="student-dashboard-next__actions">
           {isRouteComplete ? (
             <>
-              <Link className="student-dashboard-button student-dashboard-button--primary" to="/perfil">
+              <Link
+                className="student-dashboard-button student-dashboard-button--primary"
+                to="/perfil"
+              >
                 Actualizar perfil
                 <FiUser aria-hidden="true" />
               </Link>
-              <Link className="student-dashboard-button student-dashboard-button--secondary" to="/ruta">
+              <Link
+                className="student-dashboard-button student-dashboard-button--secondary"
+                to="/ruta"
+              >
                 Generar ruta nueva
               </Link>
             </>
           ) : hasRoute ? (
             <>
-              <Link className="student-dashboard-button student-dashboard-button--primary" to="/ruta">
+              <Link
+                className="student-dashboard-button student-dashboard-button--primary"
+                to="/ruta"
+              >
                 Ver ruta
                 <FiGitBranch aria-hidden="true" />
               </Link>
-              <Link className="student-dashboard-button student-dashboard-button--secondary" to="/progreso">
+              <Link
+                className="student-dashboard-button student-dashboard-button--secondary"
+                to="/progreso"
+              >
                 Ver progreso
               </Link>
             </>
@@ -407,12 +441,18 @@ function DashboardPage() {
               <FiRefreshCw aria-hidden="true" />
             </button>
           ) : !hasProfile ? (
-            <Link className="student-dashboard-button student-dashboard-button--primary" to="/perfil">
+            <Link
+              className="student-dashboard-button student-dashboard-button--primary"
+              to="/perfil"
+            >
               Crear perfil
               <FiArrowRight aria-hidden="true" />
             </Link>
           ) : (
-            <Link className="student-dashboard-button student-dashboard-button--primary" to="/ruta">
+            <Link
+              className="student-dashboard-button student-dashboard-button--primary"
+              to="/ruta"
+            >
               Generar ruta
               <FiArrowRight aria-hidden="true" />
             </Link>

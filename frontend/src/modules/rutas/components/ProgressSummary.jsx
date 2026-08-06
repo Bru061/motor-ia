@@ -16,7 +16,10 @@ function formatHours(value) {
 
 function ProgressSummary({ summary, nextModule, onOpenModule, warning }) {
   return (
-    <section className="route-progress-dashboard" aria-labelledby="route-progress-title">
+    <section
+      className="route-progress-dashboard"
+      aria-labelledby="route-progress-title"
+    >
       <div className="route-progress-dashboard__heading">
         <div>
           <span>Resumen de la ruta</span>

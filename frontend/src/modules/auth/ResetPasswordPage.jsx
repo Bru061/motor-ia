@@ -66,7 +66,7 @@ function ResetPasswordPage() {
     } catch (err) {
       const message = getApiErrorMessage(
         err,
-        "El enlace es inválido o expiró. Solicita uno nuevo."
+        "El enlace es inválido o expiró. Solicita uno nuevo.",
       );
 
       setError(message);
@@ -113,7 +113,9 @@ function ResetPasswordPage() {
           value={formData.confirmPassword}
           onChange={handleChange}
           autoComplete="new-password"
-          aria-invalid={Boolean(error && formData.password !== formData.confirmPassword)}
+          aria-invalid={Boolean(
+            error && formData.password !== formData.confirmPassword,
+          )}
         />
 
         <LoadingButton

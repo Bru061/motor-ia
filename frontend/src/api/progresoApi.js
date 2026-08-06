@@ -11,7 +11,9 @@ export const actualizarProgresoModulo = async (moduloId, estado) => {
 };
 
 export const actualizarProgresoRecurso = async (recursoId, estado) => {
-  const response = await api.patch(`/progreso/recursos/${recursoId}`, { estado });
+  const response = await api.patch(`/progreso/recursos/${recursoId}`, {
+    estado,
+  });
   return response.data;
 };
 

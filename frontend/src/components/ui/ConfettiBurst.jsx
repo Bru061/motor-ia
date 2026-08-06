@@ -83,7 +83,8 @@ function ConfettiBurst({ onComplete }) {
 
       particles.forEach((particle) => {
         particle.y += particle.vy;
-        particle.x += particle.vx + Math.sin(elapsed / 250 + particle.swayPhase) * 0.6;
+        particle.x +=
+          particle.vx + Math.sin(elapsed / 250 + particle.swayPhase) * 0.6;
         particle.rotation += particle.rotationSpeed;
 
         context.save();
@@ -122,7 +123,9 @@ function ConfettiBurst({ onComplete }) {
     };
   }, [onComplete]);
 
-  return <canvas ref={canvasRef} className="confetti-burst" aria-hidden="true" />;
+  return (
+    <canvas ref={canvasRef} className="confetti-burst" aria-hidden="true" />
+  );
 }
 
 export default ConfettiBurst;

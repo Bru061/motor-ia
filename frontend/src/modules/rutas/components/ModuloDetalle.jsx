@@ -116,12 +116,14 @@ function ModuloDetalle({
             </span>
             <span>
               <FiBookOpen aria-hidden="true" />
-              {LEVEL_LABELS[module.nivel] || module.nivel || "Nivel no disponible"}
+              {LEVEL_LABELS[module.nivel] ||
+                module.nivel ||
+                "Nivel no disponible"}
             </span>
             <span>
               <FiClock aria-hidden="true" />
               {module.tiempo_estimado_hrs !== undefined &&
-                module.tiempo_estimado_hrs !== null
+              module.tiempo_estimado_hrs !== null
                 ? `${module.tiempo_estimado_hrs} h estimadas`
                 : "Duración no disponible"}
             </span>
@@ -148,13 +150,18 @@ function ModuloDetalle({
             </p>
           )}
 
-          <section className="route-module-detail__section" aria-labelledby="module-status-title">
+          <section
+            className="route-module-detail__section"
+            aria-labelledby="module-status-title"
+          >
             <div className="route-module-detail__section-heading">
               <div>
                 <span>Progreso actual</span>
                 <h3 id="module-status-title">Estado del módulo</h3>
               </div>
-              <span className={`route-module-detail__current-status route-module-detail__current-status--${status}`}>
+              <span
+                className={`route-module-detail__current-status route-module-detail__current-status--${status}`}
+              >
                 {STATUS_LABELS[status]}
               </span>
             </div>
@@ -198,7 +205,10 @@ function ModuloDetalle({
             )}
           </section>
 
-          <section className="route-module-detail__section" aria-labelledby="module-resources-title">
+          <section
+            className="route-module-detail__section"
+            aria-labelledby="module-resources-title"
+          >
             <div className="route-module-detail__section-heading">
               <div>
                 <span>Material de apoyo</span>
@@ -215,7 +225,10 @@ function ModuloDetalle({
                   const isSavingThis = updatingResourceId === resource.id;
 
                   return (
-                    <div className="route-module-detail__resource" key={resource.id}>
+                    <div
+                      className="route-module-detail__resource"
+                      key={resource.id}
+                    >
                       {safeUrl ? (
                         <a
                           className="route-module-detail__resource-link"
@@ -227,7 +240,9 @@ function ModuloDetalle({
                             <FiBookOpen aria-hidden="true" />
                           </div>
                           <div>
-                            <strong>{resource.titulo || "Recurso sin título"}</strong>
+                            <strong>
+                              {resource.titulo || "Recurso sin título"}
+                            </strong>
                             <span>{resource.tipo || "Tipo no disponible"}</span>
                           </div>
                           <FiExternalLink aria-hidden="true" />
@@ -238,7 +253,9 @@ function ModuloDetalle({
                             <FiBookOpen aria-hidden="true" />
                           </div>
                           <div>
-                            <strong>{resource.titulo || "Recurso sin título"}</strong>
+                            <strong>
+                              {resource.titulo || "Recurso sin título"}
+                            </strong>
                             <span>{resource.tipo || "Tipo no disponible"}</span>
                           </div>
                           <FiAlertCircle aria-label="Enlace no disponible" />
@@ -254,10 +271,15 @@ function ModuloDetalle({
                         }
                         disabled={isSavingThis}
                         aria-pressed={isSeen}
-                        onClick={() => onToggleResourceSeen(resource.id, isSeen)}
+                        onClick={() =>
+                          onToggleResourceSeen(resource.id, isSeen)
+                        }
                       >
                         {isSavingThis ? (
-                          <span className="route-button__spinner" aria-hidden="true" />
+                          <span
+                            className="route-button__spinner"
+                            aria-hidden="true"
+                          />
                         ) : (
                           <FiCheckCircle aria-hidden="true" />
                         )}
@@ -274,7 +296,10 @@ function ModuloDetalle({
             )}
           </section>
 
-          <section className="route-module-detail__section" aria-labelledby="module-dependencies-title">
+          <section
+            className="route-module-detail__section"
+            aria-labelledby="module-dependencies-title"
+          >
             <div className="route-module-detail__section-heading">
               <div>
                 <span>Requisitos previos</span>

@@ -4,7 +4,9 @@ import { formatDate, getInitials } from "../../../utils/formatters";
 
 function BooleanBadge({ active, icon: Icon, labelActive, labelInactive }) {
   return (
-    <span className={active ? "admin-badge admin-badge--success" : "admin-badge"}>
+    <span
+      className={active ? "admin-badge admin-badge--success" : "admin-badge"}
+    >
       <Icon aria-hidden="true" />
       {active ? labelActive : labelInactive}
     </span>
@@ -29,7 +31,10 @@ function AdminUsersTable({ users }) {
             {getInitials(user.nombre, user.email)}
           </span>
           <div className="users-table__identity">
-            <Link className="users-table__name-link" to={`/admin/usuarios/${user.id}`}>
+            <Link
+              className="users-table__name-link"
+              to={`/admin/usuarios/${user.id}`}
+            >
               <strong>{user.nombre || "Sin nombre"}</strong>
             </Link>
             <span>{user.email}</span>

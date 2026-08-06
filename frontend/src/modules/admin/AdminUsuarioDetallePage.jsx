@@ -84,7 +84,7 @@ function AdminUsuarioDetallePage() {
         if (!ignoreResults) {
           const message = getApiErrorMessage(
             err,
-            "No fue posible cargar el detalle del usuario."
+            "No fue posible cargar el detalle del usuario.",
           );
 
           setError(message);
@@ -109,7 +109,8 @@ function AdminUsuarioDetallePage() {
   const modules = route?.modulos || [];
   const archivedRoutes = user?.rutas_archivadas || [];
   const roadmapModules = useMemo(
-    () => modules.map((module) => ({ ...module, estado: module.estado_progreso })),
+    () =>
+      modules.map((module) => ({ ...module, estado: module.estado_progreso })),
     [modules],
   );
   const initials = useMemo(
@@ -165,7 +166,11 @@ function AdminUsuarioDetallePage() {
 
   return (
     <section className="admin-page">
-      <button className="admin-back-button" type="button" onClick={() => navigate(-1)}>
+      <button
+        className="admin-back-button"
+        type="button"
+        onClick={() => navigate(-1)}
+      >
         <FiArrowLeft aria-hidden="true" />
         Volver
       </button>
@@ -189,7 +194,7 @@ function AdminUsuarioDetallePage() {
           <span className="admin-badge admin-badge--role">{user.rol}</span>
           <span>Registro: {formatDate(user.created_at, LONG_DATE_FORMAT)}</span>
           <span>
-            <FiClock aria-hidden="true" /> Última actividad: {" "}
+            <FiClock aria-hidden="true" /> Última actividad:{" "}
             {formatDate(user.ultima_actividad, LONG_DATE_FORMAT)}
           </span>
         </div>
@@ -206,8 +211,14 @@ function AdminUsuarioDetallePage() {
         {user.perfil ? (
           <>
             <div className="admin-detail-fields admin-detail-fields--row">
-              <DetailField label="Meta profesional" value={user.perfil.meta_profesional} />
-              <DetailField label="Nivel actual" value={user.perfil.nivel_actual} />
+              <DetailField
+                label="Meta profesional"
+                value={user.perfil.meta_profesional}
+              />
+              <DetailField
+                label="Nivel actual"
+                value={user.perfil.nivel_actual}
+              />
               <DetailField
                 label="Última actualización"
                 value={formatDate(user.perfil.updated_at, LONG_DATE_FORMAT)}
@@ -216,13 +227,18 @@ function AdminUsuarioDetallePage() {
             {user.tecnologias.length > 0 ? (
               <div className="profile-tags admin-tech-tags">
                 {user.tecnologias.map((technology) => (
-                  <span title={technology.descripcion || undefined} key={technology.id}>
+                  <span
+                    title={technology.descripcion || undefined}
+                    key={technology.id}
+                  >
                     {technology.nombre}
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="admin-muted-text">Sin categorías tecnológicas asociadas.</p>
+              <p className="admin-muted-text">
+                Sin categorías tecnológicas asociadas.
+              </p>
             )}
           </>
         ) : (
@@ -251,7 +267,8 @@ function AdminUsuarioDetallePage() {
               <div>
                 <h3>{route.titulo}</h3>
                 <p>
-                  Estado: {route.estado} · Creada el {formatDate(route.created_at, LONG_DATE_FORMAT)}
+                  Estado: {route.estado} · Creada el{" "}
+                  {formatDate(route.created_at, LONG_DATE_FORMAT)}
                   {route.desde_cache ? " · Generada desde cache" : ""}
                 </p>
               </div>
@@ -290,7 +307,8 @@ function AdminUsuarioDetallePage() {
             {modules.length > 0 && (
               <div className="admin-roadmap-readonly">
                 <p className="admin-muted-text">
-                  Vista de solo lectura — no se pueden abrir ni editar módulos desde aquí.
+                  Vista de solo lectura — no se pueden abrir ni editar módulos
+                  desde aquí.
                 </p>
                 <RoadmapFlow modules={roadmapModules} />
               </div>
@@ -300,7 +318,9 @@ function AdminUsuarioDetallePage() {
               <div className="admin-modules-list">
                 {modules.map((module) => (
                   <article className="admin-module-item" key={module.id}>
-                    <span className="admin-module-item__order">{module.orden}</span>
+                    <span className="admin-module-item__order">
+                      {module.orden}
+                    </span>
                     <div>
                       <h4>{module.titulo}</h4>
                       <p>
@@ -310,7 +330,8 @@ function AdminUsuarioDetallePage() {
                     <span
                       className={`admin-badge admin-badge--${module.estado_progreso}`}
                     >
-                      {STATUS_LABELS[module.estado_progreso] || module.estado_progreso}
+                      {STATUS_LABELS[module.estado_progreso] ||
+                        module.estado_progreso}
                     </span>
                   </article>
                 ))}
@@ -346,7 +367,10 @@ function AdminUsuarioDetallePage() {
         {archivedRoutes.length > 0 ? (
           <div className="admin-modules-list">
             {archivedRoutes.map((historyRoute) => (
-              <article className="admin-route-heading admin-route-heading--history" key={historyRoute.id}>
+              <article
+                className="admin-route-heading admin-route-heading--history"
+                key={historyRoute.id}
+              >
                 <div>
                   <h3>{historyRoute.titulo}</h3>
                   <p>

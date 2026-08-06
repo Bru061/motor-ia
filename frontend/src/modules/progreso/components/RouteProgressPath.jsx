@@ -18,7 +18,11 @@ function RouteProgressPath({ modules }) {
   }
 
   return (
-    <div className="route-progress-path" role="img" aria-label="Avance de la ruta por módulo, en orden">
+    <div
+      className="route-progress-path"
+      role="img"
+      aria-label="Avance de la ruta por módulo, en orden"
+    >
       {modules.map((module, index) => {
         const isLast = index === modules.length - 1;
         const nextIsReached = !isLast && module.estado === "completado";

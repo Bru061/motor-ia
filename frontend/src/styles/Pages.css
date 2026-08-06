@@ -62,7 +62,10 @@
 .settings-panel,
 .route-progress-kpi,
 .route-module {
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .dashboard-card:hover,
@@ -151,7 +154,11 @@
 .admin-panel {
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: linear-gradient(145deg, rgba(var(--panel-rgb), 0.96), rgba(var(--bg-deep-rgb), 0.96));
+  background: linear-gradient(
+    145deg,
+    rgba(var(--panel-rgb), 0.96),
+    rgba(var(--bg-deep-rgb), 0.96)
+  );
   box-shadow: 0 16px 46px rgba(0, 0, 0, 0.16);
 }
 
@@ -930,7 +937,9 @@
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .select-dropdown__trigger:hover {
@@ -1049,7 +1058,9 @@
 .users-table__head,
 .users-table__row {
   display: grid;
-  grid-template-columns: 42px minmax(190px, 1.4fr) minmax(80px, 0.7fr) minmax(120px, 0.9fr) minmax(120px, 0.9fr) minmax(120px, 0.8fr) minmax(124px, 0.7fr);
+  grid-template-columns:
+    42px minmax(190px, 1.4fr) minmax(80px, 0.7fr) minmax(120px, 0.9fr)
+    minmax(120px, 0.9fr) minmax(120px, 0.8fr) minmax(124px, 0.7fr);
   align-items: center;
   gap: 10px;
   padding: 0 24px;
@@ -2020,7 +2031,9 @@
   background: transparent;
   color: var(--muted);
   font-size: 14px;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .view-toggle__btn:hover {
@@ -2553,7 +2566,10 @@
   color: var(--muted-strong);
   font-weight: 700;
   text-align: left;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .settings-options button svg {

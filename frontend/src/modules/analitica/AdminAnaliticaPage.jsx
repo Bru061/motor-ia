@@ -23,10 +23,16 @@ import SkillGapChart from "./components/SkillGapChart";
 
 function ViewToggle({ view, onChange }) {
   return (
-    <div className="view-toggle" role="group" aria-label="Cambiar visualización">
+    <div
+      className="view-toggle"
+      role="group"
+      aria-label="Cambiar visualización"
+    >
       <button
         type="button"
-        className={view === "lista" ? "view-toggle__btn is-active" : "view-toggle__btn"}
+        className={
+          view === "lista" ? "view-toggle__btn is-active" : "view-toggle__btn"
+        }
         aria-pressed={view === "lista"}
         onClick={() => onChange("lista")}
         title="Ver como lista"
@@ -35,7 +41,9 @@ function ViewToggle({ view, onChange }) {
       </button>
       <button
         type="button"
-        className={view === "barras" ? "view-toggle__btn is-active" : "view-toggle__btn"}
+        className={
+          view === "barras" ? "view-toggle__btn is-active" : "view-toggle__btn"
+        }
         aria-pressed={view === "barras"}
         onClick={() => onChange("barras")}
         title="Ver como gráfico de barras"
@@ -78,7 +86,7 @@ function AdminAnaliticaPage() {
         if (!ignoreResults) {
           const message = getApiErrorMessage(
             err,
-            "No fue posible cargar la analítica administrativa."
+            "No fue posible cargar la analítica administrativa.",
           );
 
           setError(message);
@@ -153,7 +161,9 @@ function AdminAnaliticaPage() {
       <div className="admin-metric-grid analytics-kpi-grid">
         <AdminMetricCard
           icon={FiUsers}
-          value={analytics.tecnologiasDemandadas?.total_perfiles_analizados ?? 0}
+          value={
+            analytics.tecnologiasDemandadas?.total_perfiles_analizados ?? 0
+          }
           label="Perfiles analizados"
           tone="cyan"
           caption="Tecnologías demandadas"
@@ -196,26 +206,29 @@ function AdminAnaliticaPage() {
                   Top: {topTecnologia.nombre}
                 </span>
               )}
-              <ViewToggle view={vistaTecnologias} onChange={setVistaTecnologias} />
+              <ViewToggle
+                view={vistaTecnologias}
+                onChange={setVistaTecnologias}
+              />
             </div>
           </div>
 
           <div className="analytics-panel__body">
-          {vistaTecnologias === "lista" ? (
-            <AnalyticsBarChart
-              items={tecnologias}
-              labelKey="nombre"
-              countKey="total_usuarios"
-              emptyLabel="No hay tecnologías demandadas para mostrar."
-            />
-          ) : (
-            <ColumnChart
-              items={tecnologias}
-              labelKey="nombre"
-              valueKey="porcentaje"
-              emptyLabel="No hay tecnologías demandadas para mostrar."
-            />
-          )}
+            {vistaTecnologias === "lista" ? (
+              <AnalyticsBarChart
+                items={tecnologias}
+                labelKey="nombre"
+                countKey="total_usuarios"
+                emptyLabel="No hay tecnologías demandadas para mostrar."
+              />
+            ) : (
+              <ColumnChart
+                items={tecnologias}
+                labelKey="nombre"
+                valueKey="porcentaje"
+                emptyLabel="No hay tecnologías demandadas para mostrar."
+              />
+            )}
           </div>
         </article>
 
@@ -238,16 +251,16 @@ function AdminAnaliticaPage() {
           </div>
 
           <div className="analytics-panel__body">
-          {vistaSkillGap === "lista" ? (
-            <SkillGapChart gaps={brechas} />
-          ) : (
-            <ColumnChart
-              items={brechas}
-              labelKey="tecnologia"
-              valueKey="porcentaje"
-              emptyLabel="No hay brechas de habilidades para mostrar."
-            />
-          )}
+            {vistaSkillGap === "lista" ? (
+              <SkillGapChart gaps={brechas} />
+            ) : (
+              <ColumnChart
+                items={brechas}
+                labelKey="tecnologia"
+                valueKey="porcentaje"
+                emptyLabel="No hay brechas de habilidades para mostrar."
+              />
+            )}
           </div>
         </article>
       </div>

@@ -1,5 +1,12 @@
 import { Outlet } from "react-router-dom";
-import { FiBookOpen, FiCode, FiCpu, FiEdit3, FiMap, FiZap } from "react-icons/fi";
+import {
+  FiBookOpen,
+  FiCode,
+  FiCpu,
+  FiEdit3,
+  FiMap,
+  FiZap,
+} from "react-icons/fi";
 import ParticlesBackground from "../components/ui/ParticlesBackground";
 import "../styles/Layout.css";
 
@@ -9,10 +16,22 @@ function PublicLayout() {
       <ParticlesBackground splitRatio={1.15 / (1.15 + 0.85)} />
 
       <section className="public-hero" aria-label="Motor IA">
-        <FiBookOpen className="public-hero__icon public-hero__icon--top" aria-hidden="true" />
-        <FiEdit3 className="public-hero__icon public-hero__icon--right" aria-hidden="true" />
-        <FiCpu className="public-hero__icon public-hero__icon--bottom" aria-hidden="true" />
-        <FiZap className="public-hero__icon public-hero__icon--left" aria-hidden="true" />
+        <FiBookOpen
+          className="public-hero__icon public-hero__icon--top"
+          aria-hidden="true"
+        />
+        <FiEdit3
+          className="public-hero__icon public-hero__icon--right"
+          aria-hidden="true"
+        />
+        <FiCpu
+          className="public-hero__icon public-hero__icon--bottom"
+          aria-hidden="true"
+        />
+        <FiZap
+          className="public-hero__icon public-hero__icon--left"
+          aria-hidden="true"
+        />
 
         <div className="public-hero__content public-fade-in">
           <div className="brand-mark">
@@ -28,7 +47,10 @@ function PublicLayout() {
           </p>
         </div>
 
-        <FiCode className="public-hero__icon public-hero__icon--code" aria-hidden="true" />
+        <FiCode
+          className="public-hero__icon public-hero__icon--code"
+          aria-hidden="true"
+        />
       </section>
 
       <section className="public-auth" aria-label="Formulario de acceso">

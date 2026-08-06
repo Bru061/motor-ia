@@ -82,8 +82,7 @@ function getModulesPerRow(moduleCount) {
 function getNodePosition(index, modulesPerRow) {
   const row = Math.floor(index / modulesPerRow);
   const indexInRow = index % modulesPerRow;
-  const column =
-    row % 2 === 0 ? indexInRow : modulesPerRow - 1 - indexInRow;
+  const column = row % 2 === 0 ? indexInRow : modulesPerRow - 1 - indexInRow;
 
   return {
     x: column * (LAYOUT.nodeWidth + LAYOUT.columnGap),
@@ -157,7 +156,9 @@ function buildRoadmapElements(modules, selectedModuleId) {
       type: "roadmapModule",
       position,
       className: `route-flow-node route-flow-node--${status}${
-        String(selectedModuleId) === moduleId ? " route-flow-node--selected" : ""
+        String(selectedModuleId) === moduleId
+          ? " route-flow-node--selected"
+          : ""
       }`,
       ariaLabel: `Módulo ${order}: ${module.titulo || "Sin título"}`,
       data: {
@@ -351,7 +352,10 @@ function RoadmapFlow({
   }
 
   return (
-    <div className="route-roadmap" aria-label="Roadmap secuencial de aprendizaje">
+    <div
+      className="route-roadmap"
+      aria-label="Roadmap secuencial de aprendizaje"
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}

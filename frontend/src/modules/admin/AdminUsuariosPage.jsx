@@ -46,7 +46,12 @@ function AdminUsuariosPage() {
       const trimmedMeta = metaInput.trim();
 
       if (trimmedSearch !== search || trimmedMeta !== metaProfesional) {
-        updateParams({ search: trimmedSearch, meta: trimmedMeta, page: 1, limit });
+        updateParams({
+          search: trimmedSearch,
+          meta: trimmedMeta,
+          page: 1,
+          limit,
+        });
       }
     }, 400);
 
@@ -76,7 +81,7 @@ function AdminUsuariosPage() {
         if (!ignoreResults) {
           const message = getApiErrorMessage(
             err,
-            "No fue posible cargar los usuarios registrados."
+            "No fue posible cargar los usuarios registrados.",
           );
 
           setError(message);
@@ -138,12 +143,12 @@ function AdminUsuariosPage() {
 
   return (
     <section className="admin-page">
-        <PageHeading
-          eyebrow="Panel administrativo"
-          icon={FiUsers}
-          title="Usuarios registrados"
-          description="Consulta usuarios por nombre, correo o meta profesional."
-        />
+      <PageHeading
+        eyebrow="Panel administrativo"
+        icon={FiUsers}
+        title="Usuarios registrados"
+        description="Consulta usuarios por nombre, correo o meta profesional."
+      />
 
       <div className="admin-toolbar">
         <label className="admin-search" htmlFor="admin-users-search">
@@ -180,7 +185,9 @@ function AdminUsuariosPage() {
             }))}
             onChange={handleLimitChange}
           />
-          {isLoading && <span className="admin-search-status">Buscando...</span>}
+          {isLoading && (
+            <span className="admin-search-status">Buscando...</span>
+          )}
         </div>
       </div>
 
@@ -209,7 +216,11 @@ function AdminUsuariosPage() {
       ) : users.length === 0 ? (
         <EmptyState
           icon={FiUsers}
-          title={search || metaProfesional ? "Sin resultados" : "No hay usuarios registrados"}
+          title={
+            search || metaProfesional
+              ? "Sin resultados"
+              : "No hay usuarios registrados"
+          }
           description={
             search || metaProfesional
               ? "No se encontraron usuarios que coincidan con la búsqueda."
@@ -217,7 +228,11 @@ function AdminUsuariosPage() {
           }
           action={
             search || metaProfesional ? (
-              <button className="route-button route-button--secondary" type="button" onClick={clearFilters}>
+              <button
+                className="route-button route-button--secondary"
+                type="button"
+                onClick={clearFilters}
+              >
                 Limpiar búsqueda
               </button>
             ) : null
@@ -234,7 +249,9 @@ function AdminUsuariosPage() {
             </div>
             <div className="admin-panel__actions">
               <span>{summary.conPerfil} con perfil en esta página</span>
-              <span>{summary.conRutaActiva} con ruta activa en esta página</span>
+              <span>
+                {summary.conRutaActiva} con ruta activa en esta página
+              </span>
             </div>
           </div>
 

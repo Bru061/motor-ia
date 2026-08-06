@@ -41,7 +41,9 @@ function FloatingInput({
           aria-label={
             isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"
           }
-          title={isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+          title={
+            isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"
+          }
         >
           {isPasswordVisible ? (
             <FiEyeOff aria-hidden="true" />

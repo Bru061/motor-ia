@@ -112,7 +112,10 @@
   border: 1px solid;
   border-radius: 9px;
   font-weight: 850;
-  transition: border-color 0.18s ease, background-color 0.18s ease, filter 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    filter 0.18s ease;
 }
 
 .route-button--primary {
@@ -163,7 +166,11 @@
   gap: 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  background: linear-gradient(145deg, rgba(var(--panel-rgb), 0.96), rgba(var(--bg-deep-rgb), 0.96));
+  background: linear-gradient(
+    145deg,
+    rgba(var(--panel-rgb), 0.96),
+    rgba(var(--bg-deep-rgb), 0.96)
+  );
   box-shadow: var(--shadow-soft);
   text-align: center;
 }
@@ -465,7 +472,11 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: linear-gradient(145deg, rgba(var(--cyan-rgb), 0.24), rgba(167, 124, 255, 0.24));
+  background: linear-gradient(
+    145deg,
+    rgba(var(--cyan-rgb), 0.24),
+    rgba(167, 124, 255, 0.24)
+  );
   color: var(--cyan);
   font-weight: 800;
   letter-spacing: 0.02em;

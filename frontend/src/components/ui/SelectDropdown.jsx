@@ -11,7 +11,9 @@ function SelectDropdown({ value, options, onChange, label, className = "" }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
-  const selected = options.find((option) => String(option.value) === String(value));
+  const selected = options.find(
+    (option) => String(option.value) === String(value),
+  );
 
   useEffect(() => {
     if (!isOpen) {
@@ -19,7 +21,10 @@ function SelectDropdown({ value, options, onChange, label, className = "" }) {
     }
 
     const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -59,7 +64,11 @@ function SelectDropdown({ value, options, onChange, label, className = "" }) {
         <span>{selected?.label ?? ""}</span>
         <FiChevronDown
           aria-hidden="true"
-          className={isOpen ? "select-dropdown__chevron is-open" : "select-dropdown__chevron"}
+          className={
+            isOpen
+              ? "select-dropdown__chevron is-open"
+              : "select-dropdown__chevron"
+          }
         />
       </button>
 

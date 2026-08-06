@@ -20,9 +20,14 @@ function SidebarProvider({ children }) {
     setIsOpen(false);
   }, []);
 
-  const value = useMemo(() => ({ isOpen, toggle, close }), [isOpen, toggle, close]);
+  const value = useMemo(
+    () => ({ isOpen, toggle, close }),
+    [isOpen, toggle, close],
+  );
 
-  return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>;
+  return (
+    <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
+  );
 }
 
 export default SidebarProvider;

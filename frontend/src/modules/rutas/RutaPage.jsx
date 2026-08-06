@@ -62,7 +62,9 @@ const RESOURCE_ICONS = {
 };
 
 function isNotFound(result) {
-  return result.status === "rejected" && result.reason?.response?.status === 404;
+  return (
+    result.status === "rejected" && result.reason?.response?.status === 404
+  );
 }
 
 function getLoadError(results) {
@@ -211,9 +213,7 @@ function calculateProgressSummary(modules, apiSummary = null) {
       100,
       Math.max(
         0,
-        apiSummary
-          ? safeNumber(apiSummary.porcentaje_avance)
-          : localPercentage,
+        apiSummary ? safeNumber(apiSummary.porcentaje_avance) : localPercentage,
       ),
     ),
     modulos_completados: apiSummary
@@ -302,10 +302,7 @@ function RutaPage() {
               : "error",
         progressSummary:
           progressResult.status === "fulfilled"
-            ? calculateProgressSummary(
-                route?.modulos,
-                progressResult.value,
-              )
+            ? calculateProgressSummary(route?.modulos, progressResult.value)
             : calculateProgressSummary(route?.modulos),
         loadError: getLoadError([profileResult, routeResult]),
       });
@@ -319,7 +316,8 @@ function RutaPage() {
   }, [retryCount]);
 
   const isInitialLoading =
-    pageState.profileStatus === "loading" || pageState.routeStatus === "loading";
+    pageState.profileStatus === "loading" ||
+    pageState.routeStatus === "loading";
   const isWorking = Boolean(currentAction);
 
   const saveGeneratedRoute = (route, successMessage) => {
@@ -346,7 +344,10 @@ function RutaPage() {
 
     try {
       const route = await generarRuta();
-      saveGeneratedRoute(route, "Tu ruta de aprendizaje se generó correctamente.");
+      saveGeneratedRoute(
+        route,
+        "Tu ruta de aprendizaje se generó correctamente.",
+      );
     } catch (error) {
       if (error.response?.status === 404) {
         setPageState((current) => ({
@@ -490,7 +491,10 @@ function RutaPage() {
     setUpdatingResourceId(recursoId);
 
     try {
-      const updatedResource = await actualizarProgresoRecurso(recursoId, nextEstado);
+      const updatedResource = await actualizarProgresoRecurso(
+        recursoId,
+        nextEstado,
+      );
 
       let moduleAutoAdvanced = false;
       let moduleAutoCompleted = false;
@@ -498,7 +502,9 @@ function RutaPage() {
 
       setPageState((current) => {
         const updatedModules = (current.route?.modulos || []).map((module) => {
-          const recursos = Array.isArray(module.recursos) ? module.recursos : [];
+          const recursos = Array.isArray(module.recursos)
+            ? module.recursos
+            : [];
           const tieneRecurso = recursos.some(
             (recurso) => String(recurso.id) === String(recursoId),
           );
@@ -524,7 +530,8 @@ function RutaPage() {
               (recurso) => recurso.estado === "completado",
             );
           const debeAvanzar =
-            updatedResource.estado === "completado" && module.estado === "pendiente";
+            updatedResource.estado === "completado" &&
+            module.estado === "pendiente";
 
           let nuevoEstadoModulo = module.estado;
           if (todosVistos) {
@@ -582,17 +589,16 @@ function RutaPage() {
     }
   };
 
-  if (
-    !hasRoute &&
-    hasLoadError &&
-    pageState.profileStatus !== "missing"
-  ) {
+  if (!hasRoute && hasLoadError && pageState.profileStatus !== "missing") {
     return (
       <section className="route-state route-state--error" role="alert">
         <FiAlertCircle aria-hidden="true" />
         <h1>No pudimos cargar tu ruta</h1>
         <p>{pageState.loadError}</p>
-        <button type="button" onClick={() => setRetryCount((count) => count + 1)}>
+        <button
+          type="button"
+          onClick={() => setRetryCount((count) => count + 1)}
+        >
           <FiRefreshCw aria-hidden="true" />
           Reintentar
         </button>
@@ -614,7 +620,10 @@ function RutaPage() {
         </header>
 
         {feedback && (
-          <div className={`route-feedback route-feedback--${feedback.type}`} role="alert">
+          <div
+            className={`route-feedback route-feedback--${feedback.type}`}
+            role="alert"
+          >
             <FiAlertCircle aria-hidden="true" />
             <span>{feedback.message}</span>
           </div>
@@ -654,7 +663,10 @@ function RutaPage() {
         </header>
 
         {feedback && (
-          <div className={`route-feedback route-feedback--${feedback.type}`} role="alert">
+          <div
+            className={`route-feedback route-feedback--${feedback.type}`}
+            role="alert"
+          >
             <FiAlertCircle aria-hidden="true" />
             <span>{feedback.message}</span>
           </div>
@@ -753,8 +765,8 @@ function RutaPage() {
         <div className="route-feedback route-feedback--success" role="status">
           <FiCheckCircle aria-hidden="true" />
           <span>
-            Completaste esta ruta. Actualiza tu perfil tecnológico para
-            definir una nueva meta y genera una ruta nueva.{" "}
+            Completaste esta ruta. Actualiza tu perfil tecnológico para definir
+            una nueva meta y genera una ruta nueva.{" "}
             <Link to="/perfil">Actualizar perfil</Link>
           </span>
         </div>
@@ -777,20 +789,32 @@ function RutaPage() {
           <span className="route-spinner" aria-hidden="true" />
           <div>
             <strong>Regenerando tu ruta</strong>
-            <p>La IA está preparando una nueva propuesta. Esto puede tardar unos segundos.</p>
+            <p>
+              La IA está preparando una nueva propuesta. Esto puede tardar unos
+              segundos.
+            </p>
           </div>
         </div>
       )}
 
       {modules.length > 0 && (
-        <section className="route-roadmap-section" aria-labelledby="route-roadmap-title">
+        <section
+          className="route-roadmap-section"
+          aria-labelledby="route-roadmap-title"
+        >
           <div className="route-roadmap-heading">
             <div>
               <span>Recorrido secuencial</span>
               <h2 id="route-roadmap-title">Roadmap de aprendizaje</h2>
-              <p>Sigue los módulos en orden; cada fila continúa en sentido alternado.</p>
+              <p>
+                Sigue los módulos en orden; cada fila continúa en sentido
+                alternado.
+              </p>
             </div>
-            <div className="route-roadmap-legend" aria-label="Estados de los módulos">
+            <div
+              className="route-roadmap-legend"
+              aria-label="Estados de los módulos"
+            >
               <span className="route-roadmap-legend__item route-roadmap-legend__item--pendiente">
                 Pendiente
               </span>
@@ -846,8 +870,12 @@ function RutaPage() {
                   <div className="route-module__heading">
                     <div>
                       <div className="route-module__badges">
-                        <span>{LEVEL_LABELS[module.nivel] || module.nivel}</span>
-                        <span className={`route-module__status route-module__status--${moduleStatus}`}>
+                        <span>
+                          {LEVEL_LABELS[module.nivel] || module.nivel}
+                        </span>
+                        <span
+                          className={`route-module__status route-module__status--${moduleStatus}`}
+                        >
                           {STATUS_LABELS[moduleStatus] || moduleStatus}
                         </span>
                       </div>
@@ -874,7 +902,8 @@ function RutaPage() {
                       <span>Recursos sugeridos</span>
                       <div>
                         {module.recursos.map((resource) => {
-                          const ResourceIcon = RESOURCE_ICONS[resource.tipo] || FiBookOpen;
+                          const ResourceIcon =
+                            RESOURCE_ICONS[resource.tipo] || FiBookOpen;
                           const safeUrl = getSafeResourceUrl(resource.url);
                           const content = (
                             <>

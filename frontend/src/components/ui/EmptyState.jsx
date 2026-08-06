@@ -10,7 +10,9 @@ function EmptyState({
   tone = "info",
 }) {
   return (
-    <article className={`ui-empty-state ui-empty-state--${tone} ${className}`.trim()}>
+    <article
+      className={`ui-empty-state ui-empty-state--${tone} ${className}`.trim()}
+    >
       <span className="ui-empty-state__icon">
         <Icon aria-hidden="true" />
       </span>

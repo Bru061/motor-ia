@@ -95,7 +95,11 @@ function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="toast-viewport" aria-live="polite" aria-relevant="additions">
+      <div
+        className="toast-viewport"
+        aria-live="polite"
+        aria-relevant="additions"
+      >
         {toasts.map((toast) => {
           const ToastIcon = TOAST_ICONS[toast.type];
 

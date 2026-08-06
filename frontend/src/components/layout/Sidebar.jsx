@@ -79,7 +79,9 @@ function Sidebar({ type = "student" }) {
                 to={link.to}
                 end
                 className={({ isActive }) =>
-                  isActive ? "sidebar__link sidebar__link--active" : "sidebar__link"
+                  isActive
+                    ? "sidebar__link sidebar__link--active"
+                    : "sidebar__link"
                 }
               >
                 <span className="sidebar__icon">

@@ -17,7 +17,10 @@ function TrendLineChart({ items, labelKey, valueKey = "count", emptyLabel }) {
     return <p className="admin-muted-text">{emptyLabel}</p>;
   }
 
-  const maxValue = Math.max(...items.map((item) => Number(item[valueKey]) || 0), 1);
+  const maxValue = Math.max(
+    ...items.map((item) => Number(item[valueKey]) || 0),
+    1,
+  );
   const innerHeight = CHART_HEIGHT - PADDING_TOP - PADDING_BOTTOM;
   const width = Math.max(items.length - 1, 1) * POINT_SPACING + 40;
 
@@ -48,8 +51,14 @@ function TrendLineChart({ items, labelKey, valueKey = "count", emptyLabel }) {
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" style={{ stopColor: "rgba(var(--cyan-rgb), 0.32)" }} />
-            <stop offset="100%" style={{ stopColor: "rgba(var(--cyan-rgb), 0)" }} />
+            <stop
+              offset="0%"
+              style={{ stopColor: "rgba(var(--cyan-rgb), 0.32)" }}
+            />
+            <stop
+              offset="100%"
+              style={{ stopColor: "rgba(var(--cyan-rgb), 0)" }}
+            />
           </linearGradient>
         </defs>
 
@@ -65,7 +74,12 @@ function TrendLineChart({ items, labelKey, valueKey = "count", emptyLabel }) {
 
         {points.map((point) => (
           <g key={`${point.label}-${point.value}`}>
-            <circle cx={point.x} cy={point.y} r="4" style={{ fill: "var(--cyan)" }}>
+            <circle
+              cx={point.x}
+              cy={point.y}
+              r="4"
+              style={{ fill: "var(--cyan)" }}
+            >
               <title>
                 {point.label}: {point.value}
               </title>
