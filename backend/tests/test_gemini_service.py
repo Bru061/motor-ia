@@ -33,6 +33,7 @@ def _respuesta_valida(cantidad_modulos: int = 6) -> dict:
                     }
                 ],
                 "dependencias": [] if orden == 1 else [f"modulo_{orden - 1}"],
+                "actividad_practica": f"Practica del modulo {orden}",
             }
             for orden in range(1, cantidad_modulos + 1)
         ],

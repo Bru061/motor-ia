@@ -159,10 +159,9 @@ class ProgresoDia11Tests(unittest.TestCase):
         self.assertEqual(response.json()["estado"], "completado")
         self.assertIsNotNone(response.json()["completado_at"])
 
+        # Regla de negocio: un modulo completado no puede regresar de estado.
         response = self.client.patch(url, json={"estado": "pendiente"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["estado"], "pendiente")
-        self.assertIsNone(response.json()["completado_at"])
+        self.assertEqual(response.status_code, 400)
         self.assertEqual(
             self.db.query(Progreso)
             .filter(Progreso.modulo_id == modulos[0].id)

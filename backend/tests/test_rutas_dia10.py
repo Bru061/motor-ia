@@ -49,6 +49,7 @@ def _ruta_ia(
                     "dependencias": (
                         [] if orden == 1 else [f"modulo_{orden - 1}"]
                     ),
+                    "actividad_practica": f"Practica del modulo {orden}",
                 }
                 for orden in range(1, cantidad_modulos + 1)
             ],
@@ -111,7 +112,7 @@ class RutasDia10Tests(unittest.TestCase):
 
         usuario_origen = self._crear_usuario("origen@example.com")
         usuario_destino = self._crear_usuario("destino@example.com")
-        self._crear_perfil(
+        perfil_origen = self._crear_perfil(
             usuario_origen,
             categoria,
             "  Backend   Developer ",
@@ -123,7 +124,7 @@ class RutasDia10Tests(unittest.TestCase):
         )
         ruta_origen = _guardar_ruta_generada(
             self.db,
-            usuario_origen.id,
+            perfil_origen,
             _ruta_ia(),
         )
         self.db.commit()
@@ -178,11 +179,11 @@ class RutasDia10Tests(unittest.TestCase):
 
         usuario_origen = self._crear_usuario("origen-corto@example.com")
         usuario_destino = self._crear_usuario("destino-completo@example.com")
-        self._crear_perfil(usuario_origen, categoria, "Backend Developer")
+        perfil_origen = self._crear_perfil(usuario_origen, categoria, "Backend Developer")
         self._crear_perfil(usuario_destino, categoria, "Backend Developer")
         _guardar_ruta_generada(
             self.db,
-            usuario_origen.id,
+            perfil_origen,
             _ruta_ia("Ruta corta anterior", cantidad_modulos=3),
         )
         self.db.commit()
@@ -203,10 +204,10 @@ class RutasDia10Tests(unittest.TestCase):
         self.db.add(categoria)
         self.db.flush()
         usuario = self._crear_usuario("usuario@example.com")
-        self._crear_perfil(usuario, categoria, "Backend Developer")
+        perfil = self._crear_perfil(usuario, categoria, "Backend Developer")
         ruta_anterior = _guardar_ruta_generada(
             self.db,
-            usuario.id,
+            perfil,
             _ruta_ia("Ruta anterior"),
         )
         self.db.commit()

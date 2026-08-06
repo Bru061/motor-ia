@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, JSON
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -17,7 +17,10 @@ class RutaAprendizaje(Base):
     # Snapshot del perfil del usuario en el momento en que se generó/clonó esta ruta.
     # Nullable: rutas creadas antes de esta función no lo tienen.
     nivel_actual = Column(String(20), nullable=True)
-    tecnologias_nombres = Column(JSONB, nullable=True)
+    # JSON generico con variante JSONB en Postgres: en SQLite (tests) cae al
+    # tipo JSON estandar, porque JSONB es un tipo exclusivo de Postgres y no
+    # tiene equivalente compilable en otros dialectos.
+    tecnologias_nombres = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relaciones
