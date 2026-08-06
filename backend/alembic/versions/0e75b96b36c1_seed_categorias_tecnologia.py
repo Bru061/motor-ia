@@ -1,8 +1,9 @@
 """seed categorias tecnologia
 
-Revision ID: <el que Alembic generó>
-Revises: <el que Alembic puso automáticamente>
-Create Date: ...
+Revision ID: 0e75b96b36c1
+Revises: c1d9a4e6f732
+Create Date: 2026-08-06 10:25:25.095008
+
 """
 from typing import Sequence, Union
 import uuid
@@ -10,9 +11,10 @@ import uuid
 from alembic import op
 import sqlalchemy as sa
 
-# no toques esta parte, déjala como Alembic la generó
-revision: str = "<...>"
-down_revision: Union[str, None] = "<...>"
+
+# revision identifiers, used by Alembic.
+revision: str = '0e75b96b36c1'
+down_revision: Union[str, None] = 'c1d9a4e6f732'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
