@@ -1,7 +1,6 @@
 from pydantic_settings import BaseSettings, NoDecode
 from pydantic import field_validator
-from typing import List
-from typing_extensions import Annotated
+from typing import List, Annotated
 
 
 class Settings(BaseSettings):
