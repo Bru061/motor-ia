@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
-    def parse_allowed_origins(cls, v: str) -> List[str]:
+    def parse_origins(cls, v) -> List[str]:
         """Convierte string de origenes separados por coma en lista"""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
