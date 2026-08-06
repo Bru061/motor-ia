@@ -26,6 +26,16 @@ class RutaIAResponse(BaseModel):
 
     @model_validator(mode="after")
     def validar_ruta(self, info: ValidationInfo):
+        """Valida que la ruta generada por la IA sea estructuralmente correcta.
+
+        Verifica, en orden: claves y orden de modulo unicos; orden consecutivo
+        desde 1; cantidad de modulos dentro de [minimo_modulos, maximo_modulos]
+        (recibidos via ValidationInfo.context); dependencias sin duplicados,
+        sin auto-referencias y apuntando solo a claves existentes; que exista
+        al menos una dependencia si hay mas de un modulo; ausencia de ciclos
+        (DFS con recorrido_actual como pila de recursion); y que toda
+        dependencia apunte a un modulo con orden estrictamente anterior.
+        """
         claves = [m.clave for m in self.modulos]
         claves_set = set(claves)
         ordenes = [m.orden for m in self.modulos]

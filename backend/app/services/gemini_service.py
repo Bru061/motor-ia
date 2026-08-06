@@ -15,6 +15,8 @@ class GeminiServiceError(Exception):
 
 
 def crear_cliente_gemini():
+    """Crea el cliente de google-genai. Falla con un error propio si el
+    paquete no esta instalado, para no filtrar el ImportError crudo."""
     try:
         from google import genai
     except ImportError as exc:
@@ -24,6 +26,12 @@ def crear_cliente_gemini():
 
 
 def _obtener_tecnologias(perfil: PerfilUsuario) -> list[str]:
+    """Nombres de categoria de las tecnologias del perfil, sin duplicados.
+
+    Deduplica por id de categoria (o por nombre normalizado si no hay id)
+    porque un perfil puede tener varias PerfilTecnologia apuntando a la
+    misma categoria.
+    """
     tecnologias: list[str] = []
     categorias_vistas: set[str] = set()
 
@@ -45,6 +53,9 @@ def _obtener_tecnologias(perfil: PerfilUsuario) -> list[str]:
 
 
 def obtener_limites_modulos(cantidad_categorias: int) -> tuple[int, int]:
+    """Rango (minimo, maximo) de modulos que debe tener la ruta generada,
+    segun cuantas categorias de tecnologia eligio el usuario: mas categorias
+    implica mas modulos para cubrirlas todas de forma equilibrada."""
     if cantidad_categorias <= 1:
         return 6, 8
     if cantidad_categorias == 2:
@@ -53,6 +64,12 @@ def obtener_limites_modulos(cantidad_categorias: int) -> tuple[int, int]:
 
 
 def construir_prompt(perfil: PerfilUsuario) -> str:
+    """Arma el prompt en espanol que se envia a Gemini para generar la ruta.
+
+    Incluye el perfil del usuario, el formato JSON exacto esperado y las
+    reglas de negocio (rango de modulos, niveles, dependencias aciclicas,
+    etc.) que luego valida RutaIAResponse en generar_ruta_con_gemini().
+    """
     tecnologias = _obtener_tecnologias(perfil)
     tecnologias_texto = ", ".join(tecnologias) if tecnologias else "sin categorias"
     minimo_modulos, maximo_modulos = obtener_limites_modulos(len(tecnologias))
@@ -113,6 +130,14 @@ Reglas:
 
 
 def generar_ruta_con_gemini(perfil: PerfilUsuario) -> RutaIAResponse:
+    """Genera una ruta de aprendizaje con Gemini, reintentando si el JSON
+    devuelto es invalido o no cumple las reglas de RutaIAResponse.
+
+    Reintenta hasta MAX_INTENTOS_GENERACION veces; en cada reintento el
+    prompt se refuerza con un recordatorio explicito del error de la
+    respuesta anterior. Si se agotan los intentos, lanza GeminiServiceError
+    encadenando el ultimo error de validacion/parseo como causa.
+    """
     cliente = crear_cliente_gemini()
     tecnologias = _obtener_tecnologias(perfil)
     minimo_modulos, maximo_modulos = obtener_limites_modulos(len(tecnologias))

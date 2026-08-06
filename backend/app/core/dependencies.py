@@ -23,6 +23,10 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db: Session = Depends(get_db),
 ) -> Usuario:
+    """Dependencia de FastAPI: extrae y valida el JWT del header Authorization
+    y retorna el Usuario correspondiente, o lanza 401 en cualquier fallo
+    (sin token, token invalido/expirado, payload sin usuario_id, o usuario
+    que ya no existe en la base de datos)."""
     if credentials is None:
         raise _unauthorized("No autenticado")
 

@@ -126,6 +126,10 @@ def obtener_usuario(
     _: Usuario = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> AdminUsuarioDetalleResponse:
+    """Ficha administrativa completa de un usuario: perfil, tecnologias,
+    ruta activa con su progreso, ultima actividad e historial de rutas
+    archivadas (cada una con su propio porcentaje de avance calculado al
+    momento en que se archivo)."""
     usuario = (
         db.query(Usuario)
         .options(

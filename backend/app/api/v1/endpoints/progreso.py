@@ -33,6 +33,8 @@ def _obtener_ruta_activa(
     db: Session,
     usuario_id: UUID,
 ) -> RutaAprendizaje:
+    """Retorna la ruta activa mas reciente del usuario (con modulos, recursos
+    y dependencias precargados), o lanza 404 si no tiene ninguna."""
     ruta = (
         db.query(RutaAprendizaje)
         .options(
@@ -81,6 +83,9 @@ def _construir_ruta_con_progreso(
     ruta: RutaAprendizaje,
     usuario_id: UUID,
 ) -> RutaActivaConProgresoResponse:
+    """Arma la respuesta de la ruta activa combinando sus modulos/recursos
+    con el estado de progreso del usuario (modulos y recursos sin registro
+    de progreso se reportan como "pendiente")."""
     modulos = sorted(ruta.modulos, key=lambda modulo: modulo.orden)
     modulo_ids = [modulo.id for modulo in modulos]
     recurso_ids = [recurso.id for modulo in modulos for recurso in modulo.recursos]
@@ -276,6 +281,11 @@ def actualizar_progreso_recurso(
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    """Actualiza el progreso de un recurso y, si quedo completado, recalcula
+    en cascada el estado del modulo al que pertenece: el modulo pasa a
+    "completado" solo si TODOS sus recursos estan completados, o a
+    "en_progreso" en caso contrario (sin nunca degradar un modulo que ya
+    estaba "completado")."""
     ruta = _obtener_ruta_activa(db, current_user.id)
     recurso = (
         db.query(Recurso)

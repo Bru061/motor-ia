@@ -172,6 +172,14 @@ def _buscar_ruta_compatible_en_cache(
     db: Session,
     perfil: PerfilUsuario,
 ) -> RutaAprendizaje | None:
+    """Busca una ruta ya generada para otro usuario con perfil equivalente
+    (misma meta profesional normalizada, mismo nivel y mismas categorias de
+    tecnologia), para reutilizarla en vez de llamar a Gemini de nuevo.
+
+    Entre las rutas compatibles, retorna la mas reciente cuya cantidad de
+    modulos caiga dentro del rango esperado para la cantidad de categorias
+    del perfil (ver obtener_limites_modulos), o None si no hay ninguna.
+    """
     perfiles_candidatos = (
         db.query(PerfilUsuario)
         .options(joinedload(PerfilUsuario.tecnologias))
