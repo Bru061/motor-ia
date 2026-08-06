@@ -15,6 +15,7 @@ import EmptyState from "../../components/ui/EmptyState";
 import PageHeading from "../../components/ui/PageHeading";
 import PageLoader from "../../components/ui/PageLoader";
 import useToast from "../../hooks/useToast";
+import { getApiErrorMessage } from "../../utils/apiError";
 import AdminMetricCard from "../admin/components/AdminMetricCard";
 import AnalyticsBarChart from "./components/AnalyticsBarChart";
 import ColumnChart from "./components/ColumnChart";
@@ -75,9 +76,10 @@ function AdminAnaliticaPage() {
         }
       } catch (err) {
         if (!ignoreResults) {
-          const message =
-            err.response?.data?.detail ||
-            "No fue posible cargar la analítica administrativa.";
+          const message = getApiErrorMessage(
+            err,
+            "No fue posible cargar la analítica administrativa."
+          );
 
           setError(message);
           toast.error(message);

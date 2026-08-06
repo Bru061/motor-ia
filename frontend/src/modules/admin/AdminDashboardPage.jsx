@@ -18,6 +18,7 @@ import LoadingButton from "../../components/ui/LoadingButton";
 import PageHeading from "../../components/ui/PageHeading";
 import PageLoader from "../../components/ui/PageLoader";
 import useToast from "../../hooks/useToast";
+import { getApiErrorMessage } from "../../utils/apiError";
 import ProgressDonut from "../progreso/components/ProgressDonut";
 import AdminMetricCard from "./components/AdminMetricCard";
 import ColumnChart from "../analitica/components/ColumnChart";
@@ -91,11 +92,10 @@ function AdminDashboardPage() {
         }
       } catch (err) {
         if (!ignoreResults) {
-          const detail = err.response?.data?.detail;
-          const message =
-            typeof detail === "string"
-              ? detail
-              : "No fue posible cargar el dashboard administrativo.";
+          const message = getApiErrorMessage(
+            err,
+            "No fue posible cargar el dashboard administrativo."
+          );
 
           setError(message);
           toast.error(message);

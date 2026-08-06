@@ -16,6 +16,7 @@ import EmptyState from "../../components/ui/EmptyState";
 import PageHeading from "../../components/ui/PageHeading";
 import PageLoader from "../../components/ui/PageLoader";
 import useToast from "../../hooks/useToast";
+import { getApiErrorMessage } from "../../utils/apiError";
 import { formatDate, getInitials } from "../../utils/formatters";
 import RoadmapFlow from "../rutas/components/RoadmapFlow";
 import "../../styles/ruta.css";
@@ -81,9 +82,10 @@ function AdminUsuarioDetallePage() {
         }
       } catch (err) {
         if (!ignoreResults) {
-          const message =
-            err.response?.data?.detail ||
-            "No fue posible cargar el detalle del usuario.";
+          const message = getApiErrorMessage(
+            err,
+            "No fue posible cargar el detalle del usuario."
+          );
 
           setError(message);
           toast.error(message);

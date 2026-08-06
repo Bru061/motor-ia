@@ -6,6 +6,7 @@ import LoadingButton from "../../components/ui/LoadingButton";
 import useAuth from "../../hooks/useAuth";
 import useTheme from "../../hooks/useTheme";
 import useToast from "../../hooks/useToast";
+import { getApiErrorMessage } from "../../utils/apiError";
 import "../../styles/Auth.css";
 
 function LoginPage() {
@@ -48,9 +49,10 @@ function LoginPage() {
       toast.success("Sesión iniciada correctamente.");
       redirectByRole(data.rol || data.role);
     } catch (err) {
-      const message =
-        err.response?.data?.detail ||
-        "No fue posible iniciar sesión con Google.";
+      const message = getApiErrorMessage(
+        err,
+        "No fue posible iniciar sesión con Google."
+      );
 
       setError(message);
       toast.error(message);
@@ -77,9 +79,10 @@ function LoginPage() {
       toast.success("Sesión iniciada correctamente.");
       redirectByRole(data.rol || data.role);
     } catch (err) {
-      const message =
-        err.response?.data?.detail ||
-        "No fue posible iniciar sesión. Verifica tus credenciales.";
+      const message = getApiErrorMessage(
+        err,
+        "No fue posible iniciar sesión. Verifica tus credenciales."
+      );
 
       setError(message);
       toast.error(message);

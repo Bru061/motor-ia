@@ -6,6 +6,7 @@ import LoadingButton from "../../components/ui/LoadingButton";
 import useAuth from "../../hooks/useAuth";
 import useTheme from "../../hooks/useTheme";
 import useToast from "../../hooks/useToast";
+import { getApiErrorMessage } from "../../utils/apiError";
 import "../../styles/Auth.css";
 
 function RegisterPage() {
@@ -47,9 +48,10 @@ function RegisterPage() {
         navigate("/dashboard", { replace: true });
       }
     } catch (err) {
-      const message =
-        err.response?.data?.detail ||
-        "No fue posible registrarte con Google.";
+      const message = getApiErrorMessage(
+        err,
+        "No fue posible registrarte con Google."
+      );
 
       setError(message);
       toast.error(message);
@@ -97,9 +99,10 @@ function RegisterPage() {
         navigate("/dashboard", { replace: true });
       }
     } catch (err) {
-      const message =
-        err.response?.data?.detail ||
-        "No fue posible crear la cuenta. Intenta nuevamente.";
+      const message = getApiErrorMessage(
+        err,
+        "No fue posible crear la cuenta. Intenta nuevamente."
+      );
 
       setError(message);
       toast.error(message);

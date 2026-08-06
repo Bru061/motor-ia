@@ -4,6 +4,7 @@ import FloatingInput from "../../components/ui/FloatingInput";
 import LoadingButton from "../../components/ui/LoadingButton";
 import useAuth from "../../hooks/useAuth";
 import useToast from "../../hooks/useToast";
+import { getApiErrorMessage } from "../../utils/apiError";
 import "../../styles/Auth.css";
 
 function ResetPasswordPage() {
@@ -63,9 +64,10 @@ function ResetPasswordPage() {
       toast.success("Contraseña actualizada. Sesión iniciada.");
       redirectByRole(data.rol || data.role);
     } catch (err) {
-      const message =
-        err.response?.data?.detail ||
-        "El enlace es inválido o expiró. Solicita uno nuevo.";
+      const message = getApiErrorMessage(
+        err,
+        "El enlace es inválido o expiró. Solicita uno nuevo."
+      );
 
       setError(message);
       toast.error(message);

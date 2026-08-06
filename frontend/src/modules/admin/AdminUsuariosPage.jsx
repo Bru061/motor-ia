@@ -7,6 +7,7 @@ import PageHeading from "../../components/ui/PageHeading";
 import PageLoader from "../../components/ui/PageLoader";
 import SelectDropdown from "../../components/ui/SelectDropdown";
 import useToast from "../../hooks/useToast";
+import { getApiErrorMessage } from "../../utils/apiError";
 import AdminPagination from "./components/AdminPagination";
 import AdminUsersTable from "./components/AdminUsersTable";
 
@@ -73,9 +74,10 @@ function AdminUsuariosPage() {
         }
       } catch (err) {
         if (!ignoreResults) {
-          const message =
-            err.response?.data?.detail ||
-            "No fue posible cargar los usuarios registrados.";
+          const message = getApiErrorMessage(
+            err,
+            "No fue posible cargar los usuarios registrados."
+          );
 
           setError(message);
           toast.error(message);
